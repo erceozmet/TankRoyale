@@ -23,7 +23,7 @@ export default Arena({
          * Bind your custom express routes here:
          */
         app.get("/", (req, res) => {
-            res.send("It's time to kick ass and chew bubblegum!");
+            res.send("Tank Royale Backend Server");
         });
 
         /**
@@ -39,5 +39,6 @@ export default Arena({
         /**
          * Before before gameServer.listen() is called.
          */
+    
     }
 });
