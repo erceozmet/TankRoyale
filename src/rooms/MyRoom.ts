@@ -6,10 +6,9 @@ export class MyRoom extends Room<MyRoomState> {
   onCreate (options: any) {
     this.setState(new MyRoomState());
 
-    this.onMessage("type", (client, message) => {
-      //
-      // handle "type" message
-      //
+    this.onMessage("button", (client, button) => {
+      console.log("MyRoom received button from", client.sessionId, ":", button);
+      this.broadcast("buttons", `(${client.sessionId}) ${button}`);
     });
 
   }
