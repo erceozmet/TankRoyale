@@ -1,6 +1,6 @@
 import Arena from "@colyseus/arena";
 import { monitor } from "@colyseus/monitor";
-
+import path from "path";
 /**
  * Import your Room files
  */
@@ -24,6 +24,9 @@ export default Arena({
             res.send("Connected to backend server");
         });
 
+        app.use("/client", (req, res) =>{
+            res.sendFile(path.join(__dirname, '/static/game.html'))
+        })
         /**
          * Bind @colyseus/monitor
          * It is recommended to protect this route with a password.
