@@ -13,7 +13,11 @@ export default Arena({
         /**
          * Define your room handlers:
          */
-        gameServer.define('my_room', MyRoom);
+        gameServer.define('battle', MyRoom)
+        .on("create", (room) => console.log("room created:", room.roomId))
+        .on("dispose", (room) => console.log("room disposed:", room.roomId))
+        .on("join", (room, client) => console.log(client.id, "joined", room.roomId))
+        .on("leave", (room, client) => console.log(client.id, "left", room.roomId));;
     },
 
     initializeExpress: (app) => {
