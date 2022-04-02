@@ -15,12 +15,17 @@ export class MyRoom extends Room<MyRoomState> {
 
 
   onJoin (client: Client, options: any) {
+    this.state.client_addresses.push(client.sessionId)
     console.log(client.sessionId, "joined!");
-
   }
 
   onLeave (client: Client, consented: boolean) {
-    console.log(client.sessionId, "left!");
+    for (let i = 0; i < this.state.client_addresses.length; i++){
+      if (this.state.client_addresses[i] == client.sessionId){
+        this.state.client_addresses.splice(i, 1)
+        console.log(client.sessionId, "left!");
+      }
+    }
   }
 
   onDispose() {

@@ -22,15 +22,18 @@
       console.log(window.document.location.host);
 
       var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':'+location.port : ''));
-      client.joinOrCreate("my_room").then(room => {
+      client.joinOrCreate("battle_room").then(room => {
         console.log("joined");
         room.onStateChange.once(function(state) {
             console.log("initial room state:", state);
+            // document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
         });
 
         // new room state
         room.onStateChange(function(state) {
-            console.log("statechange");
+            console.log("statechange: ", state);
+
+            // document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
             // this signal is triggered on each patch
         });
 
@@ -41,6 +44,10 @@
             document.querySelector("#buttons").appendChild(p);
         });
 
+        room.onError((code, message) => {
+          console.log("oops, error ocurred:");
+          console.log(message);
+        })
         // send message to room on submit
         document.onkeypress = function(e) {
             e.preventDefault();
