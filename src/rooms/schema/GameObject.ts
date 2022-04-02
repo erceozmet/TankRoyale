@@ -1,8 +1,10 @@
 import { Schema, Context, type } from "@colyseus/schema";
 
-
 export class GameObject extends Schema {
-    @type("number") object_id: number;
-    @type(["number", "number"]) size: [number, number];
+    constructor(object_id: string){
+        super();
+        this.object_id = object_id;
+    }
+    @type("string") object_id: string;
 }   
 

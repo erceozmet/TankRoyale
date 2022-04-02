@@ -29,13 +29,28 @@
             // document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
         });
 
+        room.state.client_addresses.onAdd = (client, key) => {
+          console.log(client, "has been added at", key);
+        };
+        room.state.client_addresses.onRemove = (client, key) => {
+          console.log(client, "has been removed at", key);
+        };
+
+        // room.state.map.game_object_locs.onAdd = (obj, key) => {
+        //   console.log(obj, "has been added at")
+        // };
+
+        // room.state.map.game_object_locs.onRemove = (obj, key) => {
+        //   console.log(obj, "has been removed at")
+        // };
         // new room state
         room.onStateChange(function(state) {
-            console.log("statechange: ", state);
 
             // document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
             // this signal is triggered on each patch
         });
+
+
 
         // listen to patches coming from the server
         room.onMessage("buttons", function(message) {
