@@ -36,6 +36,7 @@
           console.log(client, "has been removed at", key);
         };
 
+
         // room.state.map.game_object_locs.onAdd = (obj, key) => {
         //   console.log(obj, "has been added at")
         // };
@@ -45,7 +46,7 @@
         // };
         // new room state
         room.onStateChange(function(state) {
-
+          
             // document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
             // this signal is triggered on each patch
         });
