@@ -15,7 +15,7 @@ class Tiles<T> extends ArraySchema<T> {
         this.width = 100;
         this.height = 100;
     };
-    
+
     checkRange(i: number, j: number) {
         if (i < 0 && i >= this.width && j < 0 && j >= this.height)
             throw RangeError();
@@ -36,5 +36,5 @@ class Tiles<T> extends ArraySchema<T> {
 export class Map extends Schema {
 
     @type({ map: Location }) game_object_locs = new MapSchema<Location>();
-    @type([ GameObject ]) tiles = new Tiles<GameObject>();
+    @type([GameObject]) tiles = new Tiles<GameObject>();
 }

@@ -4,29 +4,43 @@
     <meta name="viewport" content="width=device-width" />
 
     <style>
-      body { font-family: Tahoma, Geneva, sans-serif; }
+      body {
+        font-family: Tahoma, Geneva, sans-serif;
+      }
     </style>
 
     <!-- colyseus.js client -->
-    <script type="text/javascript" src="https://unpkg.com/colyseus.js@^0.14.0/dist/colyseus.js"></script>
-
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/colyseus.js@^0.14.0/dist/colyseus.js"
+    ></script>
   </head>
-  <body>
-    <p>Press W, A, S, D, or the spacebar. The server will send you back which button you pressed.</p>
 
-    <strong>Pressed Buttons</strong><br>
+  <body>
+    <p>
+      Press W, A, S, D, or the spacebar. The server will send you back which
+      button you pressed.
+    </p>
+
+
+    <strong>Pressed Buttons</strong><br />
     <div id="buttons"></div>
 
     <script>
-      var host = window.document.location.host.replace(/:.*/, '');
+      var host = window.document.location.host.replace(/:.*/, "");
       console.log(window.document.location.host);
 
-      var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':'+location.port : ''));
-      client.joinOrCreate("battle_room").then(room => {
+      var client = new Colyseus.Client(
+        location.protocol.replace("http", "ws") +
+          "//" +
+          host +
+          (location.port ? ":" + location.port : "")
+      );
+      client.joinOrCreate("battle_room").then((room) => {
         console.log("joined");
-        room.onStateChange.once(function(state) {
-            console.log("initial room state:", state);
-            // document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
+        room.onStateChange.once(function (state) {
+          console.log("initial room state:", state);
+          // document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
         });
 
         room.state.client_addresses.onAdd = (client, key) => {
@@ -36,7 +50,6 @@
           console.log(client, "has been removed at", key);
         };
 
-
         // room.state.map.game_object_locs.onAdd = (obj, key) => {
         //   console.log(obj, "has been added at")
         // };
@@ -45,36 +58,32 @@
         //   console.log(obj, "has been removed at")
         // };
         // new room state
-        room.onStateChange(function(state) {
-          
-            // document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
-            // this signal is triggered on each patch
+        room.onStateChange(function (state) {
+          // document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
+          // this signal is triggered on each patch
         });
 
-
-
         // listen to patches coming from the server
-        room.onMessage("buttons", function(message) {
-            var p = document.createElement("p");
-            p.innerText = message;
-            document.querySelector("#buttons").appendChild(p);
+        room.onMessage("buttons", function (message) {
+          var p = document.createElement("p");
+          p.innerText = message;
+          document.querySelector("#buttons").appendChild(p);
         });
 
         room.onError((code, message) => {
           console.log("oops, error ocurred:");
           console.log(message);
-        })
+        });
         // send message to room on submit
-        document.onkeypress = function(e) {
-            e.preventDefault();
+        document.onkeypress = function (e) {
+          e.preventDefault();
 
-            console.log("button:", e.code);
+          console.log("button:", e.code);
 
-            // send data to room
-            room.send("button", e.code);
-        }
+          // send data to room
+          room.send("button", e.code);
+        };
       });
-
     </script>
   </body>
 </html>
