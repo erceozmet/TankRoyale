@@ -9,12 +9,12 @@ export class MyRoom extends Room<MyRoomState> {
     // player_locations= [] //ToDo, add fix player locations
     
     initializeMap(map: GameMap) {
+        // drop 3 of each special weapon on random coordinates
         let count = 3;
         for (let i = 0; i < count; i++) {
             let weapons = [new SniperWeapon(), new MachinegunWeapon(), new ShotgunWeapon()];
             weapons.forEach(function (weapon) {
-                let x;
-                let y;
+                let x, y;
                 do {
                     x = Math.random()*100;
                     y = Math.random()*100;
