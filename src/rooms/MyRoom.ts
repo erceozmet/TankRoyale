@@ -1,32 +1,37 @@
 import { Room, Client } from "colyseus";
-import { ArraySchema } from "@colyseus/schema";
 import { MyRoomState } from "./schema/MyRoomState";
-import { Map } from "./schema/Map";
-import { Loot } from "./schema/Loot";
-import { GameObject } from "./schema/GameObject";
+import { GameMap } from "./schema/GameMap";
+import { Tank } from "./schema/Tank";
+import { PistolWeapon, SniperWeapon, MachinegunWeapon, ShotgunWeapon } from "./schema/Weapon";
 
 export class MyRoom extends Room<MyRoomState> {
-    uniqueId: number;
-
-
+    client_to_tank = new Map();
+    // player_locations= [] //ToDo, add fix player locations
     
-    initializeMap(map: Map) {
-        this.uniqueId = 0;
+    initializeMap(map: GameMap) {
+        let count = 3;
+        for (let i = 0; i < count; i++) {
+            let weapons = [new SniperWeapon(), new MachinegunWeapon(), new ShotgunWeapon()];
+            weapons.forEach(function (weapon) {
+                let x;
+                let y;
+                do {
+                    x = Math.random()*100;
+                    y = Math.random()*100;
+                } while (!map.isTileEmpty(x, y));
 
-        let loot1 = new Loot(this.uniqueId.toString(), 1, 1, 1, 1);
-
-        map.tiles.set(0, 10, loot1);
-  
-        // map.game_object_locs.set(loot1.object_id, loot1);
+                map.put(x, y, weapon);              
+            });
+        }
     }
-
+    
     onCreate (options: any) {
         this.setState(new MyRoomState());
-      
         this.initializeMap(this.state.map);
+
+
         this.onMessage("button", (client, button) => {
             console.log("MyRoom received button from", client.sessionId, ":", button);
-    
             this.broadcast("buttons", `(${client.sessionId}) ${button}`);
         });
     }
@@ -34,17 +39,22 @@ export class MyRoom extends Room<MyRoomState> {
 
 
     onJoin (client: Client, options: any) {
-        this.state.client_addresses.push(client.sessionId)
+        let x = 5;
+        let y = 5;
+        let tank = new Tank(1);
+        let tank_id = this.state.map.put(x, y, tank);
+
+        this.client_to_tank.set(client.sessionId, tank_id);
         console.log(client.sessionId, "added to client addresses");
     }
 
     onLeave (client: Client, consented: boolean) {
-        for (let i = 0; i < this.state.client_addresses.length; i++){
-            if (this.state.client_addresses[i] == client.sessionId){
-                this.state.client_addresses.splice(i, 1)
-                console.log(client.sessionId, "removed from client addresses");
-            }
-        }
+        // for (let i = 0; i < this.state.client_addresses.length; i++){
+        //     if (this.state.client_addresses[i] == client.sessionId){
+        //         this.state.client_addresses.splice(i, 1)
+        //         console.log(client.sessionId, "removed from client addresses");
+        //     }
+        // }
     }
 
     onDispose() {

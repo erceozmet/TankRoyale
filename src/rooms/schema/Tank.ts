@@ -1,10 +1,16 @@
-import { Schema, ArraySchema, Context, type } from "@colyseus/schema";
+import { type } from "@colyseus/schema";
 import { GameObject } from "./GameObject";
+import { PistolWeapon, Weapon } from "./Weapon";
+
 export class Tank extends GameObject {
-    @type("number") health_count: number;
+    constructor(direction: number) {
+        super("images/tank.png");
+        this.health = 100;
+        this.weapon = new PistolWeapon();
+        this.direction = direction;
+    }
+    
+    @type("number") health: number;
     @type("number") direction: number;
-    @type("number") gun_damage: number;
-    @type("number") gun_fire_rate: number;
-    @type("number") gun_range: number;
-    @type("number") gun_speed: number;
+    @type(Weapon) weapon: Weapon;
 }

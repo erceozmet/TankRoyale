@@ -1,10 +1,11 @@
 import { Schema, Context, type } from "@colyseus/schema";
 
 export class GameObject extends Schema {
-    constructor(object_id: string){
+    constructor (imagePath: string) {
         super();
-        this.object_id = object_id;
+        this.imagePath = imagePath;
     }
-    @type("string") object_id: string;
+    @type("string") id: string;
+    @type("string") imagePath: string;
 }   
 
