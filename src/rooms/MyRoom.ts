@@ -2,7 +2,7 @@ import { Room, Client } from "colyseus";
 import { MyRoomState } from "./schema/MyRoomState";
 import { GameMap } from "./schema/GameMap";
 import { Tank } from "./schema/Tank";
-import { PistolWeapon, SniperWeapon, MachinegunWeapon, ShotgunWeapon } from "./schema/Weapon";
+import { SniperWeapon, MachinegunWeapon, ShotgunWeapon } from "./schema/Weapon";
 
 export class MyRoom extends Room<MyRoomState> {
     client_to_tank = new Map();
@@ -16,11 +16,11 @@ export class MyRoom extends Room<MyRoomState> {
             weapons.forEach(function (weapon) {
                 let x, y;
                 do {
-                    x = Math.random()*100;
-                    y = Math.random()*100;
+                    x = Math.random() * 100;
+                    y = Math.random() * 100;
                 } while (!map.isTileEmpty(x, y));
 
-                map.put(x, y, weapon);              
+                map.put(x, y, weapon);
             });
         }
     }

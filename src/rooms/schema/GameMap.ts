@@ -1,7 +1,7 @@
 import { Schema, MapSchema, ArraySchema, type } from "@colyseus/schema";
 import { GameObject } from "./GameObject";
 
-export class Location extends Schema {
+class Location extends Schema {
     x: number;
     y: number;
 
@@ -45,22 +45,25 @@ export class GameMap extends Schema {
     @type({ map: Location }) locations = new MapSchema<Location>();
     @type([ GameObject ]) tiles = new Tiles<GameObject>();
 
-    getUniqueId(): string {
-        this.uniqueId++;
-        return this.uniqueId.toString();
-    }
-
-    get_by_id(id: string): GameObject {
+    get(id: string): GameObject {
         let loc = this.locations.get(id);
         return this.tiles.get(loc.x, loc.y);
     }
 
-    get_by_loc(x: number, y: number): GameObject {
+    at(x: number, y: number): GameObject {
         return this.tiles.get(x, y);
+    }
+
+    getX(id: string): number {
+        return this.locations.get(id).x;
+    }
+
+    getY(id: string): number {
+        return this.locations.get(id).y;
     }
     
     put(x: number, y: number, obj: GameObject): string {
-        obj.id = this.getUniqueId();
+        obj.id = (this.uniqueId++).toString();
         this.tiles.set(x, y, obj);
         this.locations.set(obj.id, new Location(x, y));
         return obj.id;
