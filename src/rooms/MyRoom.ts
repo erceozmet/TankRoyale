@@ -31,16 +31,19 @@ export class MyRoom extends Room<MyRoomState> {
     }
     
     onCreate (options: any) {
+
+
         this.setState(new MyRoomState());
+        this.maxClients = this.state.player_size;
         this.initializeMap(this.state.map);
-        this.state.player_count = 0
+        this.state.player_count = 0;
 
         this.onMessage("button", (client, button) => {
             console.log("MyRoom received button from", client.sessionId, ":", button);
             this.broadcast("buttons", `(${client.sessionId}) ${button}`);
         });
 
-        
+
     }
 
 
