@@ -8,21 +8,85 @@
 		body {
 			font-family: Tahoma, Geneva, sans-serif;
 		}
+		#gamebox {
+			height: 360px; width: 640px; background-color: white;
+			border-style: solid; border-width: 5px; position: relative;
+			
+		}
+
+		#vbar {
+			height: 360px; width: 3px; 
+			background-color: red; position: absolute;
+			
+		}
+		#hbar {
+			height: 3px; width: 640px; 
+			background-color: red; position: absolute;
+			
+		}
 	</style>
 
 	<!-- colyseus.js client -->
 	<script type="text/javascript" src="https://unpkg.com/colyseus.js@^0.14.0/dist/colyseus.js"></script>
+	<script src="https://pixijs.download/release/pixi.min.js"></script>
 
 
 </head>
 
 <body>
+	<div id="gamebox"></div>
 	<p>Press W, A, S, D, or the spacebar. The server will send you back which button you pressed.</p>
 
 	<strong>Pressed Buttons</strong><br>
 	<div id="buttons"></div>
 
 	<script>
+		// pixi decls
+		const screen_dims = {width: 640, height: 360};
+		const gamebox = document.getElementById("gamebox");
+		// pixi initialization
+		let app = new PIXI.Application({ width: screen_dims.width, height: screen_dims.height, backgroundColor: 0xffffff });
+		gamebox.appendChild(app.view);
+
+		// game map decls
+		const tile_dims = {width: 20, height: 20};
+
+		for (let i = 1; i < tile_dims.width; i++) {
+			g = document.createElement('div');
+			g.setAttribute("id", "vbar");
+			let left = screen_dims.width / tile_dims.width * i;
+			g.style.left = left.toString() + "px";
+			g.style.top = "0px";
+			document.getElementById("gamebox").appendChild(g);  
+		}
+		for (let j = 1; j < tile_dims.height; j++) {
+			g = document.createElement('div');
+			g.setAttribute("id", "hbar");
+			let top = screen_dims.height / tile_dims.height * j;
+			g.style.top = top.toString() + "px";
+			g.style.left = "0px";
+			document.getElementById("gamebox").appendChild(g);  
+		}
+
+		var tiles = new Array(tile_dims.height * tile_dims.width);
+
+		function render_sprite(tile_dims, gameobj, key) {
+			console.log("path", gameobj.imagePath);
+			let sprite = PIXI.Sprite.from(gameobj.imagePath); 
+			let j = Math.floor(key / tile_dims.width); // TODO use function
+			let i = key % tile_dims.width;
+			console.log("i: "+ i + "-- j: " + j);
+			sprite.y = screen_dims.height / tile_dims.width * j;
+			sprite.x = screen_dims.width / tile_dims.width * i;
+
+			console.log("x: "+ sprite.x + "-- y: " +sprite.y);
+			sprite.height = screen_dims.height / tile_dims.width;
+			sprite.width = screen_dims.width / tile_dims.width;
+			app.stage.addChild(sprite);
+
+		}
+
+
 		var host = window.document.location.host.replace(/:.*/, '');
 		console.log(window.document.location.host);
 
@@ -36,15 +100,17 @@
 			 
 			room.state.map.listen("tiles", (currentValue, previousValue) => {
     			console.log("current is now", currentValue);
-				currentValue.onAdd = (tile, key) => {
-					console.log(tile, "has been added at", key);
+				currentValue.onAdd = (gameobj, key) => {
+					tiles[key] = gameobj;
+					render_sprite(tile_dims, gameobj, key);
+					console.log(gameobj, "has been added at", key);
 				};
-				currentValue.onChange = (loot, key) => {
-					console.log(loot, "has been changed at", key);
+				currentValue.onChange = (gameobj, key) => {
+					console.log(gameobj, "has been changed at", key);
 				};
 
-				currentValue.onRemove = (loot, key) => {
-					console.log(loot, "has been removed at: ", key)
+				currentValue.onRemove = (gameobj, key) => {
+					console.log(gameobj, "has been removed at: ", key)
 				}
 			});
 
@@ -55,17 +121,17 @@
 
 
 
-			room.state.map.onChange = (changes) => {
-				changes.forEach(change => {
-					if (change.field == "tiles") {
+			// room.state.map.onChange = (changes) => {
+			// 	changes.forEach(change => {
+			// 		if (change.field == "tiles") {
 						
-					}
-					console.log("changes:");
-					console.log(change.field);
-					console.log(change.value);
-					console.log(change.previousValue);
-				});
-			};
+			// 		}
+			// 		console.log("changes:");
+			// 		console.log(change.field);
+			// 		console.log(change.value);
+			// 		console.log(change.previousValue);
+			// 	});
+			// };
 
 			// room.state.map.game_object_locs.onAdd = (obj, key) => {
 			//   console.log(obj, "has been added at")
