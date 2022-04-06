@@ -3,11 +3,15 @@ import { GameObject } from "./GameObject";
 
 export class Weapon extends GameObject {
     constructor (damage: number, fire_rate: number, range: number, speed: number) {
-        super("images/weapon.png");
+        super("images/weapon.png", 1, 1);
         this.damage = damage;
         this.fire_rate = fire_rate;
         this.range = range;
         this.speed = speed;
+    }
+
+    getType(): string {
+        return "weapon";
     }
 
     @type("number") damage: number;

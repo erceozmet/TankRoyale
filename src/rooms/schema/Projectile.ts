@@ -7,4 +7,8 @@ export class Projectile extends GameObject {
     @type("number") range_left: number;
     @type("number") tank_id: number;
     @type("number") direction: number;
+
+    getType(): string {
+        return "projectile";
+    }
 }
