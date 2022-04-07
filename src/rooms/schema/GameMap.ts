@@ -10,8 +10,8 @@ class Location extends Schema {
 
     constructor(col: number, row: number) {
         super();
-        this.col = row;
-        this.col = row;
+        this.col = col;
+        this.row = row;
     }
 }
 
@@ -26,25 +26,25 @@ class Tiles<T> extends ArraySchema<T> {
     }
 
     checkRange(col: number, row: number): boolean {
-        return i >= 0 && i < this.width && j >= 0 && j < this.height;
+        return col >= 0 && col < this.width && row >= 0 && row < this.height;
     }
 
-    get(i: number, j: number): T {
-        if (this.checkRange(i, j)) {
-            return this[i + this.width * j];
+    get(col: number, row: number): T {
+        if (this.checkRange(col, row)) {
+            return this[col + this.width * row];
         } else {
             return null;
         }
     }
 
-    set(i: number, j: number, obj: T) {
-        if (this.checkRange(i, j)) {
-            this[i + this.width * j] = obj;
+    set(col: number, row: number, obj: T) {
+        if (this.checkRange(col, row)) {
+            this[col + this.width * row] = obj;
         }
     }
 
-    remove(i: number, j: number) {
-        this.splice(i + this.width * j);
+    remove(col: number, row: number) {
+        this.splice(col + this.width * row);
     }
 }
 
@@ -57,78 +57,90 @@ export class GameMap extends Schema {
     tiles: Tiles<GameObject> = new Tiles<GameObject>(this.width, this.height);
     @type({ map: GameObject }) synced_tiles = new MapSchema<GameObject>();
 
-    to1D(x: number, y: number): string {
-        return (x + this.width * y).toString();
+    to1D(col: number, row: number): string {
+        return (col + this.width * row).toString();
     }
 
     get(id: string): GameObject {
         let loc = this.locations.get(id);
-        return this.tiles.get(loc.x, loc.y);
+        return this.tiles.get(loc.col, loc.row);
     }
 
-    canPlace(x: number, y: number, obj: GameObject): boolean {
+    canPlace(col: number, row: number, obj: GameObject): boolean {
         return (
-            this.tiles.checkRange(x, y) &&
-            this.tiles.checkRange(x + obj.width, y + obj.height)
+            this.tiles.checkRange(col, row) &&
+            this.tiles.checkRange(col + obj.width, row + obj.height)
         );
     }
 
-    put(obj: GameObject, x: number, y: number): string {
+    put(obj: GameObject, col: number, row: number): string {
         obj.id = (this.uniqueId++).toString();
 
         for (let i = 0; i < obj.height; i++) {
             for (let j = 0; j < obj.width; j++) {
-                if (this.tiles.get(x + i, y + j) != null) {
-                    throw Error(`Tried to place object: ${obj.id}, but there is already an object: ${this.tiles.get(x + i, y + j)} at: ${x}, ${y}`);
+                if (this.tiles.get(col + i, row + j) != null) {
+                    throw Error(`Tried to place object: ${obj.id}, but there is already an object: ${this.tiles.get(col + i, row + j)} at: ${col}, ${row}`);
                 }
-                this.tiles.set(x + i, y + j, obj);
+                this.tiles.set(col + i, row + j, obj);
             }
         }
-        this.synced_tiles.set(this.to1D(x, y), obj);
-        this.locations.set(obj.id, new Location(x, y));
+        this.synced_tiles.set(this.to1D(col, row), obj);
+        this.locations.set(obj.id, new Location(col, row));
         return obj.id;
     }
 
     moveTank(id: string, right: number, up: number): boolean {
         let loc = this.locations.get(id);
-        let obj = this.tiles.get(loc.x, loc.y) as Tank;
+        let obj = this.tiles.get(loc.col, loc.row) as Tank;
 
-        return this.setLoc(obj, loc.x, loc.y, loc.x + right, loc.y + up);
+        return this.setLoc(obj, loc.col, loc.row, loc.col + right, loc.row + up);
     }
 
-    setLoc(tank: Tank, old_x: number, old_y: number, x: number, y: number): boolean {
-        if (!this.canPlace(x, y, tank)) return false;
+    setLoc(tank: Tank, old_col: number, old_row: number, col: number, row: number): boolean {
+        if (!this.canPlace(col, row, tank)) return false;
 
-        for (let i = 0; i < tank.height; i++) {
-            for (let j = 0; j < tank.width; j++) {
-                let prev_obj = this.tiles.get(x + i, y + j);
+        for (let i = 0; i < tank.width; i++) {
+            for (let j = 0; j < tank.height; j++) {
+                let prev_obj = this.tiles.get(col + i, row + j);
                 if (prev_obj == null) continue;
                 if (prev_obj.getType() == "weapon") {
                     tank.weapon = prev_obj as Weapon;
-                    this.tiles.remove(x + i, y + j);
+                    this.tiles.remove(col + i, row + j);
                 } else if (prev_obj.getType() == "tank" && prev_obj != tank) {
                     return false;
                 }
             }
         }
+        /*
+        tank=5
 
-        for (let i = 0; i < tank.height; i++) {
-            for (let j = 0; j < tank.width; j++) {
-                this.tiles.remove(old_x + i, old_y + j);
+        x=20, y=20
+        x=20, y=21
+
+        to_check=(20,25) (21,25) (22,25) (23,25) (24,25)
+        to_null =(20,20) (21,20) (22,20) (23,20) (24,20)
+        to_fill =(20,25) (21,25) (22,25) (23,25) (24,25)
+
+
+        */
+
+        for (let i = 0; i < tank.width; i++) {
+            for (let j = 0; j < tank.height; j++) {
+                this.tiles.remove(old_col + i, old_row + j);
             }
         }
 
-        for (let i = 0; i < tank.height; i++) {
-            for (let j = 0; j < tank.width; j++) {
-                this.tiles.set(x + i, y + j, tank);
+        for (let i = 0; i < tank.width; i++) {
+            for (let j = 0; j < tank.height; j++) {
+                this.tiles.set(col + i, row + j, tank);
             }
         }
 
-        this.synced_tiles.delete(this.to1D(old_x, old_y));
-        this.synced_tiles.set(this.to1D(x, y), tank);
+        this.synced_tiles.delete(this.to1D(old_col, old_row));
+        this.synced_tiles.set(this.to1D(col, row), tank);
         let loc = this.locations.get(tank.id);
-        loc.x = x;
-        loc.y = y;
+        loc.col = col;
+        loc.row = row;
         return true;
     }
 }

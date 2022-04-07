@@ -11,23 +11,8 @@ let app = new PIXI.Application({width : client_state.screen_dims.width,
 gamebox.appendChild(app.view);
 
 
-// var tiles = new Array(tile_dims.height * tile_dims.width);
 
-function render_sprite(tile_dims, gameobj, key) {
-    // console.log("path", gameobj.imagePath);
-    let sprite = PIXI.Sprite.from(gameobj.imagePath); 
-    let j = Math.floor(key / tile_dims.width); // TODO use function
-    let i = key % tile_dims.width;
-    // console.log("i: "+ i + "-- j: " + j);
-    sprite.y = screen_dims.height / tile_dims.width * j;
-    sprite.x = screen_dims.width / tile_dims.width * i;
 
-    // console.log("x: "+ sprite.x + "-- y: " +sprite.y);
-    sprite.height = screen_dims.height / tile_dims.width;
-    sprite.width = screen_dims.width / tile_dims.width;
-    app.stage.addChild(sprite);
-
-}
 
 
 var host = window.document.location.host.replace(/:.*/, '');
@@ -52,6 +37,8 @@ client.joinOrCreate("battle_room").then(room => {
             let sprite = client_state.add_gameobj(gameobj, key);
             app.stage.addChild(sprite);
             
+            
+            
             // let x = key % room.state.map.width;
             // let y = Math.floor(key / room.state.map.width);
             // console.log("x:" ,room.state.map.width);
@@ -69,6 +56,8 @@ client.joinOrCreate("battle_room").then(room => {
 
         currentValue.onRemove = (gameobj, key) => {
             let index = client_state.get_index_from_key(key);
+            let sprite = client_state.remove_gameobj(gameobj);
+            app.stage.removeChild(sprite);
             console.log(gameobj, "has been removed at: ", index)
         }
     });
@@ -91,13 +80,23 @@ client.joinOrCreate("battle_room").then(room => {
         console.log("oops, error ocurred:");
         console.log(message);
     })
+    // TODO multiple keys
     // send message to room on submit
-    document.onkeypress = function (e) {
+    document.onkeydown = function (e) {
         e.preventDefault();
 
         console.log("button:", e.code);
 
         // send data to room
         room.send("button", e.code);
+    }
+    // send message to room on submit
+    document.onkeyup = function (e) {
+        e.preventDefault();
+
+        console.log("keyup:", e.code);
+
+        // send data to room
+        room.send("keyup", e.code);
     }
 });

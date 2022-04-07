@@ -10,11 +10,10 @@ export class MyRoom extends Room<MyRoomState> {
     client_to_buffer = new Map();
 
     // col row
-    // player_locations = [[20, 20], [20, 40], [20, 60], [20, 80], 
-    //                     [40, 20], [40, 40], [40, 60], [40, 80],
-    //                     [60, 20], [60, 40], [60, 60], [60, 80],
-    //                     [80, 20], [80, 40], [80, 60], [80, 80]]
-    player_locations = [[5,6]];
+    player_locations = [[20, 20], [20, 40], [20, 60], [20, 80], 
+                        [40, 20], [40, 40], [40, 60], [40, 80],
+                        [60, 20], [60, 40], [60, 60], [60, 80],
+                        [80, 20], [80, 40], [80, 60], [80, 80]]
     initializeMap(map: GameMap) {
         // drop 3 of each special weapon on random coordinates
         let count = 3;
@@ -35,22 +34,22 @@ export class MyRoom extends Room<MyRoomState> {
         this.client_to_buffer.forEach((buffer, key) => {
             if (buffer.length == 0) return;
 
-            let forward = 0;
+            let up = 0;
             let right = 0;
             for (let i = 0; i < buffer.length; i++){
                 console.log(buffer[i]);
-                if (buffer[i] == "KeyW") forward += 1; 
-                else if (buffer[i] == "KeyS") forward -= 1;
+                if (buffer[i] == "KeyW") up -= 1; 
+                else if (buffer[i] == "KeyS") up += 1;
                 else if (buffer[i] == "KeyD") right += 1;
                 else if (buffer[i] == "KeyA") right -= 1;
                 // else  if(buffer[i] == "KeySpace") 
             }
-            if (Math.abs(forward) + Math.abs(right) > 2){
-                if (forward > 1){
-                    forward = 1;
+            if (Math.abs(up) + Math.abs(right) > 2){
+                if (up > 1){
+                    up = 1;
                 }
-                if (forward < -1){
-                    forward = -1
+                if (up < -1){
+                    up = -1
                 }
                 if (right > 1){
                     right = 1
@@ -59,16 +58,16 @@ export class MyRoom extends Room<MyRoomState> {
                     right = -1
                 }
             }
-            this.state.map.moveTank(this.client_to_tank.get(key), right, forward);
+            this.state.map.moveTank(this.client_to_tank.get(key), right, up);
             this.client_to_buffer.set(key, []);
-        });    
+        });
     }
     
     onCreate (options: any) {
         this.setState(new MyRoomState());
         this.maxClients = this.state.player_size;
         this.initializeMap(this.state.map);
-        // this.state.player_count = 0;
+        this.state.player_count = 0;
 
         
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
@@ -82,8 +81,6 @@ export class MyRoom extends Room<MyRoomState> {
 
 
     }
-
-
 
     onJoin (client: Client, options: any) {
         this.state.player_count += 1;
@@ -101,14 +98,15 @@ export class MyRoom extends Room<MyRoomState> {
 
     onLeave (client: Client, consented: boolean) {
         
-        let tank_id = this.client_to_tank.get(client.sessionId)
-        this.state.player_count -= 1
+        let tank_id = this.client_to_tank.get(client.sessionId);
+        this.state.player_count -= 1;
         if (tank_id != null){
-            this.client_to_tank.delete(client.sessionId)
-            console.log("User:", client.sessionId, "and its tank", tank_id, "has left the game room")
+            this.client_to_tank.delete(client.sessionId);
+            this.client_to_buffer.delete(client.sessionId);
+            console.log("User:", client.sessionId, "and its tank", tank_id, "has left the game room");
         }
         else{
-            console.log("User ", client.sessionId, " has left the game room")
+            console.log("User ", client.sessionId, " has left the game room");
         }
 
         console.log("Player count is: ", this.state.player_count)

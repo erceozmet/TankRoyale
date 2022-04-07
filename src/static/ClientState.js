@@ -5,6 +5,7 @@ export class ClientState {
 		this.map_view_ratio = {width: 10, height: 10};
 		this.view_dims = {width : this.map_dims.width  / this.map_view_ratio.width, 
 						  height: this.map_dims.height / this.map_view_ratio.height};
+		this.objects = new Map();
   	}
 
 	add_gameobj(gameobj, key) {
@@ -16,12 +17,21 @@ export class ClientState {
 		sprite.x = this.screen_dims.width  / this.view_dims.width  * index.col;
 		sprite.height = this.screen_dims.height / this.view_dims.height * gameobj.height;
 		sprite.width = this.screen_dims.width / this.view_dims.width * gameobj.width;
+		this.objects.set(gameobj.id, sprite);
 		return sprite;
 	}
 
+	remove_gameobj(gameobj) {
+		let sprite = this.objects.get(gameobj.id);
+		this.objects.delete(gameobj.id);
+		console.log(this.objects);
+		return sprite;
+
+	}
+
 	get_index_from_key(key) {
-		let col = Math.floor(key / this.map_dims.height);
-		let row = key % this.map_dims.height;
+		let row = Math.floor(key / this.map_dims.width);
+		let col = key % this.map_dims.width;
 		return {row: row, col: col}
 	}
 
