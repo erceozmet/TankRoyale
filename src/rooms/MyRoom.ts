@@ -58,7 +58,7 @@ export class MyRoom extends Room<MyRoomState> {
                     right = -1
                 }
             }
-            console.log(this.state.map.moveTank(this.client_to_tank.get(key), right, forward));
+            this.state.map.moveTank(this.client_to_tank.get(key), right, forward);
             this.client_to_buffer.set(key, []);
         });    
     }
@@ -100,17 +100,17 @@ export class MyRoom extends Room<MyRoomState> {
 
     onLeave (client: Client, consented: boolean) {
         
-        // let tank_id = this.client_to_tank.get(client.sessionId)
-        // this.state.player_count -= 1
-        // if (tank_id != null){
-        //     this.client_to_tank.delete(client.sessionId)
-        //     console.log("User:", client.sessionId, "and its tank", tank_id, "has left the game room")
-        // }
-        // else{
-        //     console.log("User ", client.sessionId, " has left the game room")
-        // }
+        let tank_id = this.client_to_tank.get(client.sessionId)
+        this.state.player_count -= 1
+        if (tank_id != null){
+            this.client_to_tank.delete(client.sessionId)
+            console.log("User:", client.sessionId, "and its tank", tank_id, "has left the game room")
+        }
+        else{
+            console.log("User ", client.sessionId, " has left the game room")
+        }
 
-        // console.log("Player count is: ", this.state.player_count)
+        console.log("Player count is: ", this.state.player_count)
         
 
     }
