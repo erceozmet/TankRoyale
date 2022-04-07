@@ -9,11 +9,12 @@ export class MyRoom extends Room<MyRoomState> {
     client_to_tank = new Map();
     client_to_buffer = new Map();
 
-    player_locations = [[20, 20], [20, 40], [20, 60], [20, 80], 
-                        [40, 20], [40, 40], [40, 60], [40, 80],
-                        [60, 20], [60, 40], [60, 60], [60, 80],
-                        [80, 20], [80, 40], [80, 60], [80, 80]]
-    
+    // col row
+    // player_locations = [[20, 20], [20, 40], [20, 60], [20, 80], 
+    //                     [40, 20], [40, 40], [40, 60], [40, 80],
+    //                     [60, 20], [60, 40], [60, 60], [60, 80],
+    //                     [80, 20], [80, 40], [80, 60], [80, 80]]
+    player_locations = [[5,6]];
     initializeMap(map: GameMap) {
         // drop 3 of each special weapon on random coordinates
         let count = 3;

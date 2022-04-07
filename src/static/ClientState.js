@@ -20,8 +20,8 @@ export class ClientState {
 	}
 
 	get_index_from_key(key) {
-		let row = Math.floor(key / this.map_dims.width);
-		let col = key % this.map_dims.height;
+		let col = Math.floor(key / this.map_dims.height);
+		let row = key % this.map_dims.height;
 		return {row: row, col: col}
 	}
 

@@ -60,13 +60,16 @@ client.joinOrCreate("battle_room").then(room => {
             // tiles[key] = gameobj;
             // render_sprite(tile_dims, gameobj, key);
             console.log(gameobj, "has been added at", index);
+            console.log("key is " , key)
         };
         currentValue.onChange = (gameobj, key) => {
-            console.log(gameobj, "has been changed at", key);
+            let index = client_state.get_index_from_key(key);
+            console.log(gameobj, "has been changed at", index);
         };
 
         currentValue.onRemove = (gameobj, key) => {
-            console.log(gameobj, "has been removed at: ", key)
+            let index = client_state.get_index_from_key(key);
+            console.log(gameobj, "has been removed at: ", index)
         }
     });
 
