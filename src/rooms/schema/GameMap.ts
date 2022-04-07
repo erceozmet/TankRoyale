@@ -5,13 +5,13 @@ import { Tank } from "./Tank";
 import { Weapon } from "./Weapon";
 
 class Location extends Schema {
-    x: number;
-    y: number;
+    col: number;
+    row: number;
 
-    constructor(x: number, y: number) {
+    constructor(col: number, row: number) {
         super();
-        this.x = x;
-        this.y = y;
+        this.col = row;
+        this.col = row;
     }
 }
 
@@ -25,7 +25,7 @@ class Tiles<T> extends ArraySchema<T> {
         this.height = height;
     }
 
-    checkRange(i: number, j: number): boolean {
+    checkRange(col: number, row: number): boolean {
         return i >= 0 && i < this.width && j >= 0 && j < this.height;
     }
 
