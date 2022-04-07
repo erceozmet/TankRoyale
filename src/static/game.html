@@ -42,68 +42,68 @@
 
 	<script>
 		// pixi decls
-		const screen_dims = {width: 640, height: 360};
-		const gamebox = document.getElementById("gamebox");
-		// pixi initialization
-		let app = new PIXI.Application({ width: screen_dims.width, height: screen_dims.height, backgroundColor: 0xffffff });
-		gamebox.appendChild(app.view);
+		// const screen_dims = {width: 640, height: 360};
+		// const gamebox = document.getElementById("gamebox");
+		// // pixi initialization
+		// let app = new PIXI.Application({ width: screen_dims.width, height: screen_dims.height, backgroundColor: 0xffffff });
+		// gamebox.appendChild(app.view);
 
-		// game map decls
-		const tile_dims = {width: 20, height: 20};
+		// // game map decls
+		// const tile_dims = {width: 20, height: 20};
 
-		for (let i = 1; i < tile_dims.width; i++) {
-			g = document.createElement('div');
-			g.setAttribute("id", "vbar");
-			let left = screen_dims.width / tile_dims.width * i;
-			g.style.left = left.toString() + "px";
-			g.style.top = "0px";
-			document.getElementById("gamebox").appendChild(g);  
-		}
-		for (let j = 1; j < tile_dims.height; j++) {
-			g = document.createElement('div');
-			g.setAttribute("id", "hbar");
-			let top = screen_dims.height / tile_dims.height * j;
-			g.style.top = top.toString() + "px";
-			g.style.left = "0px";
-			document.getElementById("gamebox").appendChild(g);  
-		}
+		// for (let i = 1; i < tile_dims.width; i++) {
+		// 	g = document.createElement('div');
+		// 	g.setAttribute("id", "vbar");
+		// 	let left = screen_dims.width / tile_dims.width * i;
+		// 	g.style.left = left.toString() + "px";
+		// 	g.style.top = "0px";
+		// 	document.getElementById("gamebox").appendChild(g);  
+		// }
+		// for (let j = 1; j < tile_dims.height; j++) {
+		// 	g = document.createElement('div');
+		// 	g.setAttribute("id", "hbar");
+		// 	let top = screen_dims.height / tile_dims.height * j;
+		// 	g.style.top = top.toString() + "px";
+		// 	g.style.left = "0px";
+		// 	document.getElementById("gamebox").appendChild(g);  
+		// }
 
-		var tiles = new Array(tile_dims.height * tile_dims.width);
+		// var tiles = new Array(tile_dims.height * tile_dims.width);
 
-		function render_sprite(tile_dims, gameobj, key) {
-			console.log("path", gameobj.imagePath);
-			let sprite = PIXI.Sprite.from(gameobj.imagePath); 
-			let j = Math.floor(key / tile_dims.width); // TODO use function
-			let i = key % tile_dims.width;
-			console.log("i: "+ i + "-- j: " + j);
-			sprite.y = screen_dims.height / tile_dims.width * j;
-			sprite.x = screen_dims.width / tile_dims.width * i;
+		// function render_sprite(tile_dims, gameobj, key) {
+		// 	console.log("path", gameobj.imagePath);
+		// 	let sprite = PIXI.Sprite.from(gameobj.imagePath); 
+		// 	let j = Math.floor(key / tile_dims.width); // TODO use function
+		// 	let i = key % tile_dims.width;
+		// 	console.log("i: "+ i + "-- j: " + j);
+		// 	sprite.y = screen_dims.height / tile_dims.width * j;
+		// 	sprite.x = screen_dims.width / tile_dims.width * i;
 
-			console.log("x: "+ sprite.x + "-- y: " +sprite.y);
-			sprite.height = screen_dims.height / tile_dims.width;
-			sprite.width = screen_dims.width / tile_dims.width;
-			app.stage.addChild(sprite);
+		// 	console.log("x: "+ sprite.x + "-- y: " +sprite.y);
+		// 	sprite.height = screen_dims.height / tile_dims.width;
+		// 	sprite.width = screen_dims.width / tile_dims.width;
+		// 	app.stage.addChild(sprite);
 
-		}
+		// }
 
 
 		var host = window.document.location.host.replace(/:.*/, '');
-		console.log(window.document.location.host);
 
 		var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
 		client.joinOrCreate("battle_room").then(room => {
 			console.log("joined");
 			room.onStateChange.once(function (state) {
-				console.log("initial room state:", state);
+				// console.log("initial room state:", state);
 				// document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
 			});      
 			 
-			room.state.map.listen("tiles", (currentValue, previousValue) => {
-    			console.log("current is now", currentValue);
+			room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
 				currentValue.onAdd = (gameobj, key) => {
-					tiles[key] = gameobj;
-					render_sprite(tile_dims, gameobj, key);
-					console.log(gameobj, "has been added at", key);
+					let x = key % room.state.map.width;
+					let y = Math.floor(key / room.state.map.width);
+					// tiles[key] = gameobj;
+					// render_sprite(tile_dims, gameobj, key);
+					console.log(gameobj, "has been added at", x, y);
 				};
 				currentValue.onChange = (gameobj, key) => {
 					console.log(gameobj, "has been changed at", key);
@@ -115,34 +115,7 @@
 			});
 
 			
-
-			
-    //   room.state.map.listen("game_obj_locs", ())
-
-
-
-			// room.state.map.onChange = (changes) => {
-			// 	changes.forEach(change => {
-			// 		if (change.field == "tiles") {
-						
-			// 		}
-			// 		console.log("changes:");
-			// 		console.log(change.field);
-			// 		console.log(change.value);
-			// 		console.log(change.previousValue);
-			// 	});
-			// };
-
-			// room.state.map.game_object_locs.onAdd = (obj, key) => {
-			//   console.log(obj, "has been added at")
-			// };
-
-			// room.state.map.game_object_locs.onRemove = (obj, key) => {
-			//   console.log(obj, "has been removed at")
-			// };
-			// new room state
 			room.onStateChange(function (state) {
-
 				// document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
 				// this signal is triggered on each patch
 			});

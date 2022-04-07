@@ -19,14 +19,14 @@ class Tiles<T> extends ArraySchema<T> {
     width: number;
     height: number;
 
-    constructor() {
+    constructor(width: number, height: number) {
         super();
         this.width = 1000;
         this.height = 1000;
     }
 
     checkRange(i: number, j: number): boolean {
-        return i < 0 && i >= this.width && j < 0 && j >= this.height;
+        return i >= 0 && i < this.width && j >= 0 && j < this.height;
     }
 
     get(i: number, j: number): T {
@@ -47,10 +47,12 @@ class Tiles<T> extends ArraySchema<T> {
 
 export class GameMap extends Schema {
     uniqueId: number = 0;
+    @type("number") width: number = 1000;
+    @type("number") height: number = 1000;
 
     locations = new MapSchema<Location>();
-    tiles: Tiles<GameObject> = new Tiles<GameObject>();
-    @type([GameObject]) synced_tiles = new Tiles<GameObject>();
+    tiles: Tiles<GameObject> = new Tiles<GameObject>(this.width, this.height);
+    @type([GameObject]) synced_tiles = new Tiles<GameObject>(this.width, this.height);
 
     get(id: string): GameObject {
         let loc = this.locations.get(id);
@@ -75,6 +77,7 @@ export class GameMap extends Schema {
                 this.tiles.set(x + i, y + j, obj);
             }
         }
+        console.log(x, y);
         this.synced_tiles.set(x, y, obj);
         this.locations.set(obj.id, new Location(x, y));
         return obj.id;
@@ -82,15 +85,23 @@ export class GameMap extends Schema {
 
     moveTank(id: string, right: number, up: number): boolean {
         let loc = this.locations.get(id);
+        console.log("move tank: ", loc.x, loc.y);
         let obj = this.tiles.get(loc.x, loc.y) as Tank;
 
-        return this.setLoc(obj, loc.x, loc.y, loc.x + right, loc.y + up);
-        
+        let result = this.setLoc(obj, loc.x, loc.y, loc.x + right, loc.y + up);
+        if (result) {
+            loc.x = loc.x + right;
+            loc.y = loc.y + up;
+        }
+        return result;
+    
     }
 
     setLoc(tank: Tank, old_x: number, old_y: number, x: number, y: number): boolean {
+        console.log(`old x: ${old_x}, old y: ${old_y}, x: ${x}, y: ${y}`);
         if (!this.canPlace(x, y, tank)) return false;
 
+        console.log("checking places");
         for (let i = 0; i < tank.height; i++) {
             for (let j = 0; j < tank.width; j++) {
                 let prev_obj = this.tiles.get(x + i, y + j);
@@ -98,7 +109,7 @@ export class GameMap extends Schema {
                 if (prev_obj.getType() == "weapon") {
                     tank.weapon = prev_obj as Weapon;
                     this.tiles.set(x + i, y + j, null);
-                } else if (prev_obj.getType() == "tank") {
+                } else if (prev_obj.getType() == "tank" && prev_obj != tank) {
                     return false;
                 }
             }
@@ -113,7 +124,6 @@ export class GameMap extends Schema {
 
         console.log("moving tank: ", tank.id, "from (", old_x, ", ", old_y, ") to (", x, ", ", y)
         this.synced_tiles.set(x, y, tank);
-
         return true;
     }
 }

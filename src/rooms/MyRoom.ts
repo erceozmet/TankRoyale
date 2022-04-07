@@ -24,20 +24,20 @@ export class MyRoom extends Room<MyRoomState> {
                 do {
                     x = Math.floor(Math.random() * 100);
                     y = Math.floor(Math.random() * 100);
-                } while (!map.canPlace(x, y, weapon));
-
+                } while (!map.canPlace(x, y, weapon ));
                 map.put(weapon, x, y);
             });
         }
     }
     
     update (deltaTime: any) {
-       
-        
         this.client_to_buffer.forEach((buffer, key) => {
+            if (buffer.length == 0) return;
+
             let forward = 0;
             let right = 0;
             for (let i = 0; i < buffer.length; i++){
+                console.log(buffer[i]);
                 if (buffer[i] == "KeyW") forward += 1; 
                 else if (buffer[i] == "KeyS") forward -= 1;
                 else if (buffer[i] == "KeyD") right += 1;
@@ -58,16 +58,16 @@ export class MyRoom extends Room<MyRoomState> {
                     right = -1
                 }
             }
-            this.state.map.moveTank(this.client_to_tank.get(key), right, forward)
-        });
-    
+            console.log(this.state.map.moveTank(this.client_to_tank.get(key), right, forward));
+            this.client_to_buffer.set(key, []);
+        });    
     }
     
     onCreate (options: any) {
         this.setState(new MyRoomState());
         this.maxClients = this.state.player_size;
         this.initializeMap(this.state.map);
-        this.state.player_count = 0;
+        // this.state.player_count = 0;
 
         
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
@@ -75,9 +75,7 @@ export class MyRoom extends Room<MyRoomState> {
         
        
         this.onMessage("button", (client, button) => {
-            console.log("MyRoom received button from", client.sessionId, ":", button);
             this.client_to_buffer.get(client.sessionId).push(button);
-
             this.broadcast("buttons", `(${client.sessionId}) ${button}`);
         });
 
@@ -87,7 +85,7 @@ export class MyRoom extends Room<MyRoomState> {
 
 
     onJoin (client: Client, options: any) {
-        this.state.player_count += 1
+        this.state.player_count += 1;
         let start_index = Math.floor(Math.random() * (this.player_locations.length -1));
         let start_location = this.player_locations[start_index];
         this.player_locations.splice(start_index, 1);
@@ -97,22 +95,22 @@ export class MyRoom extends Room<MyRoomState> {
         this.client_to_tank.set(client.sessionId, tank_id);
         this.client_to_buffer.set(client.sessionId, new Array());
         console.log(client.sessionId, "added to client addresses");
-        console.log("Player count is: ", this.state.player_count)
+        console.log("Player count is: ", this.state.player_count);
     }
 
     onLeave (client: Client, consented: boolean) {
         
-        let tank_id = this.client_to_tank.get(client.sessionId)
-        this.state.player_count -= 1
-        if (tank_id != null){
-            this.client_to_tank.delete(client.sessionId)
-            console.log("User:", client.sessionId, "and its tank", tank_id, "has left the game room")
-        }
-        else{
-            console.log("User ", client.sessionId, " has left the game room")
-        }
+        // let tank_id = this.client_to_tank.get(client.sessionId)
+        // this.state.player_count -= 1
+        // if (tank_id != null){
+        //     this.client_to_tank.delete(client.sessionId)
+        //     console.log("User:", client.sessionId, "and its tank", tank_id, "has left the game room")
+        // }
+        // else{
+        //     console.log("User ", client.sessionId, " has left the game room")
+        // }
 
-        console.log("Player count is: ", this.state.player_count)
+        // console.log("Player count is: ", this.state.player_count)
         
 
     }

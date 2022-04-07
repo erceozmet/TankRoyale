@@ -38,13 +38,13 @@ export default Arena({
          */
         app.use("/colyseus", monitor());
 
-        app.use("/images/tank.png", (req, res) =>{
-            res.sendFile(path.join(__dirname, '/images/tank.png'))
-        })
+        // app.use("/images/tank.png", (req, res) =>{
+        //     res.sendFile(path.join(__dirname, '/images/tank.png'))
+        // })
 
-        app.use("/images/weapon.png", (req, res) =>{
-            res.sendFile(path.join(__dirname, '/images/weapon.png'))
-        })
+        // app.use("/images/weapon.png", (req, res) =>{
+        //     res.sendFile(path.join(__dirname, '/images/weapon.png'))
+        // })
 
 
     },
