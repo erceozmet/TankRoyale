@@ -88,22 +88,22 @@
 
 
 		var host = window.document.location.host.replace(/:.*/, '');
-		console.log(window.document.location.host);
 
 		var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
 		client.joinOrCreate("battle_room").then(room => {
 			console.log("joined");
 			room.onStateChange.once(function (state) {
-				console.log("initial room state:", state);
+				// console.log("initial room state:", state);
 				// document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
 			});      
 			 
-			room.state.map.listen("tiles", (currentValue, previousValue) => {
-    			console.log("current is now", currentValue);
+			room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
 				currentValue.onAdd = (gameobj, key) => {
-					tiles[key] = gameobj;
-					render_sprite(tile_dims, gameobj, key);
-					console.log(gameobj, "has been added at", key);
+					let x = key % room.state.map.width;
+					let y = Math.floor(key / room.state.map.width);
+					// tiles[key] = gameobj;
+					// render_sprite(tile_dims, gameobj, key);
+					console.log(gameobj, "has been added at", x, y);
 				};
 				currentValue.onChange = (gameobj, key) => {
 					console.log(gameobj, "has been changed at", key);
@@ -115,7 +115,6 @@
 			});
 
 			room.onStateChange(function (state) {
-
 				// document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
 				// this signal is triggered on each patch
 			});
