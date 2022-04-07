@@ -46,6 +46,10 @@ export default Arena({
             res.sendFile(path.join(__dirname, '/images/weapon.png'))
         })
 
+        app.use("/static/ex.js", (req, res) =>{
+            res.sendFile(path.join(__dirname, '/static/ex.js'))
+        })
+
 
     },
 
