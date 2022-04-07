@@ -82,7 +82,7 @@ client.joinOrCreate("battle_room").then(room => {
     })
     // TODO multiple keys
     // send message to room on submit
-    document.onkeydown = function (e) {
+    document.onkeypress = function (e) {
         e.preventDefault();
 
         console.log("button:", e.code);
@@ -91,12 +91,12 @@ client.joinOrCreate("battle_room").then(room => {
         room.send("button", e.code);
     }
     // send message to room on submit
-    document.onkeyup = function (e) {
-        e.preventDefault();
+    // document.onkeyup = function (e) {
+    //     e.preventDefault();
 
-        console.log("keyup:", e.code);
+    //     console.log("keyup:", e.code);
 
-        // send data to room
-        room.send("keyup", e.code);
-    }
+    //     // send data to room
+    //     room.send("keyup", e.code);
+    // }
 });
