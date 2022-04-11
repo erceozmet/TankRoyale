@@ -12,8 +12,8 @@ export class ClientState {
 		let sprite = PIXI.Sprite.from(gameobj.imagePath); 
 		let index = this.get_index_from_key(key);
 
-		let starting_row = index.row - gameobj.height + 1;
-		sprite.y = this.screen_dims.height / this.view_dims.height * (starting_row);
+		let starting_row = index.row;// - gameobj.height + 1;
+		sprite.y = this.screen_dims.height / this.view_dims.height * starting_row;
 		sprite.x = this.screen_dims.width  / this.view_dims.width  * index.col;
 		sprite.height = this.screen_dims.height / this.view_dims.height * gameobj.height;
 		sprite.width = this.screen_dims.width / this.view_dims.width * gameobj.width;
@@ -26,7 +26,6 @@ export class ClientState {
 		this.objects.delete(gameobj.id);
 		console.log(this.objects);
 		return sprite;
-
 	}
 
 	get_index_from_key(key) {

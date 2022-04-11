@@ -11,10 +11,6 @@ let app = new PIXI.Application({width : client_state.screen_dims.width,
 gamebox.appendChild(app.view);
 
 
-
-
-
-
 var host = window.document.location.host.replace(/:.*/, '');
 var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
 client.joinOrCreate("battle_room").then(room => {
@@ -30,10 +26,11 @@ client.joinOrCreate("battle_room").then(room => {
         
     room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
         currentValue.onAdd = (gameobj, key) => {
+            console.log("adding ", gameobj.id);
             let index = client_state.get_index_from_key(key);
-            if (index.row > 100 || index.col > 100) {
-                return;
-            }
+            // if (index.row > 100 || index.col > 100) {
+            //     return;
+            // }
             let sprite = client_state.add_gameobj(gameobj, key);
             app.stage.addChild(sprite);
             
@@ -51,10 +48,13 @@ client.joinOrCreate("battle_room").then(room => {
         };
         currentValue.onChange = (gameobj, key) => {
             let index = client_state.get_index_from_key(key);
+            let sprite = client_state.add_gameobj(gameobj, key);
+            app.stage.addChild(sprite);
             console.log(gameobj, "has been changed at", index);
         };
 
         currentValue.onRemove = (gameobj, key) => {
+            console.log("removing ", gameobj.id);
             let index = client_state.get_index_from_key(key);
             let sprite = client_state.remove_gameobj(gameobj);
             app.stage.removeChild(sprite);

@@ -44,7 +44,9 @@ class Tiles<T> extends ArraySchema<T> {
     }
 
     remove(col: number, row: number) {
-        this.splice(col + this.width * row);
+        if (this.checkRange(col, row)) {
+            this[col + this.width * row] = null;
+        }
     }
 }
 
@@ -66,6 +68,19 @@ export class GameMap extends Schema {
         return this.tiles.get(loc.col, loc.row);
     }
 
+    delete(id: string) {
+        let loc = this.locations.get(id);
+        let obj = this.tiles.get(loc.col, loc.row) as Tank;
+
+        for (let i = 0; i < obj.width; i++){
+            for (let j = 0; j < obj.height; j++){
+                this.tiles.remove(loc.col + i, loc.row + j);
+            }
+        }
+
+        this.synced_tiles.delete(this.to1D(loc.col, loc.row));
+    }
+
     canPlace(col: number, row: number, obj: GameObject): boolean {
         return (
             this.tiles.checkRange(col, row) &&
@@ -75,9 +90,9 @@ export class GameMap extends Schema {
 
     put(obj: GameObject, col: number, row: number): string {
         obj.id = (this.uniqueId++).toString();
-
-        for (let i = 0; i < obj.height; i++) {
-            for (let j = 0; j < obj.width; j++) {
+        console.log("put Weapon to, ", col, row);
+        for (let i = 0; i < obj.width; i++) {
+            for (let j = 0; j < obj.height; j++) {
                 if (this.tiles.get(col + i, row + j) != null) {
                     throw Error(`Tried to place object: ${obj.id}, but there is already an object: ${this.tiles.get(col + i, row + j)} at: ${col}, ${row}`);
                 }
@@ -88,6 +103,8 @@ export class GameMap extends Schema {
         this.locations.set(obj.id, new Location(col, row));
         return obj.id;
     }
+
+
 
     moveTank(id: string, right: number, up: number): boolean {
         let loc = this.locations.get(id);
@@ -101,29 +118,21 @@ export class GameMap extends Schema {
 
         for (let i = 0; i < tank.width; i++) {
             for (let j = 0; j < tank.height; j++) {
+                // console.log("checking square", col+ i, row+j);
                 let prev_obj = this.tiles.get(col + i, row + j);
                 if (prev_obj == null) continue;
                 if (prev_obj.getType() == "weapon") {
+                    console.log("weapon picked up");
                     tank.weapon = prev_obj as Weapon;
-                    this.tiles.remove(col + i, row + j);
+                    this.delete(prev_obj.id);
                 } else if (prev_obj.getType() == "tank" && prev_obj != tank) {
                     return false;
                 }
             }
         }
-        /*
-        tank=5
 
-        x=20, y=20
-        x=20, y=21
-
-        to_check=(20,25) (21,25) (22,25) (23,25) (24,25)
-        to_null =(20,20) (21,20) (22,20) (23,20) (24,20)
-        to_fill =(20,25) (21,25) (22,25) (23,25) (24,25)
-
-
-        */
-
+        console.log("moving tank to ", col, row);
+        
         for (let i = 0; i < tank.width; i++) {
             for (let j = 0; j < tank.height; j++) {
                 this.tiles.remove(old_col + i, old_row + j);

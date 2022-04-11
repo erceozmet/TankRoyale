@@ -14,6 +14,9 @@ export class MyRoom extends Room<MyRoomState> {
                         [40, 20], [40, 40], [40, 60], [40, 80],
                         [60, 20], [60, 40], [60, 60], [60, 80],
                         [80, 20], [80, 40], [80, 60], [80, 80]]
+
+
+    
     initializeMap(map: GameMap) {
         // drop 3 of each special weapon on random coordinates
         let count = 3;
@@ -24,12 +27,14 @@ export class MyRoom extends Room<MyRoomState> {
                 do {
                     x = Math.floor(Math.random() * 100);
                     y = Math.floor(Math.random() * 100);
+
+                    // toDo: handle tank and weapon collision at client join
                 } while (!map.canPlace(x, y, weapon ));
                 map.put(weapon, x, y);
             });
         }
     }
-    
+
     update (deltaTime: any) {
         this.client_to_buffer.forEach((buffer, key) => {
             if (buffer.length == 0) return;
@@ -97,10 +102,10 @@ export class MyRoom extends Room<MyRoomState> {
     }
 
     onLeave (client: Client, consented: boolean) {
-        
         let tank_id = this.client_to_tank.get(client.sessionId);
         this.state.player_count -= 1;
-        if (tank_id != null){
+        if (tank_id != undefined){
+            this.state.map.delete(tank_id);
             this.client_to_tank.delete(client.sessionId);
             this.client_to_buffer.delete(client.sessionId);
             console.log("User:", client.sessionId, "and its tank", tank_id, "has left the game room");
