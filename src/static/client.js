@@ -5,9 +5,11 @@ let client_state = new ClientState();
 
 // pixi initialization
 const gamebox = document.getElementById("gamebox");
-let app = new PIXI.Application({width : client_state.screen_dims.width, 
-                                height: client_state.screen_dims.height, 
-                                backgroundColor: 0xffffff });
+let app = new PIXI.Application({
+    width: client_state.screen_dims.width,
+    height: client_state.screen_dims.height,
+    backgroundColor: 0xffffff
+});
 gamebox.appendChild(app.view);
 
 
@@ -23,7 +25,7 @@ client.joinOrCreate("battle_room").then(room => {
     // game map decls
     client_state.render_bars();
 
-        
+
     room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
         currentValue.onAdd = (gameobj, key) => {
             console.log("adding ", gameobj.id);
@@ -33,18 +35,18 @@ client.joinOrCreate("battle_room").then(room => {
             // }
             let sprite = client_state.add_gameobj(gameobj, key);
             app.stage.addChild(sprite);
-            
-            
-            
+
+
+
             // let x = key % room.state.map.width;
             // let y = Math.floor(key / room.state.map.width);
             // console.log("x:" ,room.state.map.width);
             // console.log("x:" + x + "-- y: " + y);
-            
+
             // tiles[key] = gameobj;
             // render_sprite(tile_dims, gameobj, key);
             console.log(gameobj, "has been added at", index);
-            console.log("key is " , key)
+            console.log("key is ", key)
         };
         currentValue.onChange = (gameobj, key) => {
             let index = client_state.get_index_from_key(key);
@@ -79,24 +81,48 @@ client.joinOrCreate("battle_room").then(room => {
     room.onError((code, message) => {
         console.log("oops, error ocurred:");
         console.log(message);
-    })
-    // TODO multiple keys
-    // send message to room on submit
-    document.onkeypress = function (e) {
+    });
+
+
+    /******* Button press registering code *******/
+    let keys = new Set(),
+        interval = null,
+        allowedKeys = {
+            'KeyW': true, // W
+            'KeyS': true, // S
+            'KeyA': true, // A
+            'KeyD': true, // D
+        };
+
+    document.onkeydown = function (e) {
+        e.preventDefault();
+        
+        if (allowedKeys[e.code]) {
+            if (!keys.has(e.code)) {
+                keys.add(e.code);
+            }
+            
+            if (interval === null) {
+                interval = setInterval(function () {
+                    keys.forEach((key) => {
+                        room.send("button", key);
+                    });
+                }, 100);
+            }
+        }
+    };
+
+    document.onkeyup = function (e) {
         e.preventDefault();
 
-        console.log("button:", e.code);
+        if (keys.has(e.code)) {
+            keys.delete(e.code);
+        }
 
-        // send data to room
-        room.send("button", e.code);
-    }
-    // send message to room on submit
-    // document.onkeyup = function (e) {
-    //     e.preventDefault();
-
-    //     console.log("keyup:", e.code);
-
-    //     // send data to room
-    //     room.send("keyup", e.code);
-    // }
+        // need to check if keyboard movement stopped
+        if ((allowedKeys[e.code]) && (keys.size === 0)) {
+            clearInterval(interval);
+            interval = null;
+        }
+    };
 });
