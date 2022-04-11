@@ -29,6 +29,7 @@ export class MyRoom extends Room<MyRoomState> {
                     y = Math.floor(Math.random() * 100);
 
                     // toDo: handle tank and weapon collision at client join
+                    // TODO: pressing A and D at the same time
                 } while (!map.canPlace(x, y, weapon ));
                 map.put(weapon, x, y);
             });
