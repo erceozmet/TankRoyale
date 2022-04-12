@@ -7,7 +7,7 @@ export class ClientState {
 		this.view_pos = null;
 		this.tank_id = null;
 		this.tank_pos = null;
-		this.tank_dims = 5; //TODO
+		this.tank_dims = {width: 5, height: 5}; //TODO
 
 		this.objects = new Array(this.map_dims.height);
 		for (var i = 0; i < this.map_dims.height; i++) {
@@ -42,8 +42,8 @@ export class ClientState {
 	change_tank_pos(new_pos) {
 		this.tank_pos = new_pos;
 		let old_view_pos = this.view_pos;
-		this.view_pos = {row: this.tank_pos.row + (this.tank_dims / 2) - (this.view_dims.width / 2),
-						 col: this.tank_pos.col + (this.tank_dims / 2) - (this.view_dims.height / 2)};
+		this.view_pos = {row: this.tank_pos.row + (this.tank_dims.height / 2) - (this.view_dims.width / 2),
+						 col: this.tank_pos.col + (this.tank_dims.width / 2) - (this.view_dims.height / 2)};
 
 		this.wrap_view_pos();
 		this.render_view();
@@ -87,7 +87,7 @@ export class ClientState {
 
 		let row_diff = old_view_pos.row - new_view_pos.row;
 		for (let row = 0; row < Math.abs(row_diff); row++) {
-			let row_index = row_diff > 0 ?  old_view_pos.row + this.tank_dims.width - row
+			let row_index = row_diff > 0 ?  old_view_pos.row + this.view_dims.width - row
 										 :  old_view_pos.row + row;
 		
 			for (let col = 0; col < this.view_dims.width; col++) {
@@ -100,7 +100,7 @@ export class ClientState {
 
 		let col_diff = old_view_pos.col - new_view_pos.col;
 		for (let col = 0; col < Math.abs(col_diff); col++) {
-			let col_index = col_diff > 0 ?  old_view_pos.col + this.tank_dims.width - col
+			let col_index = col_diff > 0 ?  old_view_pos.col + this.view_dims.width - col
 										 :  old_view_pos.col + col;
 		
 			for (let row = 0; row < this.view_dims.width; row++) {
