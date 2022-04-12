@@ -41,13 +41,8 @@ client.joinOrCreate("battle_room").then(room => {
 
 
             console.log(gameobj, "has been added at", index);
-            console.log("key is ", key)
         };
         currentValue.onChange = (gameobj, key) => {
-            // let index = client_state.get_index_from_key(key);
-            // let sprite = client_state.add_gameobj(gameobj, key);
-            // app.stage.addChild(sprite);
-            // console.log(gameobj, "has been changed at", index);
         };
 
         currentValue.onRemove = (gameobj, key) => {

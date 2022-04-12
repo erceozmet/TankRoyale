@@ -13,9 +13,6 @@ export class ClientState {
 		for (var i = 0; i < this.map_dims.height; i++) {
 		  this.objects[i] = new Array(this.map_dims.width);
 		}
-		// this.objects = new Map();
-
-		// this.center_tile = {row: -1, col: -1};
   	}
 
 	change_map_view_ratio(new_ratio) {
@@ -33,6 +30,11 @@ export class ClientState {
 		
 		
 	}
+	set_sprite_coordinates(sprite, index) {
+		sprite.y = this.tile_size.height * (index.row - this.view_pos.row);
+		sprite.x = this.tile_size.width  * (index.col - this.view_pos.col);
+		
+	}
 
 	set_tank_id(id, pos) {
 		this.tank_id = id;
@@ -45,9 +47,10 @@ export class ClientState {
 		this.view_pos = {row: this.tank_pos.row + (this.tank_dims.height / 2) - (this.view_dims.width / 2),
 						 col: this.tank_pos.col + (this.tank_dims.width / 2) - (this.view_dims.height / 2)};
 
+		
 		this.wrap_view_pos();
+		console.log("view_pos", this.view_pos);
 		this.render_view();
-		console.log("unrender")
 		this.unrender_view(old_view_pos, this.view_pos);
 		
 	}
@@ -74,6 +77,7 @@ export class ClientState {
 				
 				if (sprite == null) continue;
 				sprite.visible = true;
+				
 				sprite.y = this.tile_size.height * row;
 				sprite.x = this.tile_size.width * col; 
 				
@@ -94,7 +98,7 @@ export class ClientState {
 				let col_index = old_view_pos.col + col;
 				let sprite = this.objects[row_index][col_index];
 				if (sprite == null) continue;	
-				sprite.visible = false;	
+				// sprite.visible = false;	
 			}
 		}
 
@@ -107,7 +111,7 @@ export class ClientState {
 				let row_index = old_view_pos.row + row;
 				let sprite = this.objects[row_index][col_index];
 				if (sprite == null) continue;	
-				sprite.visible = false;	
+				// sprite.visible = false;	
 			}
 		}
 	}
@@ -116,28 +120,28 @@ export class ClientState {
 		if (this.view_pos == null) return false;
 		return (index.col + gameobj.width  >= this.view_pos.col   &&
 				index.row + gameobj.height >= this.view_pos.row   &&  
-				index.col <= this.view_pos.col + view_dims.width  &&
-				index.row <= this.view_pos.row + view_dims.height);
+				index.col <= this.view_pos.col + this.view_dims.width  &&
+				index.row <= this.view_pos.row + this.view_dims.height);
 	}
 
 	add_gameobj(gameobj, index) {
 		let sprite = PIXI.Sprite.from(gameobj.imagePath);
 	
 		// set sprite attibutes
-		sprite.y = this.tile_size.height * index.row;
-		sprite.x = this.tile_size.width  * index.col;
 		
 		sprite.height = this.tile_size.height * gameobj.height;
 		sprite.width = this.tile_size.width * gameobj.width;
 		this.objects[index.row][index.col] = sprite;
 
 		if (gameobj.id == this.tank_id) {
-			console.log("tank");
+			this.set_sprite_coordinates(sprite, index);
 			this.change_tank_pos(index);
 			this.render_view();
 		}
 		
-		else if (!this.is_in_view(gameobj, index)) {
+		else if (this.is_in_view(gameobj, index)) {
+			this.set_sprite_coordinates(sprite, index)
+		} else {
 			sprite.visible = false;
 		}
 		
