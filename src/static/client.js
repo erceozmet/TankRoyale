@@ -21,7 +21,6 @@ var host = window.document.location.host.replace(/:.*/, '');
 var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
 client.joinOrCreate("battle_room").then(room => {
     console.log("joined");
-    room.send("get_tank_id");
     room.onStateChange.once(function (state) {
         // console.log("initial room state:", state);
         // document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
@@ -29,7 +28,6 @@ client.joinOrCreate("battle_room").then(room => {
 
     // game map decls
     client_state.render_bars();
-
 
     room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
         currentValue.onAdd = (gameobj, key) => {
@@ -61,7 +59,6 @@ client.joinOrCreate("battle_room").then(room => {
     });
 
 
-
     // listen to patches coming from the server
     room.onMessage("buttons", function (message) {
         var p = document.createElement("p");
@@ -70,9 +67,7 @@ client.joinOrCreate("battle_room").then(room => {
     });
 
     room.onMessage("tank_id", function (message) {
-        console.log("tank_id", message);
-
-        
+        // console.log("tank_id", message);
         client_state.set_tank_id(message.tank_id, message.start_location);
     });
 
@@ -81,10 +76,9 @@ client.joinOrCreate("battle_room").then(room => {
         console.log(message);
     });
 
-
     /******* Button press registering code *******/
     let keys = new Set(),
-        interval = null,
+        tankMoveInterval = null,
         allowedKeys = {
             'KeyW': true, // W
             'KeyS': true, // S
@@ -100,8 +94,8 @@ client.joinOrCreate("battle_room").then(room => {
                 keys.add(e.code);
             }
             
-            if (interval === null) {
-                interval = setInterval(function () {
+            if (tankMoveInterval === null) {
+                tankMoveInterval = setInterval(function () {
                     keys.forEach((key) => {
                         room.send("button", key);
                     });
@@ -119,8 +113,50 @@ client.joinOrCreate("battle_room").then(room => {
 
         // need to check if keyboard movement stopped
         if ((allowedKeys[e.code]) && (keys.size === 0)) {
-            clearInterval(interval);
-            interval = null;
+            clearInterval(tankMoveInterval);
+            tankMoveInterval = null;
         }
     };
+
+    /******* Projectile code *******/
+    var barrelDirection = 30;
+    var projectileMoveInterval = null;
+    document.onmousemove = function(e) {
+        var mouseX = e.pageX;
+        var mouseY = e.pageY;
+        var tankX; // get coordinates of client's tank
+        var tankY;
+
+        // insert code for updating barrelDirection
+
+        // insert code for rendering new barrel
+    };
+
+    document.onclick = function(e) {
+        console.log("clicked");
+        room.send("projectile", barrelDirection);
+    };
+
+    room.state.map.listen("projectiles", (currentValue, previousValue) => {
+        currentValue.onAdd = (gameobj, key) => {
+            console.log("yarrak");
+            // add gameobj to list of projectiles to be rendered
+
+            if (projectileMoveInterval === null) {
+                projectileMoveInterval = setInterval( () => {
+                    // render all projectiles in the list
+                }, 100);
+            }
+        };
+
+        currentValue.onRemove = (gameobj, key) => {
+            // remove gameobj from list of projectiles to be rendered
+            // play explosion animation in the coordinates of projectile
+
+            // if (projectiles.size == 0) { // replace with list of projectiles
+            //     clearInterval(projectileMoveInterval);
+            //     projectileMoveInterval = null;
+            // }
+        }
+    });
 });

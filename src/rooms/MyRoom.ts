@@ -1,6 +1,6 @@
 import { Room, Client } from "colyseus";
 import { MyRoomState } from "./schema/MyRoomState";
-import { GameMap } from "./schema/GameMap";
+import { GameMap, Location } from "./schema/GameMap";
 import { Tank } from "./schema/Tank";
 import { SniperWeapon, MachinegunWeapon, ShotgunWeapon } from "./schema/Weapon";
 
@@ -37,7 +37,13 @@ export class MyRoom extends Room<MyRoomState> {
     }
 
     update (deltaTime: any) {
-        this.client_to_buffer.forEach((buffer, key) => {
+        this.client_to_buffer.forEach((buffer, client) => {
+            let tankId = this.client_to_tank.get(client);
+            let tank = this.state.map.get(tankId) as Tank;
+            if (tank.weapon.fireCountdown > 0) {
+                tank.weapon.fireCountdown--;
+            }
+
             if (buffer.length == 0) return;
 
             let up = 0;
@@ -64,8 +70,34 @@ export class MyRoom extends Room<MyRoomState> {
                     right = -1
                 }
             }
-            this.state.map.moveTank(this.client_to_tank.get(key), right, up);
-            this.client_to_buffer.set(key, []);
+            this.state.map.moveTank(tankId, right, up);
+            this.client_to_buffer.set(client, []);
+        });
+
+        this.state.map.projectiles.forEach((projectile) => {
+            let loc = this.state.map.locations.get(projectile.id);
+            let distance = projectile.speed * deltaTime;
+
+            let x_offset =  Math.round(loc.row + (Math.cos(projectile.direction) * distance));
+            let y_offset =  Math.round(loc.col + (Math.sin(projectile.direction) * distance));
+
+            let newLoc = new Location(x_offset, y_offset);
+
+            console.log("oldLoc is,", loc.col, loc.row);
+            console.log("newLoc is,", newLoc.col, newLoc.row);
+
+            this.state.map.locations.set(projectile.id, newLoc);
+
+            // if the projectile is out of range or collided, then explode
+            projectile.rangeRemaining -= distance;
+            let obj_at_newloc = this.state.map.at(newLoc.col, newLoc.row);
+            if (projectile.rangeRemaining <= 0) {
+                let index = this.state.map.projectiles.indexOf(projectile);
+                if (index > -1) {
+                    this.state.map.projectiles.splice(index, 1);
+                }
+                this.state.map.locations.delete(projectile.id);
+            }
         });
     }
     
@@ -75,17 +107,29 @@ export class MyRoom extends Room<MyRoomState> {
         this.initializeMap(this.state.map);
         this.state.player_count = 0;
 
-        
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
-    
-        
        
         this.onMessage("button", (client, button) => {
             this.client_to_buffer.get(client.sessionId).push(button);
             this.broadcast("buttons", `(${client.sessionId}) ${button}`);
         });
 
+        this.onMessage("projectile", (client, barrelDirrection) => {
+            let tank = this.state.map.get(this.client_to_tank.get(client.sessionId)) as Tank;
+            let tankLoc = this.state.map.locations.get(tank.id);
+            let weapon = tank.weapon;
+            // POSSIBLY keep track of who shot who
 
+            console.log(weapon.fireCountdown);
+            if (weapon.fireCountdown == 0) {
+                console.log("pushed");
+                let projectile = weapon.shootProjectile(barrelDirrection, this.state.map.getUniqueId());
+                this.state.map.projectiles.push(projectile);
+                let projectileLoc = new Location(Math.round(tankLoc.col + tank.width / 2), Math.round(tankLoc.row + tank.height / 2));
+                this.state.map.locations.set(projectile.id, projectileLoc);
+                weapon.fireCountdown = weapon.fire_rate;
+            }
+        });
     }
 
     onJoin (client: Client, options: any) {
@@ -98,7 +142,6 @@ export class MyRoom extends Room<MyRoomState> {
         
         let tank_id = this.state.map.put(tank, start_location[0], start_location[1]);
         
-        // client_.broadcast("client to tank", `(${client.sessionId}) ${tank_id}`);
         client.send("tank_id", {tank_id, start_location});
 
         this.client_to_tank.set(client.sessionId, tank_id);

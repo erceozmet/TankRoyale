@@ -1,5 +1,6 @@
 import { Schema, ArraySchema, Context, type } from "@colyseus/schema";
 import { GameObject } from "./GameObject";
+import { Projectile } from "./Projectile";
 
 export class Weapon extends GameObject {
     constructor (damage: number, fire_rate: number, range: number, speed: number) {
@@ -14,15 +15,22 @@ export class Weapon extends GameObject {
         return "weapon";
     }
 
+    fireCountdown: number = 0;
     @type("number") damage: number;
     @type("number") fire_rate: number;
     @type("number") range: number;
     @type("number") speed: number;
+
+    shootProjectile(direction: number, id: string): Projectile {
+        let projectile = new Projectile(this.damage, direction, this.range, this.speed);
+        projectile.id = id;
+        return projectile;
+    }
 }
 
 export class PistolWeapon extends Weapon {
     constructor() {
-        super(20, 40, 25, 30);
+        super(20, 40, 25, 1);
     }
 }
 

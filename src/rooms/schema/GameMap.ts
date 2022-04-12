@@ -4,7 +4,7 @@ import { Projectile } from "./Projectile";
 import { Tank } from "./Tank";
 import { Weapon } from "./Weapon";
 
-class Location extends Schema {
+export class Location extends Schema {
     col: number;
     row: number;
 
@@ -58,6 +58,7 @@ export class GameMap extends Schema {
     locations = new MapSchema<Location>();
     tiles: Tiles<GameObject> = new Tiles<GameObject>(this.width, this.height);
     @type({ map: GameObject }) synced_tiles = new MapSchema<GameObject>();
+    @type([ Projectile ]) projectiles = new ArraySchema<Projectile>();
 
     to1D(col: number, row: number): string {
         return (col + this.width * row).toString();
@@ -66,6 +67,10 @@ export class GameMap extends Schema {
     get(id: string): GameObject {
         let loc = this.locations.get(id);
         return this.tiles.get(loc.col, loc.row);
+    }
+
+    at(col: number, row: number): GameObject {
+        return this.tiles.get(col, row);
     }
 
     delete(id: string) {
@@ -88,8 +93,12 @@ export class GameMap extends Schema {
         );
     }
 
+    getUniqueId(): string {
+        return (this.uniqueId++).toString()
+    }
+
     put(obj: GameObject, col: number, row: number): string {
-        obj.id = (this.uniqueId++).toString();
+        obj.id = this.getUniqueId();
         console.log("put Weapon to, ", col, row);
         for (let i = 0; i < obj.width; i++) {
             for (let j = 0; j < obj.height; j++) {
@@ -103,8 +112,6 @@ export class GameMap extends Schema {
         this.locations.set(obj.id, new Location(col, row));
         return obj.id;
     }
-
-
 
     moveTank(id: string, right: number, up: number): boolean {
         let loc = this.locations.get(id);

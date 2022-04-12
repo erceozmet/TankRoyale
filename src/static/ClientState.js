@@ -10,6 +10,8 @@ export class ClientState {
 		this.tank_dims = {width: 5, height: 5}; //TODO
 
 		this.objects = new Array(this.map_dims.height);
+		this.projectiles = new Array();
+
 		for (var i = 0; i < this.map_dims.height; i++) {
 		  this.objects[i] = new Array(this.map_dims.width);
 		}
