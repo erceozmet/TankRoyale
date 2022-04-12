@@ -119,7 +119,7 @@ client.joinOrCreate("battle_room").then(room => {
     };
 
     /******* Projectile code *******/
-    var barrelDirection = 30;
+    var barrelDirection = 30; // hardcoded 30 for testing
     var projectileMoveInterval = null;
     document.onmousemove = function(e) {
         var mouseX = e.pageX;
