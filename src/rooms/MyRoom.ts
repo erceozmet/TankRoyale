@@ -94,8 +94,13 @@ export class MyRoom extends Room<MyRoomState> {
         let start_location = this.player_locations[start_index];
         this.player_locations.splice(start_index, 1);
         let tank = new Tank();
+
+        
         let tank_id = this.state.map.put(tank, start_location[0], start_location[1]);
         
+        // client_.broadcast("client to tank", `(${client.sessionId}) ${tank_id}`);
+        client.send("tank_id", {tank_id, start_location});
+
         this.client_to_tank.set(client.sessionId, tank_id);
         this.client_to_buffer.set(client.sessionId, new Array());
         console.log(client.sessionId, "added to client addresses");

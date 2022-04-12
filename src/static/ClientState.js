@@ -1,30 +1,158 @@
 export class ClientState {
-	constructor() {
-		this.screen_dims = {width: 640, height: 360};
-		this.map_dims =  {width: 1000, height: 1000};
-		this.map_view_ratio = {width: 10, height: 10};
-		this.view_dims = {width : this.map_dims.width  / this.map_view_ratio.width, 
-						  height: this.map_dims.height / this.map_view_ratio.height};
-		this.objects = new Map();
+	constructor(screen_dims, map_dims, map_view_ratio) {
+		this.screen_dims = screen_dims;
+		this.map_dims =  map_dims;
+		this.change_map_view_ratio(map_view_ratio);
+		
+		this.view_pos = null;
+		this.tank_id = null;
+		this.tank_pos = null;
+		this.tank_dims = 5; //TODO
+
+		this.objects = new Array(this.map_dims.height);
+		for (var i = 0; i < this.map_dims.height; i++) {
+		  this.objects[i] = new Array(this.map_dims.width);
+		}
+		// this.objects = new Map();
+
+		// this.center_tile = {row: -1, col: -1};
   	}
 
-	add_gameobj(gameobj, key) {
-		let sprite = PIXI.Sprite.from(gameobj.imagePath); 
-		let index = this.get_index_from_key(key);
+	change_map_view_ratio(new_ratio) {
+		this.map_view_ratio = new_ratio;
 
-		let starting_row = index.row;// - gameobj.height + 1;
-		sprite.y = this.screen_dims.height / this.view_dims.height * starting_row;
-		sprite.x = this.screen_dims.width  / this.view_dims.width  * index.col;
-		sprite.height = this.screen_dims.height / this.view_dims.height * gameobj.height;
-		sprite.width = this.screen_dims.width / this.view_dims.width * gameobj.width;
-		this.objects.set(gameobj.id, sprite);
+		// tiles per view
+		this.view_dims = {width : this.map_dims.width  / this.map_view_ratio.width, 
+						  height: this.map_dims.height / this.map_view_ratio.height};
+
+
+		// size of 1 tile in the screen
+		this.tile_size = {width: this.screen_dims.width / this.view_dims.width,
+						  height: this.screen_dims.height / this.view_dims.height};
+		
+		
+		
+	}
+
+	set_tank_id(id, pos) {
+		this.tank_id = id;
+		this.change_tank_pos({row: pos[1], col: pos[0]});
+
+	}
+	change_tank_pos(new_pos) {
+		this.tank_pos = new_pos;
+		let old_view_pos = this.view_pos;
+		this.view_pos = {row: this.tank_pos.row + (this.tank_dims / 2) - (this.view_dims.width / 2),
+						 col: this.tank_pos.col + (this.tank_dims / 2) - (this.view_dims.height / 2)};
+
+		this.wrap_view_pos();
+		this.render_view();
+		console.log("unrender")
+		this.unrender_view(old_view_pos, this.view_pos);
+		
+	}
+
+	wrap_view_pos() {
+		this.view_pos.row = Math.floor(this.view_pos.row);
+		this.view_pos.col = Math.floor(this.view_pos.col);
+
+		if (this.view_pos.row < 0) this.view_pos.row = 0;
+		if (this.view_pos.col < 0) this.view_pos.col = 0;
+
+		if (this.view_pos.col + this.view_dims.width > this.map_dims.width) this.view_pos.col = this.map_dims.width - this.view_dims.width;
+		if (this.view_pos.row + this.view_dims.height > this.map_dims.height) this.view_pos.row = this.map_dims.height - this.view_dims.height;
+		
+	}
+
+	// invariant: view_pos + view_dims is never bigger than map dims
+	render_view() {
+		for (let row = 0; row < this.view_dims.height; row++) {
+			let row_index = this.view_pos.row + row;
+			for (let col = 0; col < this.view_dims.width; col++) {
+				let col_index = this.view_pos.col + col;
+				let sprite = this.objects[row_index][col_index];
+				
+				if (sprite == null) continue;
+				sprite.visible = true;
+				sprite.y = this.tile_size.height * row;
+				sprite.x = this.tile_size.width * col; 
+				
+			}
+		}
+	}
+
+	// make all objects that were inside the view hidden 
+	unrender_view(old_view_pos, new_view_pos) {
+		if (old_view_pos == null) return;
+
+		let row_diff = old_view_pos.row - new_view_pos.row;
+		for (let row = 0; row < Math.abs(row_diff); row++) {
+			let row_index = row_diff > 0 ?  old_view_pos.row + this.tank_dims.width - row
+										 :  old_view_pos.row + row;
+		
+			for (let col = 0; col < this.view_dims.width; col++) {
+				let col_index = old_view_pos.col + col;
+				let sprite = this.objects[row_index][col_index];
+				if (sprite == null) continue;	
+				sprite.visible = false;	
+			}
+		}
+
+		let col_diff = old_view_pos.col - new_view_pos.col;
+		for (let col = 0; col < Math.abs(col_diff); col++) {
+			let col_index = col_diff > 0 ?  old_view_pos.col + this.tank_dims.width - col
+										 :  old_view_pos.col + col;
+		
+			for (let row = 0; row < this.view_dims.width; row++) {
+				let row_index = old_view_pos.row + row;
+				let sprite = this.objects[row_index][col_index];
+				if (sprite == null) continue;	
+				sprite.visible = false;	
+			}
+		}
+	}
+
+	is_in_view(gameobj, index) {
+		if (this.view_pos == null) return false;
+		return (index.col + gameobj.width  >= this.view_pos.col   &&
+				index.row + gameobj.height >= this.view_pos.row   &&  
+				index.col <= this.view_pos.col + view_dims.width  &&
+				index.row <= this.view_pos.row + view_dims.height);
+	}
+
+	add_gameobj(gameobj, index) {
+		let sprite = PIXI.Sprite.from(gameobj.imagePath);
+	
+		// set sprite attibutes
+		sprite.y = this.tile_size.height * index.row;
+		sprite.x = this.tile_size.width  * index.col;
+		
+		sprite.height = this.tile_size.height * gameobj.height;
+		sprite.width = this.tile_size.width * gameobj.width;
+		this.objects[index.row][index.col] = sprite;
+
+		if (gameobj.id == this.tank_id) {
+			console.log("tank");
+			this.change_tank_pos(index);
+			this.render_view();
+		}
+		
+		else if (!this.is_in_view(gameobj, index)) {
+			sprite.visible = false;
+		}
+		
 		return sprite;
 	}
 
-	remove_gameobj(gameobj) {
-		let sprite = this.objects.get(gameobj.id);
-		this.objects.delete(gameobj.id);
-		console.log(this.objects);
+	remove_gameobj(gameobj, index) {
+
+		// this.ob
+		// let sprite = this.objects.get(gameobj.id);
+		let sprite = this.objects[index.row][index.col];
+		// sprite.visible = false;
+		// this.objects.delete(gameobj.id);
+		this.objects[index.row][index.col] = null;
+		// console.log(this.objects);
 		return sprite;
 	}
 
