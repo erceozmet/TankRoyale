@@ -98,7 +98,7 @@ export class ClientState {
 				let col_index = old_view_pos.col + col;
 				let sprite = this.objects[row_index][col_index];
 				if (sprite == null) continue;	
-				// sprite.visible = false;	
+				sprite.visible = false;	
 			}
 		}
 
@@ -111,7 +111,7 @@ export class ClientState {
 				let row_index = old_view_pos.row + row;
 				let sprite = this.objects[row_index][col_index];
 				if (sprite == null) continue;	
-				// sprite.visible = false;	
+				sprite.visible = false;	
 			}
 		}
 	}
