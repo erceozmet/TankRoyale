@@ -1,6 +1,7 @@
 import { Schema, ArraySchema, Context, type } from "@colyseus/schema";
 import { GameObject } from "./GameObject";
 import { Projectile } from "./Projectile";
+import { Location } from "./GameMap";
 import { Tank } from "./Tank";
 
 export class Weapon extends GameObject {
@@ -22,8 +23,8 @@ export class Weapon extends GameObject {
     @type("number") range: number;
     @type("number") speed: number;
 
-    shootProjectile(tank_id: string, direction: number, id: string): Projectile {
-        let projectile = new Projectile(tank_id, this.damage, direction, this.range, this.speed);
+    shootProjectile(tank_id: string, direction: number, id: string, loc: Location): Projectile {
+        let projectile = new Projectile(tank_id, this.damage, direction, this.range, this.speed, loc);
         projectile.id = id;
         return projectile;
     }
@@ -31,24 +32,24 @@ export class Weapon extends GameObject {
 
 export class PistolWeapon extends Weapon {
     constructor() {
-        super(20, 40, 25, 1);
+        super(20, 50, 25, 10);
     }
 }
 
 export class SniperWeapon extends Weapon {
     constructor() {
-        super(40, 25, 70, 70);
+        super(40, 100, 70, 70);
     }
 }
 
 export class MachinegunWeapon extends Weapon{
     constructor() {
-        super(5, 100, 25, 50);
+        super(5, 25, 25, 50);
     }
 }
 
 export class ShotgunWeapon extends Weapon{
     constructor() {
-        super(50, 25, 15, 30);
+        super(50, 75, 15, 30);
     }
 }

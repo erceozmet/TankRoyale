@@ -15,8 +15,16 @@ export class ClientState {
 		for (var i = 0; i < this.map_dims.height; i++) {
 		  this.objects[i] = new Array(this.map_dims.width);
 		}
+
+		
   	}
-	  
+	// set_barrel_direction() {
+
+	// }
+
+	// add_projectile(gameobj) {
+
+	// }  
 	add_gameobj(gameobj, index) {
 		let sprite = PIXI.Sprite.from(gameobj.imagePath);
 	
@@ -27,13 +35,18 @@ export class ClientState {
 		this.objects[index.row][index.col] = sprite;
 
 		if (gameobj.id == this.tank_id) {
-			this.set_sprite_coordinates(sprite, index);
+			[sprite.x, sprite.y] = this.get_screen_coordinates(index);
 			this.change_tank_pos(index);
 			this.render_view();
+			// let barrel_sprite = PIXI.Sprite.from("images/barrel.png");
+			// barrel_sprite.height = this.tile_size.height;
+			// barrel_sprite.widht = this.tile_size.width;
+			// console.log(sprite.height);
+			// sprite.addChild(barrel_sprite);
 		}
 		
 		else if (this.is_in_view(gameobj, index)) {
-			this.set_sprite_coordinates(sprite, index)
+			[sprite.x, sprite.y] = this.get_screen_coordinates(index)
 		} else {
 			sprite.visible = false;
 		}
@@ -162,10 +175,11 @@ export class ClientState {
 			document.getElementById("gamebox").appendChild(g);  
 		}
 	}
-	// setting on screen coordinates based on index
-	set_sprite_coordinates(sprite, index) {
-		sprite.y = this.tile_size.height * (index.row - this.view_pos.row);
-		sprite.x = this.tile_size.width  * (index.col - this.view_pos.col);
+	// return on screen coordinates based on index
+	get_screen_coordinates(index) {
+		let y = this.tile_size.height * (index.row - this.view_pos.row);
+		let x = this.tile_size.width  * (index.col - this.view_pos.col);
+		return [x, y];
 	}
 
 	// set client tank
