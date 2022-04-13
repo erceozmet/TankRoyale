@@ -4,8 +4,9 @@ import { PistolWeapon, Weapon } from "./Weapon";
 
 export class Tank extends GameObject {
 
-    constructor() {
+    constructor(client: string) {
         super("images/tank.png", 5, 5);
+        this.client = client;
         this.health = 100;
         this.weapon = new PistolWeapon();
     }
@@ -14,6 +15,7 @@ export class Tank extends GameObject {
         return "tank";
     }
 
+    client: string;
     @type("number") health: number;
     @type(Weapon) weapon: Weapon;
 }

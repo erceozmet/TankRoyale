@@ -76,27 +76,40 @@ export class MyRoom extends Room<MyRoomState> {
 
         this.state.map.projectiles.forEach((projectile) => {
             let loc = this.state.map.locations.get(projectile.id);
-            let distance = projectile.speed * deltaTime;
+            // let distance = projectile.speed * deltaTime;
+            let distance = 3;
 
-            let x_offset =  Math.round(loc.row + (Math.cos(projectile.direction) * distance));
-            let y_offset =  Math.round(loc.col + (Math.sin(projectile.direction) * distance));
+            let newX =  Math.round(loc.col + (Math.cos(projectile.direction) * distance));
+            let newY =  Math.round(loc.row + (Math.sin(projectile.direction) * distance));
 
-            let newLoc = new Location(x_offset, y_offset);
-
-            console.log("oldLoc is,", loc.col, loc.row);
-            console.log("newLoc is,", newLoc.col, newLoc.row);
+            let newLoc = new Location(newX, newY);
 
             this.state.map.locations.set(projectile.id, newLoc);
 
-            // if the projectile is out of range or collided, then explode
+            // booleans for checking if projectile should explode
+            let is_inside_walls = this.state.map.checkRange(newLoc.col, newLoc.row);
             projectile.rangeRemaining -= distance;
+            let has_range_remaining = projectile.rangeRemaining > 0;
             let obj_at_newloc = this.state.map.at(newLoc.col, newLoc.row);
-            if (projectile.rangeRemaining <= 0) {
-                let index = this.state.map.projectiles.indexOf(projectile);
-                if (index > -1) {
-                    this.state.map.projectiles.splice(index, 1);
+            let my_tank = this.state.map.get(projectile.tank_id) as Tank;
+            let is_on_enemy = obj_at_newloc != null && obj_at_newloc.getType() == "tank" && obj_at_newloc != my_tank; // it's a tank but not ours
+
+            console.log(!is_inside_walls, !has_range_remaining, is_on_enemy);
+            // if the projectile is out of range or collided, then explode
+            if (!is_inside_walls || !has_range_remaining || is_on_enemy) {
+                this.state.map.explodeProjectile(projectile);
+                if (is_on_enemy) {
+                    let enemy_tank = obj_at_newloc as Tank;
+                    enemy_tank.health -= projectile.damage;
+                    console.log("tank health: ", enemy_tank.health);
+                    if (enemy_tank.health <= 0) {
+                        console.log("EXPLODE");
+                        this.state.map.explodeTank(enemy_tank);
+                        this.client_to_tank.delete(enemy_tank.client);
+                        this.client_to_buffer.delete(enemy_tank.client);
+                        this.broadcast("kill", {killer: my_tank.client, killed: enemy_tank.client});
+                    }
                 }
-                this.state.map.locations.delete(projectile.id);
             }
         });
     }
@@ -111,7 +124,6 @@ export class MyRoom extends Room<MyRoomState> {
        
         this.onMessage("button", (client, button) => {
             this.client_to_buffer.get(client.sessionId).push(button);
-            this.broadcast("buttons", `(${client.sessionId}) ${button}`);
         });
 
         this.onMessage("projectile", (client, barrelDirrection) => {
@@ -123,7 +135,7 @@ export class MyRoom extends Room<MyRoomState> {
             console.log(weapon.fireCountdown);
             if (weapon.fireCountdown == 0) {
                 console.log("pushed");
-                let projectile = weapon.shootProjectile(barrelDirrection, this.state.map.getUniqueId());
+                let projectile = weapon.shootProjectile(tank.id, barrelDirrection, this.state.map.getUniqueId());
                 this.state.map.projectiles.push(projectile);
                 let projectileLoc = new Location(Math.round(tankLoc.col + tank.width / 2), Math.round(tankLoc.row + tank.height / 2));
                 this.state.map.locations.set(projectile.id, projectileLoc);
@@ -137,7 +149,7 @@ export class MyRoom extends Room<MyRoomState> {
         let start_index = Math.floor(Math.random() * (this.player_locations.length -1));
         let start_location = this.player_locations[start_index];
         this.player_locations.splice(start_index, 1);
-        let tank = new Tank();
+        let tank = new Tank(client.sessionId);
 
         
         let tank_id = this.state.map.put(tank, start_location[0], start_location[1]);

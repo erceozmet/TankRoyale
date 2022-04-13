@@ -6,12 +6,11 @@ export class Projectile extends GameObject {
     damage: number;
     direction: number;
     speed: number;
-    
+    tank_id: string;
 
-    @type("number") tank_id: number;
-
-    constructor(damage: number, direction: number, range: number, speed: number) {
+    constructor(tank_id: string, damage: number, direction: number, range: number, speed: number) {
         super("images/projectile.png", 1, 1);
+        this.tank_id = tank_id;
         this.damage = damage;
         this.direction = direction;
         this.rangeRemaining = range;

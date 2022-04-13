@@ -64,6 +64,10 @@ export class GameMap extends Schema {
         return (col + this.width * row).toString();
     }
 
+    checkRange(col: number, row: number): boolean {
+        return this.tiles.checkRange(col, row);
+    }
+
     get(id: string): GameObject {
         let loc = this.locations.get(id);
         return this.tiles.get(loc.col, loc.row);
@@ -158,5 +162,28 @@ export class GameMap extends Schema {
         loc.col = col;
         loc.row = row;
         return true;
+    }
+
+    explodeProjectile(projectile: Projectile) {
+        let loc = this.locations.get(projectile.id);
+        console.log("projectile exploded in", loc.col, loc.row);
+
+        let index = this.projectiles.indexOf(projectile);
+        if (index > -1) {
+            this.projectiles.splice(index, 1);
+        }
+        this.locations.delete(projectile.id);
+    }
+
+    explodeTank(tank: Tank) {
+        let loc = this.locations.get(tank.id);
+        this.locations.delete(tank.id);
+        
+        for (let i = 0; i < tank.width; i++) {
+            for (let j = 0; j < tank.height; j++) {
+                this.tiles.remove(loc.col + i, loc.row + j);
+            }
+        }
+        this.synced_tiles.delete(this.to1D(loc.col, loc.row));
     }
 }

@@ -60,9 +60,9 @@ client.joinOrCreate("battle_room").then(room => {
 
 
     // listen to patches coming from the server
-    room.onMessage("buttons", function (message) {
+    room.onMessage("kill", function (message) {
         var p = document.createElement("p");
-        p.innerText = message;
+        p.innerText = "Tank " + message.killer + " has eliminated tank " + message.killed;
         document.querySelector("#buttons").appendChild(p);
     });
 
@@ -119,16 +119,18 @@ client.joinOrCreate("battle_room").then(room => {
     };
 
     /******* Projectile code *******/
-    var barrelDirection = 30; // hardcoded 30 for testing
+    var barrelDirection; // hardcoded 30 for testing
     var projectileMoveInterval = null;
     document.onmousemove = function(e) {
-        var mouseX = e.pageX;
-        var mouseY = e.pageY;
-        var tankX; // get coordinates of client's tank
-        var tankY;
+        var mouseX = e.pageX; // NOT CORRECT
+        var mouseY = e.pageY; // NOT CORRECT
+        var tankX = client_state.tank_pos.col;
+        var tankY = client_state.tank_pos.row;
 
-        // insert code for updating barrelDirection
+        // code for updating barrelDirection
+        barrelDirection = Math.atan2(mouseY - tankY, mouseX - tankX); // angle in radians
 
+        console.log(barrelDirection);
         // insert code for rendering new barrel
     };
 
