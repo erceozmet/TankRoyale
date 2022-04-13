@@ -7,8 +7,6 @@ const MAP_DIMS = {width: 1000, height: 1000};
 const MAP_VIEW_RATIO = {width: 10, height: 10};
 let client_state = new ClientState(SCREEN_DIMS, MAP_DIMS, MAP_VIEW_RATIO);
 
-
-
 // pixi initialization
 let app = new PIXI.Application({
     width: SCREEN_DIMS.width,

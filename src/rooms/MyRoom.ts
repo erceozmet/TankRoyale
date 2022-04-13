@@ -80,8 +80,9 @@ export class MyRoom extends Room<MyRoomState> {
             console.log("delta time", deltaTime);
             let distance = projectile.speed * (deltaTime / 1000);
 
-            let newX =  Math.round(col + (Math.cos(projectile.direction) * distance));
-            let newY =  Math.round(row + (Math.sin(projectile.direction) * distance));
+            console.log(distance);
+            let newX = col + (Math.cos(projectile.direction) * distance);
+            let newY = row + (Math.sin(projectile.direction) * distance);
 
             let newLoc = new Location(newX, newY);
 
@@ -95,7 +96,7 @@ export class MyRoom extends Room<MyRoomState> {
             let is_inside_walls = this.state.map.checkRange(newLoc.col, newLoc.row);
             projectile.rangeRemaining -= distance;
             let has_range_remaining = projectile.rangeRemaining > 0;
-            let obj_at_newloc = this.state.map.at(newLoc.col, newLoc.row);
+            let obj_at_newloc = this.state.map.at(Math.round(newLoc.col), Math.round(newLoc.row));
             let my_tank = this.state.map.get(projectile.tank_id) as Tank;
             let is_on_enemy = obj_at_newloc != null && obj_at_newloc.getType() == "tank" && obj_at_newloc != my_tank; // it's a tank but not ours
 
