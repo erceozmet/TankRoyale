@@ -20,14 +20,11 @@ var host = window.document.location.host.replace(/:.*/, '');
 var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
 client.joinOrCreate("battle_room").then(room => {
     console.log("joined");
-    room.onStateChange.once(function (state) {
-        // console.log("initial room state:", state);
-        // document.write(`<div id = "za"><ul>${state.client_adresses.forEach((item) => `<li>${item}</li>`).join('')}</ul></div>`);
-    });
 
     // game map decls
     client_state.render_bars();
 
+    // gameobj listeners
     room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
         currentValue.onAdd = (gameobj, key) => {
             console.log("adding gameobj ", gameobj.id);
@@ -66,7 +63,7 @@ client.joinOrCreate("battle_room").then(room => {
     });
 
     room.onMessage("tank_id", function (message) {
-        // console.log("tank_id", message);
+        console.log("setting tank_id", message);
         client_state.set_tank_id(message.tank_id, message.start_location);
     });
 
@@ -105,11 +102,9 @@ client.joinOrCreate("battle_room").then(room => {
 
     document.onkeyup = function (e) {
         e.preventDefault();
-
         if (keys.has(e.code)) {
             keys.delete(e.code);
         }
-
         // need to check if keyboard movement stopped
         if ((allowedKeys[e.code]) && (keys.size === 0)) {
             clearInterval(tankMoveInterval);
@@ -119,82 +114,37 @@ client.joinOrCreate("battle_room").then(room => {
 
     /******* Projectile code *******/
     var barrelDirection; // hardcoded 30 for testing
-    var projectileMoveInterval = null;
     document.onmousemove = function(e) {
         var mouseX = e.pageX; 
         var mouseY = e.pageY; 
-        // console.log("x", mouseX);
-        // console.log("y", mouseY);
         var [tankX, tankY] = client_state.get_screen_coordinates(client_state.tank_pos);
-        // console.log("tankx", tankX);
-        // console.log("tanky", tankY);
         tankY += client_state.tank_dims.height * client_state.tile_size.height / 2;
         tankX += client_state.tank_dims.width  * client_state.tile_size.width  / 2;
-        // console.log("tankx", tankX);
-        // console.log("tanky", tankY);
-
         // code for updating barrelDirection
         barrelDirection = Math.atan2(mouseY - tankY, mouseX - tankX); // angle in radians
 
-        // console.log(barrelDirection * 57.2958);
-        // insert code for rendering new barrel
     };
 
     document.onclick = function(e) {
-        console.log("clicked");
+        console.log("clicked on ", e.pageX, e.pageY);
         room.send("projectile", barrelDirection);
     };
 
+    // projectile code
     room.state.map.listen("projectiles", (currentValue, previousValue) => {
         currentValue.onAdd = (projectile, key) => {
             console.log("adding projectile", projectile);
-
-            let sprite = PIXI.Sprite.from(projectile.imagePath);
-            sprite.height = client_state.tile_size.height * projectile.height;
-            sprite.width  = client_state.tile_size.width  * projectile.width;
-            
-            [sprite.x, sprite.y] = client_state.get_screen_coordinates({row: projectile.row, col: projectile.col});
-            client_state.projectiles.set(projectile.id, sprite);
+            let sprite =client_state.add_projectile(projectile);
             app.stage.addChild(sprite);
-            // // client.projectiles.push(gameobj);
-            const DELTA_TIME = 50;
-            projectileMoveInterval = setInterval( () => {
-                // sprite.x += 5;
-                // render all projectiles in the list
-                let tile_distance = projectile.speed * (DELTA_TIME / 1000) ;
-                sprite.x += (Math.cos(projectile.direction) * tile_distance * client_state.tile_size.height) ;
-                sprite.y += (Math.sin(projectile.direction) * tile_distance * client_state.tile_size.width);
-                console.log("projectile", projectile.id, "new loc:", sprite.x, sprite.y);
-                
-                // let newX =  Math.round(col + (Math.cos(projectile.direction) * distance));
-                // let newY =  Math.round(row + (Math.sin(projectile.direction) * distance));
-
-                // let newLoc = new Location(newX, newY);
-            }, DELTA_TIME);
             
         };
         currentValue.onChange = (gameobj, key) => {
             console.log("change projectile")
-            // remove gameobj from list of projectiles to be rendered
-            // play explosion animation in the coordinates of projectile
-
-            // if (projectiles.size == 0) { // replace with list of projectiles
-            //     clearInterval(projectileMoveInterval);
-            //     projectileMoveInterval = null;
-            // }
         }
         currentValue.onRemove = (projectile, key) => {
             console.log("removing projectile", projectile.id);
-            let sprite = client_state.projectiles.get(projectile.id);
-            client_state.projectiles.delete(projectile.id);
+            let sprite = client_state.remove_projectile(projectile);
             app.stage.removeChild(sprite);
-            // remove gameobj from list of projectiles to be rendered
-            // play explosion animation in the coordinates of projectile
-
-            if (client_state.projectiles.size == 0) {
-                clearInterval(projectileMoveInterval);
-                projectileMoveInterval = null;
-            }
         }
     });
 });
