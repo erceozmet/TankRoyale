@@ -30,7 +30,7 @@ client.joinOrCreate("battle_room").then(room => {
 
     room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
         currentValue.onAdd = (gameobj, key) => {
-            console.log("adding ", gameobj.id);
+            console.log("adding gameobj ", gameobj.id);
             let index = client_state.get_index_from_key(key);
 
             let sprite = client_state.add_gameobj(gameobj, index);
@@ -43,7 +43,7 @@ client.joinOrCreate("battle_room").then(room => {
         };
 
         currentValue.onRemove = (gameobj, key) => {
-            console.log("removing ", gameobj.id);
+            console.log("removing gameobj", gameobj.id);
             client_state.render_view();
             let index = client_state.get_index_from_key(key);
             let sprite = client_state.remove_gameobj(gameobj, index);
@@ -147,29 +147,31 @@ client.joinOrCreate("battle_room").then(room => {
 
     room.state.map.listen("projectiles", (currentValue, previousValue) => {
         currentValue.onAdd = (projectile, key) => {
-            console.log("projec", projectile);
+            console.log("adding projectile", projectile);
 
             let sprite = PIXI.Sprite.from(projectile.imagePath);
             sprite.height = client_state.tile_size.height * projectile.height;
             sprite.width  = client_state.tile_size.width  * projectile.width;
             
             [sprite.x, sprite.y] = client_state.get_screen_coordinates({row: projectile.row, col: projectile.col});
-            client_state.projectiles.push(sprite);
+            client_state.projectiles.set(projectile.id, sprite);
             app.stage.addChild(sprite);
             // // client.projectiles.push(gameobj);
-            if (projectileMoveInterval === null) {
-                projectileMoveInterval = setInterval( () => {
-                    // sprite.x += 5;
-                    // render all projectiles in the list
-                    let distance = 3;
-                    sprite.x += (Math.cos(projectile.direction) * distance);
-                    sprite.y += (Math.sin(projectile.direction) * distance);
-                    // let newX =  Math.round(col + (Math.cos(projectile.direction) * distance));
-                    // let newY =  Math.round(row + (Math.sin(projectile.direction) * distance));
+            const DELTA_TIME = 50;
+            projectileMoveInterval = setInterval( () => {
+                // sprite.x += 5;
+                // render all projectiles in the list
+                let tile_distance = projectile.speed * (DELTA_TIME / 1000) ;
+                sprite.x += (Math.cos(projectile.direction) * tile_distance * client_state.tile_size.height) ;
+                sprite.y += (Math.sin(projectile.direction) * tile_distance * client_state.tile_size.width);
+                console.log("projectile", projectile.id, "new loc:", sprite.x, sprite.y);
+                
+                // let newX =  Math.round(col + (Math.cos(projectile.direction) * distance));
+                // let newY =  Math.round(row + (Math.sin(projectile.direction) * distance));
 
-                    // let newLoc = new Location(newX, newY);
-                }, 50);
-            }
+                // let newLoc = new Location(newX, newY);
+            }, DELTA_TIME);
+            
         };
         currentValue.onChange = (gameobj, key) => {
             console.log("change projectile")
@@ -181,15 +183,18 @@ client.joinOrCreate("battle_room").then(room => {
             //     projectileMoveInterval = null;
             // }
         }
-        currentValue.onRemove = (gameobj, key) => {
-            console.log("remove projectile")
+        currentValue.onRemove = (projectile, key) => {
+            console.log("removing projectile", projectile.id);
+            let sprite = client_state.projectiles.get(projectile.id);
+            client_state.projectiles.delete(projectile.id);
+            app.stage.removeChild(sprite);
             // remove gameobj from list of projectiles to be rendered
             // play explosion animation in the coordinates of projectile
 
-            // if (projectiles.size == 0) { // replace with list of projectiles
-            //     clearInterval(projectileMoveInterval);
-            //     projectileMoveInterval = null;
-            // }
+            if (client_state.projectiles.size == 0) {
+                clearInterval(projectileMoveInterval);
+                projectileMoveInterval = null;
+            }
         }
     });
 });

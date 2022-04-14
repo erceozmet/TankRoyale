@@ -5,8 +5,10 @@ import { Location } from "./GameMap";
 export class Projectile extends GameObject {
     rangeRemaining: number;
     damage: number;
-    speed: number;
+    
     tank_id: string;
+
+    @type("number")speed: number;
 
     @type("number")direction: number;
     @type("number")col: number;

@@ -77,20 +77,21 @@ export class MyRoom extends Room<MyRoomState> {
         this.state.map.projectiles.forEach((projectile) => {
             let col = projectile.col;
             let row = projectile.row;
-            console.log("delta time", deltaTime);
+            // console.log("delta time", deltaTime);
+            
             let distance = projectile.speed * (deltaTime / 1000);
 
-            console.log(distance);
             let newX = col + (Math.cos(projectile.direction) * distance);
             let newY = row + (Math.sin(projectile.direction) * distance);
-
+            
             let newLoc = new Location(newX, newY);
 
+            
             projectile.col = newLoc.col;
             projectile.row = newLoc.row;
 
-            console.log("old loc: ", col, row);
-            console.log("new loc: ", newLoc.col, newLoc.row);
+            // console.log("old loc: ", col, row);
+            // console.log("new loc: ", newLoc.col, newLoc.row);
 
             // booleans for checking if projectile should explode
             let is_inside_walls = this.state.map.checkRange(newLoc.col, newLoc.row);
@@ -100,7 +101,7 @@ export class MyRoom extends Room<MyRoomState> {
             let my_tank = this.state.map.get(projectile.tank_id) as Tank;
             let is_on_enemy = obj_at_newloc != null && obj_at_newloc.getType() == "tank" && obj_at_newloc != my_tank; // it's a tank but not ours
 
-            console.log(!is_inside_walls, !has_range_remaining, is_on_enemy);
+            // console.log(!is_inside_walls, !has_range_remaining, is_on_enemy);
             // if the projectile is out of range or collided, then explode
             if (!is_inside_walls || !has_range_remaining || is_on_enemy) {
                 console.log("explode")
@@ -137,12 +138,12 @@ export class MyRoom extends Room<MyRoomState> {
             let tank = this.state.map.get(this.client_to_tank.get(client.sessionId)) as Tank;
             let tankLoc = this.state.map.locations.get(tank.id);
             let weapon = tank.weapon;
-            // POSSIBLY keep track of who shot who
+            // TODO POSSIBLY keep track of who shot who
 
             console.log(weapon.fireCountdown);
             if (weapon.fireCountdown == 0) {
-                console.log("pushed");
                 let projectileLoc = new Location(Math.round(tankLoc.col + tank.width / 2), Math.round(tankLoc.row + tank.height / 2));
+                console.log("new projectile, loc:", projectileLoc);
                 
                 let projectile = weapon.shootProjectile(tank.id, barrelDirrection, this.state.map.getUniqueId(), projectileLoc);
                 this.state.map.projectiles.push(projectile);
