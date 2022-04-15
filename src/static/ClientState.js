@@ -60,6 +60,34 @@ export class ClientState {
 		return sprite;
 	}
 
+	add_projectile(projectile) {
+		var projectileMoveInterval = null;
+		let sprite = PIXI.Sprite.from(projectile.imagePath);
+		sprite.height = this.tile_size.height * projectile.height;
+		sprite.width  = this.tile_size.width  * projectile.width;
+		
+		[sprite.x, sprite.y] = this.get_screen_coordinates({row: projectile.row, col: projectile.col});
+		const DELTA_TIME = 50;
+		// create interval function
+		projectileMoveInterval = setInterval( () => {
+			let tile_distance = projectile.speed * (DELTA_TIME / 1000) ;
+			sprite.x += (Math.cos(projectile.direction) * tile_distance * this.tile_size.height) ;
+			sprite.y += (Math.sin(projectile.direction) * tile_distance * this.tile_size.width);
+        }, DELTA_TIME);
+		this.projectiles.set(projectile.id, {sprite: sprite, interval: projectileMoveInterval});
+		
+		return sprite;
+	}
+	// TODO: play explosion animation in the coordinates of projectile
+	remove_projectile(projectile) {
+		let {sprite: sprite, interval: interval}  = this.projectiles.get(projectile.id);
+		clearInterval(interval);
+        this.projectiles.delete(projectile.id);
+		
+        return sprite;
+	}
+	
+
 	// assign new map view ration
 	change_map_view_ratio(new_ratio) {
 		this.map_view_ratio = new_ratio;
