@@ -30,23 +30,15 @@ class Tiles<T> extends ArraySchema<T> {
     }
 
     get(col: number, row: number): T {
-        if (this.checkRange(col, row)) {
-            return this[col + this.width * row];
-        } else {
-            return null;
-        }
+        return this[col + this.width * row];
     }
 
     set(col: number, row: number, obj: T) {
-        if (this.checkRange(col, row)) {
-            this[col + this.width * row] = obj;
-        }
+        this[col + this.width * row] = obj;
     }
 
     remove(col: number, row: number) {
-        if (this.checkRange(col, row)) {
-            this[col + this.width * row] = null;
-        }
+        this[col + this.width * row] = null;
     }
 }
 
@@ -66,6 +58,23 @@ export class GameMap extends Schema {
 
     checkRange(col: number, row: number): boolean {
         return this.tiles.checkRange(col, row);
+    }
+
+    checkObjectRange(col: number, row: number, obj: GameObject): boolean {
+        return (
+            this.tiles.checkRange(col, row) &&
+            this.tiles.checkRange(col + obj.width, row + obj.height)
+        );
+    }
+
+    canPlace(col: number, row: number, obj: GameObject): boolean {
+        for (let i = 0; i < obj.width; i++) {
+            for (let j = 0; j < obj.height; j++) {
+                if (this.tiles.get(col + i, row + j) != null)
+                    return false;
+            }
+        }
+        return this.checkObjectRange(col, row, obj);
     }
 
     get(id: string): GameObject {
@@ -90,12 +99,7 @@ export class GameMap extends Schema {
         this.synced_tiles.delete(this.to1D(loc.col, loc.row));
     }
 
-    canPlace(col: number, row: number, obj: GameObject): boolean {
-        return (
-            this.tiles.checkRange(col, row) &&
-            this.tiles.checkRange(col + obj.width, row + obj.height)
-        );
-    }
+
 
     getUniqueId(): string {
         return (this.uniqueId++).toString()
@@ -125,7 +129,7 @@ export class GameMap extends Schema {
     }
 
     setLoc(tank: Tank, old_col: number, old_row: number, col: number, row: number): boolean {
-        if (!this.canPlace(col, row, tank)) return false;
+        if (!this.checkObjectRange(col, row, tank)) return false;
 
         for (let i = 0; i < tank.width; i++) {
             for (let j = 0; j < tank.height; j++) {

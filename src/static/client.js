@@ -94,6 +94,7 @@ client.joinOrCreate("battle_room").then(room => {
             }
             
             if (tankMoveInterval === null) {
+                room.send("button", e.code);
                 tankMoveInterval = setInterval(function () {
                     keys.forEach((key) => {
                         room.send("button", key);
@@ -160,17 +161,18 @@ client.joinOrCreate("battle_room").then(room => {
             const DELTA_TIME = 50;
             projectileMoveInterval = setInterval( () => {
                 // sprite.x += 5;
-                // render all projectiles in the list
+                // render all projectiles in the list                      
                 let tile_distance = projectile.speed * (DELTA_TIME / 1000) ;
                 sprite.x += (Math.cos(projectile.direction) * tile_distance * client_state.tile_size.height) ;
                 sprite.y += (Math.sin(projectile.direction) * tile_distance * client_state.tile_size.width);
                 console.log("projectile", projectile.id, "new loc:", sprite.x, sprite.y);
-                
+                    
                 // let newX =  Math.round(col + (Math.cos(projectile.direction) * distance));
                 // let newY =  Math.round(row + (Math.sin(projectile.direction) * distance));
 
                 // let newLoc = new Location(newX, newY);
             }, DELTA_TIME);
+            
             
         };
         currentValue.onChange = (gameobj, key) => {

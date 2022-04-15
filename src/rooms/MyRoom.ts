@@ -3,6 +3,7 @@ import { MyRoomState } from "./schema/MyRoomState";
 import { GameMap, Location } from "./schema/GameMap";
 import { Tank } from "./schema/Tank";
 import { SniperWeapon, MachinegunWeapon, ShotgunWeapon } from "./schema/Weapon";
+import { GameObject } from "./schema/GameObject";
 
 export class MyRoom extends Room<MyRoomState> {
    
@@ -10,29 +11,60 @@ export class MyRoom extends Room<MyRoomState> {
     client_to_buffer = new Map();
 
     // col row
+    
+    // TODO: turn into for loop that is scalable with the map
     player_locations = [[20, 20], [20, 40], [20, 60], [20, 80], 
                         [40, 20], [40, 40], [40, 60], [40, 80],
                         [60, 20], [60, 40], [60, 60], [60, 80],
                         [80, 20], [80, 40], [80, 60], [80, 80]]
 
 
+    doesOverlap(l1: Location, r1: Location, l2: Location, r2: Location): boolean {
+        // If one rectangle is on left side of other
+        if (l1.col > r2.col || l2.col > r1.col)
+            return false;
     
+        // If one rectangle is above other
+        if (r1.row > l2.row || r2.row > l1.row)
+            return false;
+    
+        return true;
+    }
+
     initializeMap(map: GameMap) {
         // drop 3 of each special weapon on random coordinates
         let count = 3;
         for (let i = 0; i < count; i++) {
             let weapons = [new SniperWeapon(), new MachinegunWeapon(), new ShotgunWeapon()];
-            weapons.forEach(function (weapon) {
-                let x, y;
+            for (let j = 0; j < weapons.length; j++) {
+                let weapon = weapons[j];
+                let x: number, y: number;
+                let loot_loc_tl: Location, loot_loc_br: Location, tank_loc_tl, tank_loc_br;
+                let doesOverlap = false;
                 do {
                     x = Math.floor(Math.random() * 100);
                     y = Math.floor(Math.random() * 100);
+                    loot_loc_tl = new Location(x, y + weapon.height);
+                    loot_loc_br = new Location(x + weapon.width, y);
 
-                    // toDo: handle tank and weapon collision at client join
-                    // TODO: pressing A and D at the same time
-                } while (!map.canPlace(x, y, weapon ));
+                    // handle tank and weapon collision at client join
+                    this.player_locations.forEach(
+                        (arr) => {
+                        let tank_x = arr[0];
+                        let tank_y = arr[1];
+                        let dummy = new Tank("yarrak");
+                        tank_loc_tl = new Location(tank_x, tank_y + dummy.height); // top left
+                        tank_loc_br = new Location(tank_x + dummy.width, tank_y);   // bottom right
+                        console.log(tank_loc_tl, tank_loc_br, loot_loc_tl, loot_loc_br);
+                        if (this.doesOverlap(tank_loc_tl, tank_loc_br, loot_loc_tl, loot_loc_br)){
+                            doesOverlap = true;
+                        }
+                        console.log(doesOverlap);
+                    });
+                    console.log("yarro");
+                } while (!map.canPlace(x, y, weapon) || doesOverlap);
                 map.put(weapon, x, y);
-            });
+            }
         }
     }
 
@@ -155,7 +187,9 @@ export class MyRoom extends Room<MyRoomState> {
     onJoin (client: Client, options: any) {
         this.state.player_count += 1;
         let start_index = Math.floor(Math.random() * (this.player_locations.length -1));
+      
         let start_location = this.player_locations[start_index];
+    
         this.player_locations.splice(start_index, 1);
         let tank = new Tank(client.sessionId);
 
