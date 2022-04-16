@@ -3,21 +3,30 @@ import { MyRoomState } from "./schema/MyRoomState";
 import { GameMap, Location } from "./schema/GameMap";
 import { Tank } from "./schema/Tank";
 import { SniperWeapon, MachinegunWeapon, ShotgunWeapon } from "./schema/Weapon";
-import { GameObject } from "./schema/GameObject";
 
 export class MyRoom extends Room<MyRoomState> {
    
     client_to_tank = new Map();
     client_to_buffer = new Map();
+    player_locations = new Array();
 
-    // col row
-    
-    // TODO: turn into for loop that is scalable with the map
-    player_locations = [[20, 20], [20, 40], [20, 60], [20, 80], 
-                        [40, 20], [40, 40], [40, 60], [40, 80],
-                        [60, 20], [60, 40], [60, 60], [60, 80],
-                        [80, 20], [80, 40], [80, 60], [80, 80]]
+    initialize_player_loc() {
+        let max_player_count = 25;
+        let players_per_row = Math.sqrt(max_player_count);
+        let map_width = this.state.map.width;
+        let map_height = this.state.map.height;
+        let offset = 20;
+        let x_gap = Math.round((map_width - offset * 2) / players_per_row);
+        let y_gap = Math.round((map_height - offset * 2) / players_per_row);
 
+        for (let i = 0; i < players_per_row; i++) {
+            let x = offset + (x_gap * i);
+            for (let j = 0; j < players_per_row; j++){
+                let y = offset + (y_gap * j);
+                this.player_locations.push([x, y])
+            }
+        }
+    }
 
     doesOverlap(l1: Location, r1: Location, l2: Location, r2: Location): boolean {
         // If one rectangle is on left side of other
@@ -31,39 +40,20 @@ export class MyRoom extends Room<MyRoomState> {
         return true;
     }
 
-    initializeMap(map: GameMap) {
+    place_weapons(map: GameMap) {
         // drop 3 of each special weapon on random coordinates
         let count = 3;
         for (let i = 0; i < count; i++) {
             let weapons = [new SniperWeapon(), new MachinegunWeapon(), new ShotgunWeapon()];
             for (let j = 0; j < weapons.length; j++) {
-                let weapon = weapons[j];
                 let x: number, y: number;
-                let loot_loc_tl: Location, loot_loc_br: Location, tank_loc_tl, tank_loc_br;
-                let doesOverlap = false;
+                let map_height = this.state.map.height;
+                let map_width = this.state.map.width;
                 do {
-                    x = Math.floor(Math.random() * 100);
-                    y = Math.floor(Math.random() * 100);
-                    loot_loc_tl = new Location(x, y + weapon.height);
-                    loot_loc_br = new Location(x + weapon.width, y);
-
-                    // handle tank and weapon collision at client join
-                    this.player_locations.forEach(
-                        (arr) => {
-                        let tank_x = arr[0];
-                        let tank_y = arr[1];
-                        let dummy = new Tank("yarrak");
-                        tank_loc_tl = new Location(tank_x, tank_y + dummy.height); // top left
-                        tank_loc_br = new Location(tank_x + dummy.width, tank_y);   // bottom right
-                        console.log(tank_loc_tl, tank_loc_br, loot_loc_tl, loot_loc_br);
-                        if (this.doesOverlap(tank_loc_tl, tank_loc_br, loot_loc_tl, loot_loc_br)){
-                            doesOverlap = true;
-                        }
-                        console.log(doesOverlap);
-                    });
-                    console.log("yarro");
-                } while (!map.canPlace(x, y, weapon) || doesOverlap);
-                map.put(weapon, x, y);
+                    x = Math.floor(Math.random() * map_height);
+                    y = Math.floor(Math.random() * map_width);
+                } while (!map.canPlace(x, y, weapons[j]));
+                map.put(weapons[j], x, y);
             }
         }
     }
@@ -109,21 +99,12 @@ export class MyRoom extends Room<MyRoomState> {
         this.state.map.projectiles.forEach((projectile) => {
             let col = projectile.col;
             let row = projectile.row;
-            // console.log("delta time", deltaTime);
-            
             let distance = projectile.speed * (deltaTime / 1000);
-
             let newX = col + (Math.cos(projectile.direction) * distance);
             let newY = row + (Math.sin(projectile.direction) * distance);
-            
             let newLoc = new Location(newX, newY);
-
-            
             projectile.col = newLoc.col;
             projectile.row = newLoc.row;
-
-            // console.log("old loc: ", col, row);
-            // console.log("new loc: ", newLoc.col, newLoc.row);
 
             // booleans for checking if projectile should explode
             let is_inside_walls = this.state.map.checkRange(newLoc.col, newLoc.row);
@@ -133,7 +114,6 @@ export class MyRoom extends Room<MyRoomState> {
             let my_tank = this.state.map.get(projectile.tank_id) as Tank;
             let is_on_enemy = obj_at_newloc != null && obj_at_newloc.getType() == "tank" && obj_at_newloc != my_tank; // it's a tank but not ours
 
-            // console.log(!is_inside_walls, !has_range_remaining, is_on_enemy);
             // if the projectile is out of range or collided, then explode
             if (!is_inside_walls || !has_range_remaining || is_on_enemy) {
                 console.log("explode")
@@ -154,11 +134,8 @@ export class MyRoom extends Room<MyRoomState> {
         });
     }
     
-    onCreate (options: any) {
-        this.setState(new MyRoomState());
-        this.maxClients = this.state.player_size;
-        this.initializeMap(this.state.map);
-        this.state.player_count = 0;
+    gameStart() {
+        this.place_weapons(this.state.map);
 
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
        
@@ -183,28 +160,37 @@ export class MyRoom extends Room<MyRoomState> {
             }
         });
     }
-
-    onJoin (client: Client, options: any) {
-        this.state.player_count += 1;
-        let start_index = Math.floor(Math.random() * (this.player_locations.length -1));
-      
-        let start_location = this.player_locations[start_index];
     
-        this.player_locations.splice(start_index, 1);
-        let tank = new Tank(client.sessionId);
+    onCreate(options: any) {
+        this.setState(new MyRoomState());
+        this.initialize_player_loc();
+    }
 
-        
+    onJoin(client: Client, options: any) {
+        this.state.player_count += 1
+
+        // pick random start loc for client
+        let start_index = Math.floor(Math.random() * (this.player_locations.length -1));
+        let start_location = this.player_locations[start_index];
+        this.player_locations.splice(start_index, 1);
+
+        // put client's tank on the map
+        let tank = new Tank(client.sessionId);
         let tank_id = this.state.map.put(tank, start_location[0], start_location[1]);
-        
         client.send("tank_id", {tank_id, start_location});
 
         this.client_to_tank.set(client.sessionId, tank_id);
         this.client_to_buffer.set(client.sessionId, new Array());
-        console.log(client.sessionId, "added to client addresses");
-        console.log("Player count is: ", this.state.player_count);
+
+        console.log(client.sessionId, "has joined the room.");
+        if (this.state.player_count == this.state.player_size) {
+            this.gameStart();
+            this.lock();
+            this.broadcast("start");
+        }
     }
 
-    onLeave (client: Client, consented: boolean) {
+    onLeave(client: Client, consented: boolean) {
         let tank_id = this.client_to_tank.get(client.sessionId);
         this.state.player_count -= 1;
         if (tank_id != undefined){
@@ -218,8 +204,6 @@ export class MyRoom extends Room<MyRoomState> {
         }
 
         console.log("Player count is: ", this.state.player_count)
-        
-
     }
 
     onDispose() {

@@ -24,6 +24,19 @@
 			background-color: red; position: absolute;
 			
 		}
+		#overlay {
+			position: fixed; /* Sit on top of the page content */
+			display: none; /* Hidden by default */
+			width: 80%; /* Full width (cover the whole page) */
+			height: 80%; /* Full height (cover the whole page) */
+			top: 10%;
+			left: 10%;
+			right: 10%;
+			bottom: 10%;
+			background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+			z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+			cursor: pointer; /* Add a pointer on hover */
+		}
 	</style>
 
 	<!-- colyseus.js client -->
@@ -34,6 +47,7 @@
 </head>
 
 <body>
+	<div id="overlay"></div>
 	<div id="gamebox"></div>
 	<p>Press W, A, S, D, or the spacebar. The server will send you back which button you pressed.</p>
 

@@ -32,24 +32,24 @@ export class Weapon extends GameObject {
 
 export class PistolWeapon extends Weapon {
     constructor() {
-        super(20, 50, 25, 10);
+        super(20, 50, 50, 10);
     }
 }
 
 export class SniperWeapon extends Weapon {
     constructor() {
-        super(40, 100, 70, 70);
+        super(40, 100, 100, 70);
     }
 }
 
 export class MachinegunWeapon extends Weapon{
     constructor() {
-        super(5, 25, 25, 50);
+        super(5, 25, 50, 50);
     }
 }
 
 export class ShotgunWeapon extends Weapon{
     constructor() {
-        super(50, 75, 15, 30);
+        super(50, 75, 25, 30);
     }
 }
