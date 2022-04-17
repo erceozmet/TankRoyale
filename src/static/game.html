@@ -19,6 +19,13 @@
 			background-color: red; position: absolute;
 			
 		}
+		h1{
+			margin: auto;
+			width: 400px;
+			color: white;
+			justify-content: center;
+			align-items: center;
+		}
 		#hbar {
 			height: 1px; width: 100%; 
 			background-color: red; position: absolute;
@@ -33,7 +40,7 @@
 			left: 10%;
 			right: 10%;
 			bottom: 10%;
-			background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+			background-color: rgba(0,0,0,0.8); /* Black background with opacity */
 			z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
 			cursor: pointer; /* Add a pointer on hover */
 		}
@@ -47,7 +54,9 @@
 </head>
 
 <body>
-	<div id="overlay"></div>
+	<div id="overlay">
+		<h1 id="overlay-message">Waiting for x other players...</h1>	
+	</div>
 	<div id="gamebox"></div>
 	<p>Press W, A, S, D, or the spacebar. The server will send you back which button you pressed.</p>
 

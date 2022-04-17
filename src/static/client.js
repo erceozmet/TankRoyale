@@ -1,10 +1,9 @@
 import { ClientState } from "/static/ClientState.js"
 
-console.log("dh" ,document.height);
 const gamebox = document.getElementById("gamebox");
 const SCREEN_DIMS = {width: gamebox.clientWidth, height: gamebox.clientHeight};
 const MAP_DIMS = {width: 500, height: 500};
-const MAP_VIEW_RATIO = {width: 10, height: 10};
+const MAP_VIEW_RATIO = {width: MAP_DIMS.width / 100, height: MAP_DIMS.height / 100};
 let client_state = new ClientState(SCREEN_DIMS, MAP_DIMS, MAP_VIEW_RATIO);
 
 
@@ -28,27 +27,24 @@ client.joinOrCreate("battle_room").then(room => {
     // gameobj listeners
     room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
         currentValue.onAdd = (gameobj, key) => {
+            console.log("gameobj is", gameobj);
+         
             console.log("adding gameobj ", gameobj.id);
             let index = client_state.get_index_from_key(key);
-
+        
             let sprite = client_state.add_gameobj(gameobj, index);
             app.stage.addChild(sprite);
 
-
             console.log(gameobj, "has been added at", index);
         };
-        currentValue.onChange = (gameobj, key) => {
-        };
-
-
-
+        
         currentValue.onRemove = (gameobj, key) => {
             console.log("removing gameobj", gameobj.id);
             client_state.render_view();
             let index = client_state.get_index_from_key(key);
             let sprite = client_state.remove_gameobj(gameobj, index);
             app.stage.removeChild(sprite);
-            console.log(gameobj, "has been removed at: ", index)
+            console.log(gameobj, "has been removed at: ", index);
         }
     });
 
@@ -57,16 +53,33 @@ client.joinOrCreate("battle_room").then(room => {
         console.log(message);
     });
 
+    room.onMessage("waiting", function(message) {
+        let plural = message == 1 ? '' : 's';
+        document.getElementById('overlay-message').innerText = `Waiting for ${message} other player${plural}...`;
+    });
+
     room.onMessage("tank_id", function (message) {
         console.log("setting tank_id", message);
         client_state.set_tank_id(message.tank_id, message.start_location);
     });
 
     // listen to patches coming from the server
-    room.onMessage("kill", function (message) {
-        var p = document.createElement("p");
-        p.innerText = "Tank " + message.killer + " has eliminated tank " + message.killed;
-        document.querySelector("#buttons").appendChild(p);
+    room.onMessage("killed", function (message) {
+        document.onkeydown = null;
+        document.onkeyup = null;
+        document.onmousemove = null;
+        document.onclick = null;
+        document.getElementById('overlay-message').innerText = `You died! You rank #${message}.`;
+        overlayOn();
+    });
+
+    room.onMessage("win", () => {
+        document.onkeydown = null;
+        document.onkeyup = null;
+        document.onmousemove = null;
+        document.onclick = null;
+        document.getElementById('overlay-message').innerText = "Congratulations, you win!";
+        overlayOn();
     });
     
     room.onMessage("start", function() {
@@ -136,29 +149,10 @@ client.joinOrCreate("battle_room").then(room => {
     room.state.map.listen("projectiles", (currentValue, previousValue) => {
         currentValue.onAdd = (projectile, key) => {
             console.log("adding projectile", projectile);
-            let sprite =client_state.add_projectile(projectile);
+            let sprite = client_state.add_projectile(projectile);
             app.stage.addChild(sprite);
-            // // client.projectiles.push(gameobj);
-            const DELTA_TIME = 50;
-            projectileMoveInterval = setInterval( () => {
-                // sprite.x += 5;
-                // render all projectiles in the list                      
-                let tile_distance = projectile.speed * (DELTA_TIME / 1000) ;
-                sprite.x += (Math.cos(projectile.direction) * tile_distance * client_state.tile_size.height) ;
-                sprite.y += (Math.sin(projectile.direction) * tile_distance * client_state.tile_size.width);
-                console.log("projectile", projectile.id, "new loc:", sprite.x, sprite.y);
-                    
-                // let newX =  Math.round(col + (Math.cos(projectile.direction) * distance));
-                // let newY =  Math.round(row + (Math.sin(projectile.direction) * distance));
-
-                // let newLoc = new Location(newX, newY);
-            }, DELTA_TIME);
-            
-            
         };
-        currentValue.onChange = (gameobj, key) => {
-            console.log("change projectile")
-        }
+
         currentValue.onRemove = (projectile, key) => {
             console.log("removing projectile", projectile.id);
             let sprite = client_state.remove_projectile(projectile);
@@ -168,7 +162,7 @@ client.joinOrCreate("battle_room").then(room => {
 });
 
 function overlayOn() {
-    document.getElementById("overlay").style.display = "block";
+    document.getElementById("overlay").style.display = "flex";
 }
   
 function overlayOff() {

@@ -1,10 +1,11 @@
 import { type } from "@colyseus/schema";
+import { Client } from "colyseus";
 import { GameObject } from "./GameObject";
 import { PistolWeapon, Weapon } from "./Weapon";
 
 export class Tank extends GameObject {
 
-    constructor(client: string) {
+    constructor(client: Client) {
         super("images/tank.png", 6, 6);
         this.client = client;
         this.health = 100;
@@ -15,7 +16,7 @@ export class Tank extends GameObject {
         return "tank";
     }
 
-    client: string;
+    client: Client;
     @type("number") health: number;
     @type(Weapon) weapon: Weapon;
 }

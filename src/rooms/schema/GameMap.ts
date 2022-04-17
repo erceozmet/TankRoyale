@@ -99,8 +99,6 @@ export class GameMap extends Schema {
         this.synced_tiles.delete(this.to1D(loc.col, loc.row));
     }
 
-
-
     getUniqueId(): string {
         return (this.uniqueId++).toString()
     }
@@ -161,6 +159,7 @@ export class GameMap extends Schema {
         }
 
         this.synced_tiles.delete(this.to1D(old_col, old_row));
+        console.log("id", tank.id);
         this.synced_tiles.set(this.to1D(col, row), tank);
         let loc = this.locations.get(tank.id);
         loc.col = col;

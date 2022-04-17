@@ -62,6 +62,11 @@ export class MyRoom extends Room<MyRoomState> {
         this.client_to_buffer.forEach((buffer, client) => {
             let tankId = this.client_to_tank.get(client);
             let tank = this.state.map.get(tankId) as Tank;
+
+            if (this.state.player_count == 1) {
+                tank.client.send("win");
+            }
+
             if (tank.weapon.fireCountdown > 0) {
                 tank.weapon.fireCountdown--;
             }
@@ -76,23 +81,24 @@ export class MyRoom extends Room<MyRoomState> {
                 else if (buffer[i] == "KeyS") up += 1;
                 else if (buffer[i] == "KeyD") right += 1;
                 else if (buffer[i] == "KeyA") right -= 1;
-                // else  if(buffer[i] == "KeySpace") 
             }
             if (Math.abs(up) + Math.abs(right) > 2){
                 if (up > 1){
                     up = 1;
                 }
                 if (up < -1){
-                    up = -1
+                    up = -1;
                 }
                 if (right > 1){
-                    right = 1
+                    right = 1;
                 }
                 if (right < -1){
-                    right = -1
+                    right = -1;
                 }
             }
-            this.state.map.moveTank(tankId, right, up);
+            if (right != 0 || up != 0) {    
+                this.state.map.moveTank(tankId, right, up);
+            }
             this.client_to_buffer.set(client, []);
         });
 
@@ -124,10 +130,10 @@ export class MyRoom extends Room<MyRoomState> {
                     console.log("tank health: ", enemy_tank.health);
                     if (enemy_tank.health <= 0) {
                         console.log("EXPLODE");
+                        this.client_to_buffer.delete(enemy_tank.client.sessionId);
+                        this.client_to_tank.delete(enemy_tank.client.sessionId);
                         this.state.map.explodeTank(enemy_tank);
-                        this.client_to_tank.delete(enemy_tank.client);
-                        this.client_to_buffer.delete(enemy_tank.client);
-                        this.broadcast("kill", {killer: my_tank.client, killed: enemy_tank.client});
+                        enemy_tank.client.send("killed", this.state.player_count--);
                     }
                 }
             }
@@ -149,7 +155,6 @@ export class MyRoom extends Room<MyRoomState> {
             let weapon = tank.weapon;
             // TODO POSSIBLY keep track of who shot who
 
-            console.log(weapon.fireCountdown);
             if (weapon.fireCountdown == 0) {
                 let projectileLoc = new Location(Math.round(tankLoc.col + tank.width / 2), Math.round(tankLoc.row + tank.height / 2));
                 console.log("new projectile, loc:", projectileLoc);
@@ -175,7 +180,7 @@ export class MyRoom extends Room<MyRoomState> {
         this.player_locations.splice(start_index, 1);
 
         // put client's tank on the map
-        let tank = new Tank(client.sessionId);
+        let tank = new Tank(client);
         let tank_id = this.state.map.put(tank, start_location[0], start_location[1]);
         client.send("tank_id", {tank_id, start_location});
 
@@ -187,27 +192,29 @@ export class MyRoom extends Room<MyRoomState> {
             this.gameStart();
             this.lock();
             this.broadcast("start");
+        } else {
+            this.broadcast("waiting", this.state.player_size - this.state.player_count);
         }
     }
 
     onLeave(client: Client, consented: boolean) {
         let tank_id = this.client_to_tank.get(client.sessionId);
-        this.state.player_count -= 1;
+       
         if (tank_id != undefined){
             this.state.map.delete(tank_id);
             this.client_to_tank.delete(client.sessionId);
             this.client_to_buffer.delete(client.sessionId);
+            this.state.player_count -= 1;
             console.log("User:", client.sessionId, "and its tank", tank_id, "has left the game room");
         }
         else{
             console.log("User ", client.sessionId, " has left the game room");
         }
 
-        console.log("Player count is: ", this.state.player_count)
+        console.log("Player count is: ", this.state.player_count);
     }
 
     onDispose() {
         console.log("room", this.roomId, "disposing...");
     }
-
 }

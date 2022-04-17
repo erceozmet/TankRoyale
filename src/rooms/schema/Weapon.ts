@@ -38,13 +38,13 @@ export class PistolWeapon extends Weapon {
 
 export class SniperWeapon extends Weapon {
     constructor() {
-        super(40, 100, 100, 70);
+        super(40, 100, 80, 50);
     }
 }
 
 export class MachinegunWeapon extends Weapon{
     constructor() {
-        super(5, 25, 50, 50);
+        super(5, 25, 50, 25);
     }
 }
 
