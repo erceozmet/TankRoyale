@@ -7,8 +7,10 @@ const MAP_VIEW_RATIO = {width: MAP_DIMS.width / 100, height: MAP_DIMS.height / 1
 let client_state = new ClientState(SCREEN_DIMS, MAP_DIMS, MAP_VIEW_RATIO);
 
 
-var host = window.document.location.host.replace(/:.*/, '');
-var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
+// var host = window.document.location.host.replace(/:.*/, '');
+// var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
+var client = new Colyseus.Client("wss://xq-zci.colyseus.dev");
+
 client.joinOrCreate("battle_room").then(room => {
     overlayOn();
 
