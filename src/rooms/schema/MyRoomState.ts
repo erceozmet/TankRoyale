@@ -7,3 +7,4 @@ export class MyRoomState extends Schema {
     player_size: number = 3;
     
 }
+ 
