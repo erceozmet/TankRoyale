@@ -98,8 +98,8 @@ export class ClientState {
 						  
 		// size of 1 tile in the screen
 		this.tile_size = {width: this.screen_dims.width / this.view_dims.width,
-						  height: this.screen_dims.height / this.view_dims.height};
-		// this.view_dims.height =  Math.floor(this.screen_dims.height / this.tile_size.height);
+						  height: this.screen_dims.width / this.view_dims.width};
+		this.view_dims.height =  Math.floor(this.screen_dims.height / this.tile_size.height);
 		 
 		console.log("tile_size", this.tile_size);
 	}
@@ -110,12 +110,10 @@ export class ClientState {
 	change_tank_pos(new_pos) {
 		this.tank_pos = new_pos;
 		let old_view_pos = this.view_pos;
-		// console.log("tank pos", this.tank_pos)
-		// console.log("view dims", this.view_dims)
-		this.view_pos = {row: this.tank_pos.row + (this.tank_dims.height / 2) - (this.view_dims.width / 2),
-						 col: this.tank_pos.col + (this.tank_dims.width / 2) - (this.view_dims.height / 2)};
-		// console.log("old view", old_view_pos)
-		// console.log("new view", this.view_pos)
+		
+
+		this.view_pos = {row: this.tank_pos.row + (this.tank_dims.height / 2) - (this.view_dims.height / 2),
+						 col: this.tank_pos.col + (this.tank_dims.width / 2) - (this.view_dims.width / 2)};
 		this.wrap_view_pos();
 		this.projectiles.forEach(key => {
 			let row = old_view_pos.row - this.view_pos.row
@@ -158,7 +156,7 @@ export class ClientState {
 
 		let row_diff = old_view_pos.row - new_view_pos.row;
 		for (let row = 0; row < Math.abs(row_diff); row++) {
-			let row_index = row_diff > 0 ?  old_view_pos.row + this.view_dims.width - row
+			let row_index = row_diff > 0 ?  old_view_pos.row + this.view_dims.height - row
 										 :  old_view_pos.row + row;
 		
 			for (let col = 0; col < this.view_dims.width; col++) {
@@ -174,7 +172,7 @@ export class ClientState {
 			let col_index = col_diff > 0 ?  old_view_pos.col + this.view_dims.width - col
 										 :  old_view_pos.col + col;
 		
-			for (let row = 0; row < this.view_dims.width; row++) {
+			for (let row = 0; row < this.view_dims.height; row++) {
 				let row_index = old_view_pos.row + row;
 				let sprite = this.objects[row_index][col_index];
 				if (sprite == null) continue;	
