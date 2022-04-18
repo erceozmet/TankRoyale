@@ -7,6 +7,7 @@ export class ClientState {
 		this.view_pos = null;
 		this.tank_id = null;
 		this.tank_pos = null;
+		this.background = null;
 		this.tank_dims = {width: 5, height: 5}; //TODO
 
 		this.objects = new Array(this.map_dims.height);
@@ -115,18 +116,31 @@ export class ClientState {
 		this.view_pos = {row: this.tank_pos.row + (this.tank_dims.height / 2) - (this.view_dims.height / 2),
 						 col: this.tank_pos.col + (this.tank_dims.width / 2) - (this.view_dims.width / 2)};
 		this.wrap_view_pos();
+
+
+		
+		this.move_projectiles(old_view_pos, this.view_pos)
+		this.move_background(old_view_pos, this.view_pos)
+		this.render_view();
+		this.unrender_view(old_view_pos, this.view_pos);
+		
+	}
+
+	move_projectiles(old_view_pos, new_view_pos) {
 		this.projectiles.forEach(key => {
-			let row = old_view_pos.row - this.view_pos.row
-			let col = old_view_pos.col - this.view_pos.col
+			let row = old_view_pos.row - new_view_pos.row
+			let col = old_view_pos.col - new_view_pos.col
 			key.sprite.x += this.tile_size.width * col;
 			key.sprite.y += this.tile_size.height * row;			
 		});
 
-		
-		  
-		this.render_view();
-		this.unrender_view(old_view_pos, this.view_pos);
-		
+	}
+
+	move_background(old_view_pos, new_view_pos) {
+		if (this.background == null) return;
+		if (old_view_pos == null ) return;
+		this.background.tilePosition.x += (old_view_pos.col - new_view_pos.col) * this.tile_size.width
+		this.background.tilePosition.y += (old_view_pos.row - new_view_pos.row) * this.tile_size.height
 	}
 
 	

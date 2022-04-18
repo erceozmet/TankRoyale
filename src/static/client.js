@@ -23,6 +23,12 @@ client.joinOrCreate("battle_room").then(room => {
         backgroundColor: 0xffffff
     });
     gamebox.appendChild(app.view);
+    const BACKGROUND_PATH = "images/background.jpeg" 
+    var background = new PIXI.TilingSprite.from(BACKGROUND_PATH, {width: SCREEN_DIMS.width,
+        height: SCREEN_DIMS.height});
+    background.position.set(0,0);
+    app.stage.addChild(background);
+    client_state.background = background;
 
     // game map decls
     client_state.render_bars();
