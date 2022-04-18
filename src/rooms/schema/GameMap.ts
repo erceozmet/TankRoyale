@@ -88,7 +88,7 @@ export class GameMap extends Schema {
 
     delete(id: string) {
         let loc = this.locations.get(id);
-        let obj = this.tiles.get(loc.col, loc.row) as Tank;
+        let obj = this.tiles.get(loc.col, loc.row);
 
         for (let i = 0; i < obj.width; i++){
             for (let j = 0; j < obj.height; j++){
@@ -161,8 +161,8 @@ export class GameMap extends Schema {
         }
 
         this.synced_tiles.delete(this.to1D(old_col, old_row));
-        console.log("id", tank.id);
         this.synced_tiles.set(this.to1D(col, row), tank);
+
         let loc = this.locations.get(tank.id);
         loc.col = col;
         loc.row = row;
@@ -181,15 +181,4 @@ export class GameMap extends Schema {
         }
     }
 
-    explodeTank(tank: Tank) {
-        let loc = this.locations.get(tank.id);
-        this.locations.delete(tank.id);
-        
-        for (let i = 0; i < tank.width; i++) {
-            for (let j = 0; j < tank.height; j++) {
-                this.tiles.remove(loc.col + i, loc.row + j);
-            }
-        }
-        this.synced_tiles.delete(this.to1D(loc.col, loc.row));
-    }
 }

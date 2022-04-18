@@ -12,6 +12,16 @@ var host = window.document.location.host.replace(/:.*/, '');
 var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
 // var client = new Colyseus.Client("wss://xq-zci.colyseus.dev");
 
+/******* Button press registering variables *******/
+let keys = new Set(),
+    tankMoveInterval = null,
+    allowedKeys = {
+        'KeyW': true, // W
+        'KeyS': true, // S
+        'KeyA': true, // A
+        'KeyD': true, // D
+    };
+
 client.joinOrCreate("battle_room").then(room => {
     overlayOn();
 
@@ -45,6 +55,7 @@ client.joinOrCreate("battle_room").then(room => {
             app.stage.addChild(sprite);
 
             console.log(gameobj, "has been added at", index);
+
         };
         
         currentValue.onRemove = (gameobj, key) => {
@@ -74,60 +85,40 @@ client.joinOrCreate("battle_room").then(room => {
 
     // listen to patches coming from the server
     room.onMessage("killed", function (message) {
-        document.onkeydown = null;
-        document.onkeyup = null;
-        document.onmousemove = null;
-        document.onclick = null;
-        document.getElementById('overlay-message').innerText = `You died! You rank #${message}.`;
-        overlayOn();
+        unbindClient(`You died! You rank #${message}.`);
     });
 
     room.onMessage("win", () => {
-        document.onkeydown = null;
-        document.onkeyup = null;
-        document.onmousemove = null;
-        document.onclick = null;
-        document.getElementById('overlay-message').innerText = "Congratulations, you win!";
-        overlayOn();
+        unbindClient("Congratulations, you win!");
     });
     
     room.onMessage("start", function() {
         overlayOff();
 
-        /******* Button press registering code *******/
-        let keys = new Set(),
-            tankMoveInterval = null,
-            allowedKeys = {
-                'KeyW': true, // W
-                'KeyS': true, // S
-                'KeyA': true, // A
-                'KeyD': true, // D
-            };
-
         document.onkeydown = function (e) {
             e.preventDefault();
             
             if (allowedKeys[e.code]) {
-                if (!keys.has(e.code)) {
+                if ((e.code == "KeyW" || e.code == "KeyS") && (keys.has("KeyW") || keys.has("KeyS"))) return;
+                if ((e.code == "KeyA" || e.code == "KeyD") && (keys.has("KeyA") || keys.has("KeyD"))) return;
+                else {
                     keys.add(e.code);
-                }
                 
-                if (tankMoveInterval === null) {
-                    room.send("button", e.code);
-                    tankMoveInterval = setInterval(function () {
-                        keys.forEach((key) => {
-                            room.send("button", key);
-                        });
-                    }, 100);
+                    if (tankMoveInterval === null) {
+                        room.send("button", e.code);
+                        tankMoveInterval = setInterval(function () {
+                            keys.forEach((key) => {
+                                room.send("button", key);
+                            });
+                        }, 100);
+                    }
                 }
             }
         };
 
         document.onkeyup = function (e) {
             e.preventDefault();
-            if (keys.has(e.code)) {
-                keys.delete(e.code);
-            }
+            keys.delete(e.code);
             // need to check if keyboard movement stopped
             if ((allowedKeys[e.code]) && (keys.size === 0)) {
                 clearInterval(tankMoveInterval);
@@ -169,6 +160,18 @@ client.joinOrCreate("battle_room").then(room => {
         }
     });
 });
+
+
+function unbindClient(message) {
+    document.onkeydown = null;
+    document.onkeyup = null;
+    document.onmousemove = null;
+    document.onclick = null;
+    document.getElementById('overlay-message').innerText = message;
+    keys.clear();
+    tankMoveInterval = null;
+    overlayOn();
+}
 
 function overlayOn() {
     document.getElementById("overlay").style.display = "flex";

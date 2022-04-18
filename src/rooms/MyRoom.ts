@@ -51,10 +51,10 @@ export class MyRoom extends Room<MyRoomState> {
             let obstacle_length = Math.round(Math.random() * 30);
             let obstacle;
             if (Math.random() > 0.5){
-                obstacle = new Obstacle(1, obstacle_length);
+                obstacle = new Obstacle(3, obstacle_length);
             }
             else{
-                obstacle = new Obstacle(obstacle_length, 1);
+                obstacle = new Obstacle(obstacle_length, 3);
             }
            
             do {
@@ -82,6 +82,14 @@ export class MyRoom extends Room<MyRoomState> {
                 map.put(weapons[j], x, y);
             }
         }
+    }
+
+    dispose_client(client_id: string) {
+        let tank_id = this.client_to_tank.get(client_id);
+        this.state.map.delete(tank_id);
+        this.client_to_tank.delete(client_id);
+        this.client_to_buffer.delete(client_id);
+        this.state.player_count -= 1;
     }
 
     update (deltaTime: any) {
@@ -122,9 +130,7 @@ export class MyRoom extends Room<MyRoomState> {
                     right = -1;
                 }
             }
-            if (right != 0 || up != 0) {    
-                this.state.map.moveTank(tankId, right, up);
-            }
+            this.state.map.moveTank(tankId, right, up);
             this.client_to_buffer.set(client, []);
         });
 
@@ -156,10 +162,8 @@ export class MyRoom extends Room<MyRoomState> {
                     console.log("tank health: ", enemy_tank.health);
                     if (enemy_tank.health <= 0) {
                         console.log("EXPLODE");
-                        this.client_to_buffer.delete(enemy_tank.client.sessionId);
-                        this.client_to_tank.delete(enemy_tank.client.sessionId);
-                        this.state.map.explodeTank(enemy_tank);
-                        enemy_tank.client.send("killed", this.state.player_count--);
+                        enemy_tank.client.send("killed", this.state.player_count);
+                        this.dispose_client(enemy_tank.client.sessionId);
                     }
                 }
             }
@@ -175,7 +179,6 @@ export class MyRoom extends Room<MyRoomState> {
         this.onMessage("button", (client, button) => {
             this.client_to_buffer.get(client.sessionId).push(button);
         });
-
         this.onMessage("projectile", (client, barrelDirrection) => {
             let tank = this.state.map.get(this.client_to_tank.get(client.sessionId)) as Tank;
             let tankLoc = this.state.map.locations.get(tank.id);
@@ -216,8 +219,8 @@ export class MyRoom extends Room<MyRoomState> {
 
         console.log(client.sessionId, "has joined the room.");
         if (this.state.player_count == this.state.player_size) {
-            this.gameStart();
             this.lock();
+            this.gameStart();
             this.broadcast("start");
         } else {
             this.broadcast("waiting", this.state.player_size - this.state.player_count);
@@ -228,10 +231,7 @@ export class MyRoom extends Room<MyRoomState> {
         let tank_id = this.client_to_tank.get(client.sessionId);
        
         if (tank_id != undefined){
-            this.state.map.delete(tank_id);
-            this.client_to_tank.delete(client.sessionId);
-            this.client_to_buffer.delete(client.sessionId);
-            this.state.player_count -= 1;
+            this.dispose_client(client.sessionId);
             console.log("User:", client.sessionId, "and its tank", tank_id, "has left the game room");
         }
         else{
