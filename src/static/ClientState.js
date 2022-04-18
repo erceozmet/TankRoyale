@@ -93,8 +93,8 @@ export class ClientState {
 	change_map_view_ratio(new_ratio) {
 		this.map_view_ratio = new_ratio;
 		// tiles per view
-		this.view_dims = {width : this.map_dims.width  / this.map_view_ratio.width, 
-						  height: this.map_dims.height / this.map_view_ratio.height};
+		this.view_dims = {width : Math.floor(this.map_dims.width  / this.map_view_ratio.width), 
+						  height: Math.floor(this.map_dims.height / this.map_view_ratio.height)};
 		// size of 1 tile in the screen
 		this.tile_size = {width: this.screen_dims.width / this.view_dims.width,
 						  height: this.screen_dims.width / this.view_dims.width};
@@ -149,8 +149,6 @@ export class ClientState {
 		
 			for (let col = 0; col < this.view_dims.width; col++) {
 				let col_index = old_view_pos.col + col;
-				console.log(this.objects)
-				console.log(this.objects[row_index])
 				let sprite = this.objects[row_index][col_index];
 				if (sprite == null) continue;	
 				sprite.visible = false;	

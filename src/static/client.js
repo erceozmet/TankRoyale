@@ -4,7 +4,7 @@ const gamebox = document.getElementById("gamebox");
 const SCREEN_DIMS = {width: gamebox.clientWidth, height: gamebox.clientHeight};
 const MAP_DIMS = {width: 250, height: 250};
 // const MAP_VIEW_RATIO = {width: MAP_DIMS.width / 100, height: MAP_DIMS.height / 100};
-const MAP_VIEW_RATIO = {width: 1, height: 1};
+const MAP_VIEW_RATIO = {width: 2, height: 2};
 let client_state = new ClientState(SCREEN_DIMS, MAP_DIMS, MAP_VIEW_RATIO);
 
 
