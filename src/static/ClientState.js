@@ -11,7 +11,9 @@ export class ClientState {
 		this.tank_dims = {width: 5, height: 5}; //TODO
 
 		this.objects = new Array(this.map_dims.height);
+		this.max_object_size = {width: 0, height: 0};
 		this.projectiles = new Map();
+		this.edge_objects = new Array();
 
 		for (var i = 0; i < this.map_dims.height; i++) {
 		  this.objects[i] = new Array(this.map_dims.width);
@@ -23,9 +25,7 @@ export class ClientState {
 
 	// }
 
-	// add_projectile(gameobj) {
-
-	// }  
+ 
 	add_gameobj(gameobj, index) {
 		console.log("gameobj type", gameobj.imagePath)
 		let sprite = PIXI.Sprite.from(gameobj.imagePath);
@@ -35,19 +35,16 @@ export class ClientState {
 		sprite.height = this.tile_size.height * gameobj.height;
 		sprite.width = this.tile_size.width * gameobj.width;
 		this.objects[index.row][index.col] = sprite;
+		if (gameobj.height > this.max_object_size.height) this.max_object_size.height = gameobj.height
+		if (gameobj.width  > this.max_object_size.width ) this.max_object_size.width  = gameobj.width
 
 		if (gameobj.id == this.tank_id) {
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index);
 			this.change_tank_pos(index);
 			this.render_view();
-			// let barrel_sprite = PIXI.Sprite.from("images/barrel.png");
-			// barrel_sprite.height = this.tile_size.height;
-			// barrel_sprite.widht = this.tile_size.width;
-			// console.log(sprite.height);
-			// sprite.addChild(barrel_sprite);
 		}
 		
-		else if (this.is_in_view(gameobj, index)) {
+		else if (this.is_in_view({width: gameobj.width, height: gameobj.height}, index)) {
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index)
 		} else {
 			sprite.visible = false;
@@ -148,13 +145,16 @@ export class ClientState {
 
 	// invariant: view_pos + view_dims is never bigger than map dims
 	render_view() {
-		for (let row = 0; row < this.view_dims.height; row++) {
+		let row = -this.max_object_size.height
+		for (; row < this.view_dims.height; row++) {
 			let row_index = this.view_pos.row + row;
-			for (let col = 0; col < this.view_dims.width; col++) {
+			let col = -this.max_object_size.width
+			for (; col < this.view_dims.width; col++) {
 				let col_index = this.view_pos.col + col;
-				let sprite = this.objects[row_index][col_index];
+				let sprite = this.objects.at(row_index)?.at(col_index);
 				
-				if (sprite == null) continue;
+				if (!sprite) continue;
+				
 				sprite.visible = true;
 				
 				sprite.y = this.tile_size.height * row;
@@ -164,33 +164,38 @@ export class ClientState {
 		}
 	}
 
+
 	// make all objects that were inside the view hidden 
 	unrender_view(old_view_pos, new_view_pos) {
 		if (old_view_pos == null) return;
+		
 
 		let row_diff = old_view_pos.row - new_view_pos.row;
 		for (let row = 0; row < Math.abs(row_diff); row++) {
-			let row_index = row_diff > 0 ?  old_view_pos.row + this.view_dims.height - row
-										 :  old_view_pos.row + row;
-		
+			let row_index = row_diff > 0 ?  old_view_pos.row + this.view_dims.height - row - 1
+										 :  old_view_pos.row + row - this.max_object_size.width; 
+			if (row_index < 0) continue;
 			for (let col = 0; col < this.view_dims.width; col++) {
 				let col_index = old_view_pos.col + col;
 				let sprite = this.objects[row_index][col_index];
-				if (sprite == null) continue;	
+				if (!sprite) continue;	
 				sprite.visible = false;	
 			}
 		}
 
 		let col_diff = old_view_pos.col - new_view_pos.col;
 		for (let col = 0; col < Math.abs(col_diff); col++) {
-			let col_index = col_diff > 0 ?  old_view_pos.col + this.view_dims.width - col
-										 :  old_view_pos.col + col;
+			let col_index = col_diff > 0 ?  old_view_pos.col + this.view_dims.width - col - 1
+										 :  old_view_pos.col + col - this.max_object_size.width; 
 		
+			if (col_index < 0) continue;
 			for (let row = 0; row < this.view_dims.height; row++) {
 				let row_index = old_view_pos.row + row;
 				let sprite = this.objects[row_index][col_index];
-				if (sprite == null) continue;	
+				if (!sprite) continue;
 				sprite.visible = false;	
+				
+				
 			}
 		}
 	}
@@ -202,6 +207,8 @@ export class ClientState {
 				index.row + gameobj.height >= this.view_pos.row   &&  
 				index.col <= this.view_pos.col + this.view_dims.width  &&
 				index.row <= this.view_pos.row + this.view_dims.height);
+
+				
 	}
 
 
