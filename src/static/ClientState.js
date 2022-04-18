@@ -94,12 +94,12 @@ export class ClientState {
 		this.map_view_ratio = new_ratio;
 		// tiles per view
 		this.view_dims = {width: Math.floor(this.map_dims.width  / this.map_view_ratio.width),
-						  height: 0}; 
+						  height:  Math.floor(this.map_dims.height / this.map_view_ratio.width)}; 
 						  
 		// size of 1 tile in the screen
 		this.tile_size = {width: this.screen_dims.width / this.view_dims.width,
-						  height: this.screen_dims.width / this.view_dims.width};
-		this.view_dims.height =  Math.floor(this.screen_dims.height / this.tile_size.height);
+						  height: this.screen_dims.height / this.view_dims.height};
+		// this.view_dims.height =  Math.floor(this.screen_dims.height / this.tile_size.height);
 		 
 		console.log("tile_size", this.tile_size);
 	}
@@ -110,23 +110,20 @@ export class ClientState {
 	change_tank_pos(new_pos) {
 		this.tank_pos = new_pos;
 		let old_view_pos = this.view_pos;
+		// console.log("tank pos", this.tank_pos)
+		// console.log("view dims", this.view_dims)
 		this.view_pos = {row: this.tank_pos.row + (this.tank_dims.height / 2) - (this.view_dims.width / 2),
 						 col: this.tank_pos.col + (this.tank_dims.width / 2) - (this.view_dims.height / 2)};
-
+		// console.log("old view", old_view_pos)
+		// console.log("new view", this.view_pos)
 		this.wrap_view_pos();
 		this.projectiles.forEach(key => {
-				
 			let row = old_view_pos.row - this.view_pos.row
 			let col = old_view_pos.col - this.view_pos.col
 			key.sprite.x += this.tile_size.width * col;
-			key.sprite.y += this.tile_size.height * row;
-			
+			key.sprite.y += this.tile_size.height * row;			
 		});
-		// for (key in this.projectiles.values()) {
-		// for (let i = 0; i < this.projectiles.size; i++) {
-		// 	console.log("after key sprite", key.sprite.x, key.sprite.y)
-		// }
-		console.log("af")
+
 		
 		  
 		this.render_view();
