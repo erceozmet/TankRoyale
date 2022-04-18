@@ -114,13 +114,19 @@ export class ClientState {
 						 col: this.tank_pos.col + (this.tank_dims.width / 2) - (this.view_dims.height / 2)};
 
 		this.wrap_view_pos();
-
-		for (key in this.projectiles.values()) {
+		this.projectiles.forEach(key => {
+				
 			let row = old_view_pos.row - this.view_pos.row
 			let col = old_view_pos.col - this.view_pos.col
-			key.sprite.x = this.tile_size.width * col;
-			key.sprite.y = this.tile_size.height * row;
-		}
+			key.sprite.x += this.tile_size.width * col;
+			key.sprite.y += this.tile_size.height * row;
+			
+		});
+		// for (key in this.projectiles.values()) {
+		// for (let i = 0; i < this.projectiles.size; i++) {
+		// 	console.log("after key sprite", key.sprite.x, key.sprite.y)
+		// }
+		console.log("af")
 		
 		  
 		this.render_view();
@@ -133,7 +139,6 @@ export class ClientState {
 
 	// invariant: view_pos + view_dims is never bigger than map dims
 	render_view() {
-		// update gameobjects
 		for (let row = 0; row < this.view_dims.height; row++) {
 			let row_index = this.view_pos.row + row;
 			for (let col = 0; col < this.view_dims.width; col++) {
@@ -148,7 +153,6 @@ export class ClientState {
 				
 			}
 		}
-		// update projectiles
 	}
 
 	// make all objects that were inside the view hidden 
