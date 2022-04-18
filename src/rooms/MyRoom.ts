@@ -48,7 +48,15 @@ export class MyRoom extends Room<MyRoomState> {
             let x: number, y: number;
             let map_height = this.state.map.height;
             let map_width = this.state.map.width;
-            let obstacle = new Obstacle(1, 15);
+            let obstacle_length = Math.round(Math.random() * 30);
+            let obstacle;
+            if (Math.random() > 0.5){
+                obstacle = new Obstacle(1, obstacle_length);
+            }
+            else{
+                obstacle = new Obstacle(obstacle_length, 1);
+            }
+           
             do {
                 x = Math.floor(Math.random() * map_height);
                 y = Math.floor(Math.random() * map_width);
@@ -137,9 +145,9 @@ export class MyRoom extends Room<MyRoomState> {
             let obj_at_newloc = this.state.map.at(Math.round(newLoc.col), Math.round(newLoc.row));
             let my_tank = this.state.map.get(projectile.tank_id) as Tank;
             let is_on_enemy = obj_at_newloc != null && obj_at_newloc.getType() == "tank" && obj_at_newloc != my_tank; // it's a tank but not ours
-
+            let is_on_obstacle = obj_at_newloc != null && obj_at_newloc.getType() == "obstacle";
             // if the projectile is out of range or collided, then explode
-            if (!is_inside_walls || !has_range_remaining || is_on_enemy) {
+            if (!is_inside_walls || !has_range_remaining || is_on_enemy || is_on_obstacle) {
                 console.log("explode")
                 this.state.map.explodeProjectile(projectile);
                 if (is_on_enemy) {
