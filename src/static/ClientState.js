@@ -26,6 +26,7 @@ export class ClientState {
 
 	// }  
 	add_gameobj(gameobj, index) {
+		console.log("gameobj type", gameobj.imagePath)
 		let sprite = PIXI.Sprite.from(gameobj.imagePath);
 	
 		// set sprite attibutes
@@ -96,7 +97,8 @@ export class ClientState {
 						  height: this.map_dims.height / this.map_view_ratio.height};
 		// size of 1 tile in the screen
 		this.tile_size = {width: this.screen_dims.width / this.view_dims.width,
-						  height: this.screen_dims.height / this.view_dims.height};
+						  height: this.screen_dims.width / this.view_dims.width};
+		console.log("tile_size", this.tile_size);
 	}
 
 
@@ -147,6 +149,8 @@ export class ClientState {
 		
 			for (let col = 0; col < this.view_dims.width; col++) {
 				let col_index = old_view_pos.col + col;
+				console.log(this.objects)
+				console.log(this.objects[row_index])
 				let sprite = this.objects[row_index][col_index];
 				if (sprite == null) continue;	
 				sprite.visible = false;	

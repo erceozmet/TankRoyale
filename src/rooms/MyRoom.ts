@@ -3,6 +3,7 @@ import { MyRoomState } from "./schema/MyRoomState";
 import { GameMap, Location } from "./schema/GameMap";
 import { Tank } from "./schema/Tank";
 import { SniperWeapon, MachinegunWeapon, ShotgunWeapon } from "./schema/Weapon";
+import { Obstacle } from "./schema/Obstacle";
 
 export class MyRoom extends Room<MyRoomState> {
    
@@ -40,9 +41,26 @@ export class MyRoom extends Room<MyRoomState> {
         return true;
     }
 
+    place_obstacles(map: GameMap) {
+        
+        let count = 10;
+        for (let i = 0; i < count; i++) {
+            let x: number, y: number;
+            let map_height = this.state.map.height;
+            let map_width = this.state.map.width;
+            let obstacle = new Obstacle(1, 15);
+            do {
+                x = Math.floor(Math.random() * map_height);
+                y = Math.floor(Math.random() * map_width);
+            } while (!map.canPlace(x, y, obstacle));
+            map.put(obstacle, x, y);
+        }
+        
+    }
+
     place_weapons(map: GameMap) {
         // drop 3 of each special weapon on random coordinates
-        let count = 3;
+        let count = 10;
         for (let i = 0; i < count; i++) {
             let weapons = [new SniperWeapon(), new MachinegunWeapon(), new ShotgunWeapon()];
             for (let j = 0; j < weapons.length; j++) {
@@ -142,6 +160,7 @@ export class MyRoom extends Room<MyRoomState> {
     
     gameStart() {
         this.place_weapons(this.state.map);
+        this.place_obstacles(this.state.map)
 
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
        
@@ -157,7 +176,7 @@ export class MyRoom extends Room<MyRoomState> {
 
             if (weapon.fireCountdown == 0) {
                 let projectileLoc = new Location(Math.round(tankLoc.col + tank.width / 2), Math.round(tankLoc.row + tank.height / 2));
-                console.log("new projectile, loc:", projectileLoc);
+                console.log("new projectile, loc: ", projectileLoc, "barrel direction: ", barrelDirrection);
                 
                 let projectile = weapon.shootProjectile(tank.id, barrelDirrection, this.state.map.getUniqueId(), projectileLoc);
                 this.state.map.projectiles.push(projectile);

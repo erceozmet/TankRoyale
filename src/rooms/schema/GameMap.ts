@@ -44,8 +44,8 @@ class Tiles<T> extends ArraySchema<T> {
 
 export class GameMap extends Schema {
     uniqueId: number = 0;
-    @type("number") width: number = 500;
-    @type("number") height: number = 500;
+    @type("number") width: number = 250;
+    @type("number") height: number = 250;
 
     locations = new MapSchema<Location>();
     tiles: Tiles<GameObject> = new Tiles<GameObject>(this.width, this.height);
@@ -105,7 +105,7 @@ export class GameMap extends Schema {
 
     put(obj: GameObject, col: number, row: number): string {
         obj.id = this.getUniqueId();
-        console.log("put Weapon to, ", col, row);
+        console.log("put ", obj.getType(), "to ", col, row);
         for (let i = 0; i < obj.width; i++) {
             for (let j = 0; j < obj.height; j++) {
                 if (this.tiles.get(col + i, row + j) != null) {
@@ -139,6 +139,8 @@ export class GameMap extends Schema {
                     tank.weapon = prev_obj as Weapon;
                     this.delete(prev_obj.id);
                 } else if (prev_obj.getType() == "tank" && prev_obj != tank) {
+                    return false;
+                } else if (prev_obj.getType() == "obstacle" ) {
                     return false;
                 }
             }
