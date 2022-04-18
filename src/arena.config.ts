@@ -53,13 +53,26 @@ export default Arena({
             res.sendFile(path.join(__dirname, '/images/black.png'))
         })
 
-        app.use("/images/weapon.png", (req, res) =>{
-            res.sendFile(path.join(__dirname, '/images/weapon.png'))
+        app.use("/images/shotgun.png", (req, res) =>{
+            res.sendFile(path.join(__dirname, '/images/shotgun.png'))
+        })
+
+        app.use("/images/sniper.png", (req, res) =>{
+            res.sendFile(path.join(__dirname, '/images/sniper.png'))
+        })
+
+        app.use("/images/smg.png", (req, res) =>{
+            res.sendFile(path.join(__dirname, '/images/smg.png'))
+        })
+
+        app.use("/images/pistol.png", (req, res) =>{
+            res.sendFile(path.join(__dirname, '/images/pistol.png'))
         })
 
         app.use("/static/client.js", (req, res) =>{
             res.sendFile(path.join(__dirname, '/static/client.js'))
         })
+
 
         app.use("/static/ClientState.js", (req, res) =>{
             res.sendFile(path.join(__dirname, '/static/ClientState.js'))
