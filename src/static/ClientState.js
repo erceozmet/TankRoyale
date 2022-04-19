@@ -37,18 +37,19 @@ export class ClientState {
 		this.objects[index.row][index.col] = sprite;
 		if (gameobj.height > this.max_object_size.height) this.max_object_size.height = gameobj.height
 		if (gameobj.width  > this.max_object_size.width ) this.max_object_size.width  = gameobj.width
-
+		
 		if (gameobj.id == this.tank_id) {
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index);
+			
 			this.change_tank_pos(index);
 			this.render_view();
-		}
-		
-		else if (this.is_in_view({width: gameobj.width, height: gameobj.height}, index)) {
+		} else if (this.is_in_view({width: gameobj.width, height: gameobj.height}, index)) {
+			
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index)
 		} else {
 			sprite.visible = false;
 		}
+		
 		
 		return sprite;
 	}

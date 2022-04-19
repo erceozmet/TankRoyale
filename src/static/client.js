@@ -1,11 +1,15 @@
 import { ClientState } from "/static/ClientState.js"
 
 const gamebox = document.getElementById("gamebox");
+const minimap = document.getElementById("minimap");
 const SCREEN_DIMS = {width: gamebox.clientWidth, height: gamebox.clientHeight};
 const MAP_DIMS = {width: 250, height: 250};
 // const MAP_VIEW_RATIO = {width: MAP_DIMS.width / 100, height: MAP_DIMS.height / 100};
 const MAP_VIEW_RATIO = {width: 2, height: 2};
 let client_state = new ClientState(SCREEN_DIMS, MAP_DIMS, MAP_VIEW_RATIO);
+
+let MINIMAP_DIMS = {width: minimap.clientWidth, height: minimap.clientHeight};
+let minimap_state = new ClientState(MINIMAP_DIMS, MAP_DIMS, {width: 1, height: 1});
 
 
 var host = window.document.location.host.replace(/:.*/, '');
@@ -22,7 +26,15 @@ client.joinOrCreate("battle_room").then(room => {
         height: SCREEN_DIMS.height,
         backgroundColor: 0xffffff
     });
+    let miniapp = new PIXI.Application({
+        width: MINIMAP_DIMS.width,
+        height: MINIMAP_DIMS.height,
+        backgroundColor: 0xffffff
+    });
+
     gamebox.appendChild(app.view);
+    minimap.appendChild(miniapp.view);
+
     const BACKGROUND_PATH = "images/background.jpeg" 
     var background = new PIXI.TilingSprite.from(BACKGROUND_PATH, {width: SCREEN_DIMS.width * MAP_VIEW_RATIO.width,
         height: SCREEN_DIMS.height * MAP_VIEW_RATIO.height});
@@ -42,7 +54,9 @@ client.joinOrCreate("battle_room").then(room => {
             let index = client_state.get_index_from_key(key);
         
             let sprite = client_state.add_gameobj(gameobj, index);
+            let mini_sprite = minimap_state.add_gameobj(gameobj, index);
             app.stage.addChild(sprite);
+            miniapp.stage.addChild(mini_sprite);
 
             console.log(gameobj, "has been added at", index);
         };
@@ -53,6 +67,9 @@ client.joinOrCreate("battle_room").then(room => {
             let index = client_state.get_index_from_key(key);
             let sprite = client_state.remove_gameobj(gameobj, index);
             app.stage.removeChild(sprite);
+
+            let mini_sprite = minimap_state.remove_gameobj(gameobj, index);
+            miniapp.stage.removeChild(mini_sprite);
             console.log(gameobj, "has been removed at: ", index);
         }
     });
@@ -70,6 +87,8 @@ client.joinOrCreate("battle_room").then(room => {
     room.onMessage("tank_id", function (message) {
         console.log("setting tank_id", message);
         client_state.set_tank_id(message.tank_id, message.start_location);
+
+        minimap_state.set_tank_id(message.tank_id, message.start_location);
     });
 
     // listen to patches coming from the server
