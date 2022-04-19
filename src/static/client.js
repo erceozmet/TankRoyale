@@ -16,6 +16,16 @@ var host = window.document.location.host.replace(/:.*/, '');
 var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
 // var client = new Colyseus.Client("wss://xq-zci.colyseus.dev");
 
+/******* Button press registering variables *******/
+let keys = new Set(),
+    tankMoveInterval = null,
+    allowedKeys = {
+        'KeyW': true, // W
+        'KeyS': true, // S
+        'KeyA': true, // A
+        'KeyD': true, // D
+    };
+
 client.joinOrCreate("battle_room").then(room => {
     overlayOn();
 
@@ -53,12 +63,17 @@ client.joinOrCreate("battle_room").then(room => {
             console.log("adding gameobj ", gameobj.id);
             let index = client_state.get_index_from_key(key);
         
-            let sprite = client_state.add_gameobj(gameobj, index);
-            let mini_sprite = minimap_state.add_gameobj(gameobj, index);
-            app.stage.addChild(sprite);
-            miniapp.stage.addChild(mini_sprite);
-
             console.log(gameobj, "has been added at", index);
+            try {
+                let sprite = client_state.add_gameobj(gameobj, index);
+                app.stage.addChild(sprite);
+                let mini_sprite = minimap_state.add_gameobj(gameobj, index);
+                miniapp.stage.addChild(mini_sprite);
+                console.log(gameobj, "has been added at", index);
+            } catch(error) {
+                console.log("bruh");
+                room.send("error");
+            }
         };
         
         currentValue.onRemove = (gameobj, key) => {
@@ -93,35 +108,15 @@ client.joinOrCreate("battle_room").then(room => {
 
     // listen to patches coming from the server
     room.onMessage("killed", function (message) {
-        document.onkeydown = null;
-        document.onkeyup = null;
-        document.onmousemove = null;
-        document.onclick = null;
-        document.getElementById('overlay-message').innerText = `You died! You rank #${message}.`;
-        overlayOn();
+        unbindClient(`You died! You rank #${message}.`);
     });
 
     room.onMessage("win", () => {
-        document.onkeydown = null;
-        document.onkeyup = null;
-        document.onmousemove = null;
-        document.onclick = null;
-        document.getElementById('overlay-message').innerText = "Congratulations, you win!";
-        overlayOn();
+        unbindClient("Congratulations, you win!");
     });
     
     room.onMessage("start", function() {
         overlayOff();
-
-        /******* Button press registering code *******/
-        let keys = new Set(),
-            tankMoveInterval = null,
-            allowedKeys = {
-                'KeyW': true, // W
-                'KeyS': true, // S
-                'KeyA': true, // A
-                'KeyD': true, // D
-            };
 
         document.onkeydown = function (e) {
             e.preventDefault();
@@ -129,24 +124,22 @@ client.joinOrCreate("battle_room").then(room => {
             if (allowedKeys[e.code]) {
                 if (!keys.has(e.code)) {
                     keys.add(e.code);
-                }
                 
-                if (tankMoveInterval === null) {
-                    room.send("button", e.code);
-                    tankMoveInterval = setInterval(function () {
-                        keys.forEach((key) => {
-                            room.send("button", key);
-                        });
-                    }, 100);
+                    if (tankMoveInterval === null) {
+                        room.send("button", e.code);
+                        tankMoveInterval = setInterval(function () {
+                            keys.forEach((key) => {
+                                room.send("button", key);
+                            });
+                        }, 100);
+                    }
                 }
             }
         };
 
         document.onkeyup = function (e) {
             e.preventDefault();
-            if (keys.has(e.code)) {
-                keys.delete(e.code);
-            }
+            keys.delete(e.code);
             // need to check if keyboard movement stopped
             if ((allowedKeys[e.code]) && (keys.size === 0)) {
                 clearInterval(tankMoveInterval);
@@ -188,6 +181,18 @@ client.joinOrCreate("battle_room").then(room => {
         }
     });
 });
+
+
+function unbindClient(message) {
+    document.onkeydown = null;
+    document.onkeyup = null;
+    document.onmousemove = null;
+    document.onclick = null;
+    document.getElementById('overlay-message').innerText = message;
+    keys.clear();
+    tankMoveInterval = null;
+    overlayOn();
+}
 
 function overlayOn() {
     document.getElementById("overlay").style.display = "flex";
