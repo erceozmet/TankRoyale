@@ -17,6 +17,7 @@ var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" 
 // var client = new Colyseus.Client("wss://xq-zci.colyseus.dev");
 
 /******* Button press registering variables *******/
+
 let keys = new Set(),
     tankMoveInterval = null,
     allowedKeys = {
@@ -45,7 +46,7 @@ client.joinOrCreate("battle_room").then(room => {
     gamebox.appendChild(app.view);
     minimap.appendChild(miniapp.view);
 
-    const BACKGROUND_PATH = "images/background.jpeg" 
+    const BACKGROUND_PATH = "images/background.jpeg";
     var background = new PIXI.TilingSprite.from(BACKGROUND_PATH, {width: SCREEN_DIMS.width * MAP_VIEW_RATIO.width,
         height: SCREEN_DIMS.height * MAP_VIEW_RATIO.height});
     background.position.set(0,0);
