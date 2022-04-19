@@ -12,10 +12,10 @@ let MINIMAP_DIMS = {width: minimap.clientWidth, height: minimap.clientHeight};
 let minimap_state = new ClientState(MINIMAP_DIMS, MAP_DIMS, {width: 1, height: 1});
 
 
-// var host = window.document.location.host.replace(/:.*/, '');
-// var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
-var client = new Colyseus.Client("wss://xq-zci.colyseus.dev");
-console.log("we at arena");
+var host = window.document.location.host.replace(/:.*/, '');
+var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
+// var client = new Colyseus.Client("wss://xq-zci.colyseus.dev");
+
 
 /******* Button press registering variables *******/
 
