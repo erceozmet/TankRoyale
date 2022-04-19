@@ -1,4 +1,4 @@
-import { ClientState } from "/static/ClientState.js"
+import { ClientState } from "/TankRoyale/src/static/ClientState.js"
 
 const gamebox = document.getElementById("gamebox");
 const minimap = document.getElementById("minimap");
