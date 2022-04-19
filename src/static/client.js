@@ -145,6 +145,7 @@ client.joinOrCreate("battle_room").then(room => {
     });
     
     room.onMessage("start", function() {
+        document.getElementById("prompt-player-count").style.display = "none";
         overlayOff();
 
         document.onkeydown = function (e) {
