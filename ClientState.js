@@ -27,8 +27,8 @@ export class ClientState {
 
  
 	add_gameobj(gameobj, index) {
-		console.log("gameobj type", "/TankRoyale/src/" + gameobj.imagePath)
-		let sprite = PIXI.Sprite.from("/TankRoyale/src/" + gameobj.imagePath);
+		console.log("gameobj type", "./src/" + gameobj.imagePath)
+		let sprite = PIXI.Sprite.from("./src/" + gameobj.imagePath);
 	
 		// set sprite attibutes
 		
@@ -62,7 +62,7 @@ export class ClientState {
 
 	add_projectile(projectile) {
 		var projectileMoveInterval = null;
-		let sprite = PIXI.Sprite.from("/TankRoyale/src/" + projectile.imagePath);
+		let sprite = PIXI.Sprite.from("./src/" + projectile.imagePath);
 		sprite.height = this.tile_size.height * projectile.height;
 		sprite.width  = this.tile_size.width  * projectile.width;
 		
