@@ -267,7 +267,6 @@ export class MyRoom extends Room<MyRoomState> {
         else{
             console.log("User ", client.sessionId, " has left the game room");
         }
-
         console.log("Player count is: ", this.state.player_count);
     }
 
