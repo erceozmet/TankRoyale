@@ -15,6 +15,7 @@ let minimap_state = new ClientState(MINIMAP_DIMS, MAP_DIMS, {width: 1, height: 1
 // var host = window.document.location.host.replace(/:.*/, '');
 // var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
 var client = new Colyseus.Client("wss://xq-zci.colyseus.dev");
+console.log("we at arena");
 
 /******* Button press registering variables *******/
 
