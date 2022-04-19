@@ -166,6 +166,8 @@ export class MyRoom extends Room<MyRoomState> {
                     if (enemy_tank.health <= 0) {
                         console.log("EXPLODE");
                         enemy_tank.client.send("killed", this.state.player_count);
+                        my_tank.client.send("explosion", {col: Math.round(projectile.col), row: Math.round(projectile.row)})
+                        
                         this.dispose_client(enemy_tank.client.sessionId);
                     }
                 }
