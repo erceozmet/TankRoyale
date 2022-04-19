@@ -8,6 +8,8 @@
 		body {
 			font-family: Tahoma, Geneva, sans-serif;
 		}
+
+	
 		#gamebox {
 			height: 100%; width: 100%; background-color: white;
 			border-style: solid; border-width: 5px; position: absolute;
@@ -20,6 +22,10 @@
 			left: 80%; top: 80%;
 		}
 		
+		#input{
+			text-align: center;
+
+		}
 		#vbar {
 			height: 100%; width: 1px; 
 			background-color: red; position: absolute;
@@ -56,6 +62,7 @@
 		#prompt-player-count{
 			width: 400px;
 		}
+		
 	</style>
 
 	<!-- colyseus.js client -->
@@ -68,11 +75,15 @@
 <body>
 	<div id="overlay">
 		<div id="overlay-contents">
-			<h1 id="overlay-message">Waiting for players...</h1>
+			<h1 style = "text-align: center;" id="overlay-message">Waiting for players...</h1>
 			<div id="prompt-player-count" style="display: none;">
-				<p style="color: white;">Please enter the number of players between 2-16:</p>
-				<input type="number" id="player-count"min="2" max="16" value="2">
-				<input type="submit" id="prompt-submit">
+					<p style="color: white; text-align: center;">Create Room (2-16)</p>
+					<p style="color: white; text-align: center;">
+						<input type="number" id="player-count" min="2" max="16" value="2">
+						<input type="submit" value="Create" id="prompt-submit">
+					</p>
+		
+				
 			</div>
 		</div>
 	</div>
