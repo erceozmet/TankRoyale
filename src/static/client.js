@@ -53,7 +53,7 @@ client.joinOrCreate("battle_room").then(room => {
     client_state.background = background;
 
     // game map decls
-    client_state.render_bars();
+    // client_state.render_bars();
     
     // gameobj listeners
     room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
@@ -71,7 +71,7 @@ client.joinOrCreate("battle_room").then(room => {
                 miniapp.stage.addChild(mini_sprite);
                 console.log(gameobj, "has been added at", index);
             } catch(error) {
-                console.log("bruh");
+                
                 room.send("error");
             }
         };
