@@ -130,7 +130,10 @@ export class MyRoom extends Room<MyRoomState> {
                     right = -1;
                 }
             }
-            this.state.map.moveTank(tankId, right, up);
+            if (right != 0 || up != 0) {
+                console.log("right", right, "up", up);
+                this.state.map.moveTank(tankId, right, up);
+            }
             this.client_to_buffer.set(client, []);
         });
 
@@ -176,9 +179,27 @@ export class MyRoom extends Room<MyRoomState> {
 
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
        
+        this.onMessage("error", (client) => {
+            let tank_id = this.client_to_tank.get(client.sessionId);
+            let loc = this.state.map.locations.get(tank_id);
+            let tank = this.state.map.get(tank_id) as Tank;
+            let new_tank = new Tank(tank.client);
+            new_tank.health = tank.health;
+            new_tank.weapon = tank.weapon;
+            new_tank.id = tank.id;
+
+            for (let i = 0; i < new_tank.width; i++) {
+                for (let j = 0; j < new_tank.height; j++) {
+                    this.state.map.tiles.set(loc.col + i, loc.row + j, new_tank);
+                }
+            }
+            this.state.map.synced_tiles.set(this.state.map.to1D(loc.col, loc.row), tank);
+        });
+
         this.onMessage("button", (client, button) => {
             this.client_to_buffer.get(client.sessionId).push(button);
         });
+
         this.onMessage("projectile", (client, barrelDirrection) => {
             let tank = this.state.map.get(this.client_to_tank.get(client.sessionId)) as Tank;
             let tankLoc = this.state.map.locations.get(tank.id);

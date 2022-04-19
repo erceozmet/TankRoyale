@@ -51,11 +51,14 @@ client.joinOrCreate("battle_room").then(room => {
             console.log("adding gameobj ", gameobj.id);
             let index = client_state.get_index_from_key(key);
         
-            let sprite = client_state.add_gameobj(gameobj, index);
-            app.stage.addChild(sprite);
-
-            console.log(gameobj, "has been added at", index);
-
+            try {
+                let sprite = client_state.add_gameobj(gameobj, index);
+                app.stage.addChild(sprite);
+                console.log(gameobj, "has been added at", index);
+            } catch(error) {
+                console.log("bruh");
+                room.send("error");
+            }
         };
         
         currentValue.onRemove = (gameobj, key) => {
@@ -99,9 +102,7 @@ client.joinOrCreate("battle_room").then(room => {
             e.preventDefault();
             
             if (allowedKeys[e.code]) {
-                if ((e.code == "KeyW" || e.code == "KeyS") && (keys.has("KeyW") || keys.has("KeyS"))) return;
-                if ((e.code == "KeyA" || e.code == "KeyD") && (keys.has("KeyA") || keys.has("KeyD"))) return;
-                else {
+                if (!keys.has(e.code)) {
                     keys.add(e.code);
                 
                     if (tankMoveInterval === null) {
