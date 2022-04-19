@@ -44,8 +44,8 @@ class Tiles<T> extends ArraySchema<T> {
 
 export class GameMap extends Schema {
     uniqueId: number = 0;
-    @type("number") width: number = 250;
-    @type("number") height: number = 250;
+    width: number = 250;
+    height: number = 250;
 
     locations = new MapSchema<Location>();
     tiles: Tiles<GameObject> = new Tiles<GameObject>(this.width, this.height);

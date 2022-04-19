@@ -12,7 +12,7 @@ export class MyRoom extends Room<MyRoomState> {
     player_locations = new Array();
 
     initialize_player_loc() {
-        let max_player_count = 25;
+        let max_player_count = 16;
         let players_per_row = Math.sqrt(max_player_count);
         let map_width = this.state.map.width;
         let map_height = this.state.map.height;
@@ -178,7 +178,7 @@ export class MyRoom extends Room<MyRoomState> {
         this.place_obstacles(this.state.map)
 
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
-       
+
         this.onMessage("error", (client) => {
             let tank_id = this.client_to_tank.get(client.sessionId);
             let loc = this.state.map.locations.get(tank_id);
@@ -220,10 +220,19 @@ export class MyRoom extends Room<MyRoomState> {
     onCreate(options: any) {
         this.setState(new MyRoomState());
         this.initialize_player_loc();
+
+        this.onMessage("set_player_count", (client, player_size) => {
+            this.state.player_size = player_size;
+            client.send("waiting", this.state.player_size - this.state.player_count);
+        });
     }
 
     onJoin(client: Client, options: any) {
-        this.state.player_count += 1
+        this.state.player_count += 1;
+
+        if (this.state.player_count == 1) {
+            client.send("prompt_player_count");
+        }
 
         // pick random start loc for client
         let start_index = Math.floor(Math.random() * (this.player_locations.length -1));
@@ -243,7 +252,7 @@ export class MyRoom extends Room<MyRoomState> {
             this.lock();
             this.gameStart();
             this.broadcast("start");
-        } else {
+        } else if (this.state.player_count != 1) {
             this.broadcast("waiting", this.state.player_size - this.state.player_count);
         }
     }

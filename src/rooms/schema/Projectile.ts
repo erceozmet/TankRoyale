@@ -8,11 +8,12 @@ export class Projectile extends GameObject {
     
     tank_id: string;
 
-    @type("number")speed: number;
-
-    @type("number")direction: number;
-    @type("number")col: number;
-    @type("number")row: number;
+    @type("number") speed: number;
+    @type("number") direction: number;
+    @type("number") initial_col: number;
+    @type("number") initial_row: number;
+    col: number;
+    row: number;
 
     constructor(tank_id: string, damage: number, direction: number, range: number, speed: number, loc: Location) {
         super("images/projectile.png", 1, 1);
@@ -23,6 +24,8 @@ export class Projectile extends GameObject {
         this.speed = speed;
         this.col = loc.col;
         this.row = loc.row;
+        this.initial_col = loc.col;
+        this.initial_row = loc.row;
     }
 
     getType(): string {

@@ -25,13 +25,6 @@
 			background-color: red; position: absolute;
 			
 		}
-		h1{
-			margin: auto;
-			width: 400px;
-			color: white;
-			justify-content: center;
-			align-items: center;
-		}
 		#hbar {
 			height: 1px; width: 100%; 
 			background-color: red; position: absolute;
@@ -40,6 +33,7 @@
 		#overlay {
 			position: fixed; /* Sit on top of the page content */
 			display: none; /* Hidden by default */
+			flex-direction: column;
 			width: 80%; /* Full width (cover the whole page) */
 			height: 80%; /* Full height (cover the whole page) */
 			top: 10%;
@@ -49,6 +43,18 @@
 			background-color: rgba(0,0,0,0.8); /* Black background with opacity */
 			z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
 			cursor: pointer; /* Add a pointer on hover */
+		}
+		#overlay-contents{
+			margin: auto;
+			width: 500px;
+			justify-content: center;
+			align-items: center;
+		}
+		#overlay-message{
+			color: white;
+		}
+		#prompt-player-count{
+			width: 400px;
 		}
 	</style>
 
@@ -61,7 +67,14 @@
 
 <body>
 	<div id="overlay">
-		<h1 id="overlay-message">Waiting for players...</h1>	
+		<div id="overlay-contents">
+			<h1 id="overlay-message">Waiting for players...</h1>
+			<div id="prompt-player-count" style="display: none;">
+				<p style="color: white;">Please enter the number of players between 2-16:</p>
+				<input type="number" id="player-count"min="2" max="16" value="2">
+				<input type="submit" id="prompt-submit">
+			</div>
+		</div>
 	</div>
 	<div id="gamebox"></div>
 	<div id="minimap"></div>

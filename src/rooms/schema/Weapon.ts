@@ -18,10 +18,10 @@ export class Weapon extends GameObject {
     }
 
     fireCountdown: number = 0;
-    @type("number") damage: number;
-    @type("number") fire_rate: number;
-    @type("number") range: number;
-    @type("number") speed: number;
+    damage: number;
+    fire_rate: number;
+    range: number;
+    speed: number;
 
     shootProjectile(tank_id: string, direction: number, id: string, loc: Location): Projectile {
         let projectile = new Projectile(tank_id, this.damage, direction, this.range, this.speed, loc);

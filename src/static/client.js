@@ -82,7 +82,6 @@ client.joinOrCreate("battle_room").then(room => {
             let index = client_state.get_index_from_key(key);
             let sprite = client_state.remove_gameobj(gameobj, index);
             app.stage.removeChild(sprite);
-
             let mini_sprite = minimap_state.remove_gameobj(gameobj, index);
             miniapp.stage.removeChild(mini_sprite);
             console.log(gameobj, "has been removed at: ", index);
@@ -94,7 +93,21 @@ client.joinOrCreate("battle_room").then(room => {
         console.log(message);
     });
 
+    room.onMessage("prompt_player_count", () => {
+        document.getElementById('overlay-message').innerText = "Welcome to Tank Royale!";
+        document.getElementById("prompt-player-count").style.display = "inline";
+    });
+
+    document.getElementById('prompt-submit').addEventListener('click', function() {
+        let value = document.getElementById("player-count").value;
+        if (value >= 2 && value <= 16) {
+            console.log(value);
+            room.send("set_player_count", value);
+        }
+    });
+
     room.onMessage("waiting", function(message) {
+        document.getElementById("prompt-player-count").style.display = "none";
         let plural = message == 1 ? '' : 's';
         document.getElementById('overlay-message').innerText = `Waiting for ${message} other player${plural}...`;
     });

@@ -17,6 +17,6 @@ export class Tank extends GameObject {
     }
 
     client: Client;
-    @type("number") health: number;
-    @type(Weapon) weapon: Weapon;
+    health: number;
+    weapon: Weapon;
 }

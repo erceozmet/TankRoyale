@@ -66,7 +66,7 @@ export class ClientState {
 		sprite.height = this.tile_size.height * projectile.height;
 		sprite.width  = this.tile_size.width  * projectile.width;
 		
-		[sprite.x, sprite.y] = this.get_screen_coordinates({row: projectile.row, col: projectile.col});
+		[sprite.x, sprite.y] = this.get_screen_coordinates({row: projectile.initial_row, col: projectile.initial_col});
 		const DELTA_TIME = 50;
 		// create interval function
 		projectileMoveInterval = setInterval( () => {
