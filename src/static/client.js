@@ -64,13 +64,13 @@ client.joinOrCreate("battle_room").then(room => {
             let index = client_state.get_index_from_key(key);
         
             console.log(gameobj, "has been added at", index);
-            try {
+            if (gameobj) {
                 let sprite = client_state.add_gameobj(gameobj, index);
                 app.stage.addChild(sprite);
                 let mini_sprite = minimap_state.add_gameobj(gameobj, index);
                 miniapp.stage.addChild(mini_sprite);
                 console.log(gameobj, "has been added at", index);
-            } catch(error) {
+            } else {
                 room.send("error");
             }
         };
@@ -79,13 +79,13 @@ client.joinOrCreate("battle_room").then(room => {
             console.log("removing gameobj", gameobj.id);
             client_state.render_view();
             let index = client_state.get_index_from_key(key);
-            try {
+            if (gameobj) {
                 let sprite = client_state.remove_gameobj(gameobj, index);
                 app.stage.removeChild(sprite);
                 let mini_sprite = minimap_state.remove_gameobj(gameobj, index);
                 miniapp.stage.removeChild(mini_sprite);
                 console.log(gameobj, "has been removed at: ", index);
-            } catch(error) {
+            } else {
                 room.send("error");
             }
         }

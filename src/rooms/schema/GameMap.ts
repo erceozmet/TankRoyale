@@ -147,7 +147,7 @@ export class GameMap extends Schema {
             }
         }
 
-        console.log("moving tank to ", col, row);
+        console.log("moving tank", tank.id, "to", col, row);
 
         for (let i = 0; i < tank.width; i++) {
             for (let j = 0; j < tank.height; j++) {
@@ -161,8 +161,19 @@ export class GameMap extends Schema {
             }
         }
 
+        console.log("\n\n\n");
+        console.log(tank.id);
+        console.log("old", old_col, old_row);
+        console.log("new", col, row);
+
+        console.log("before delete", this.synced_tiles.get(this.to1D(old_col, old_row)));
         this.synced_tiles.delete(this.to1D(old_col, old_row));
+        console.log("after delete", this.synced_tiles.get(this.to1D(old_col, old_row)));
+
+        console.log("before set", this.synced_tiles.get(this.to1D(col, row)));
         this.synced_tiles.set(this.to1D(col, row), tank);
+        console.log("after set", this.synced_tiles.get(this.to1D(col, row)));
+
         let loc = this.locations.get(tank.id);
         loc.col = col;
         loc.row = row;
