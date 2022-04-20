@@ -1,5 +1,6 @@
 import Arena from "@colyseus/arena";
 import { monitor } from "@colyseus/monitor";
+import cors from "cors";
 import path from "path";
 /**
  * Import your Room files
@@ -27,6 +28,8 @@ export default Arena({
         app.get("/", (req, res) => {
             res.send("Connected to backend server");
         });
+
+        app.use(cors());
 
         app.use("/client", (req, res) =>{
             res.sendFile(path.join(__dirname, '/static/game.html'))
