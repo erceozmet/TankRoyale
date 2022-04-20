@@ -28,6 +28,7 @@ export class ClientState {
 
  
 	add_gameobj(gameobj, index) {
+		console.log("./src/" + gameobj.imagePath);
 		let sprite = PIXI.Sprite.from("./src/" + gameobj.imagePath);
 	
 		// set sprite attibutes
