@@ -119,7 +119,7 @@ client.joinOrCreate("battle_room").then(room => {
 
     room.onMessage("tank_id", function (message) {
         console.log("setting tank_id", message);
-        client_state.set_tank_id(message.tank_id, message.start_location);
+        client_state.set_tank_id(message.tank_id, message.start_location, message.tank_health);
 
         minimap_state.set_tank_id(message.tank_id, message.start_location);
     });
@@ -131,6 +131,10 @@ client.joinOrCreate("battle_room").then(room => {
 
     room.onMessage("hit", function (new_health) {
         client_state.change_health(new_health);
+    });
+
+    room.onMessage("new_weapon", function (new_weapon) {
+        client_state.change_weapon(new_weapon);
     });
 
     

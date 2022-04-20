@@ -25,13 +25,9 @@ export class ClientState {
 		this.health = this.MAX_HEALTH;
 		
   	}
-	// set_barrel_direction() {
-
-	// }
 
  
 	add_gameobj(gameobj, index) {
-		console.log("gameobj type", gameobj.imagePath)
 		let sprite = PIXI.Sprite.from(gameobj.imagePath);
 	
 		// set sprite attibutes
@@ -189,6 +185,16 @@ export class ClientState {
 		this.health = health;
 	}
 
+	change_weapon(weapon) {
+		let [damage, fire_rate, range, speed] = weapon;
+		const details = document.getElementById("weapon-details").getElementsByTagName("table")[0];
+
+		details.rows[0].cells[1].innerHTML = damage;
+		details.rows[1].cells[1].innerHTML = fire_rate;
+		details.rows[2].cells[1].innerHTML = range;
+		details.rows[3].cells[1].innerHTML = speed;
+	}
+
 
 	// make all objects that were inside the view hidden 
 	unrender_view(old_view_pos, new_view_pos) {
@@ -271,7 +277,9 @@ export class ClientState {
 	}
 
 	// set client tank
-	set_tank_id(id, pos) {
+	set_tank_id(id, pos, health) {
+		this.MAX_HEALTH = health;
+		this.health = health;
 		this.tank_id = id;
 		this.change_tank_pos({row: pos[1], col: pos[0]});
 

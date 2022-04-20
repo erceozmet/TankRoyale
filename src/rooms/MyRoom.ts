@@ -244,8 +244,11 @@ export class MyRoom extends Room<MyRoomState> {
 
         // put client's tank on the map
         let tank = new Tank(client);
+        let tank_health = tank.health
         let tank_id = this.state.map.put(tank, start_location[0], start_location[1]);
-        client.send("tank_id", {tank_id, start_location});
+        client.send("tank_id", {tank_id, start_location, tank_health});
+        client.send("new_weapon", [tank.weapon.damage, tank.weapon.fire_rate, tank.weapon.range, tank.weapon.speed])
+                    
 
         this.client_to_tank.set(client.sessionId, tank_id);
         this.client_to_buffer.set(client.sessionId, new Array());
