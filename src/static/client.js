@@ -128,6 +128,12 @@ client.joinOrCreate("battle_room").then(room => {
     room.onMessage("killed", function (message) {
         unbindClient(`You died! You rank #${message}.`);
     });
+
+    room.onMessage("hit", function (new_health) {
+        client_state.change_health(new_health);
+    });
+
+    
     room.onMessage("explosion", function (index) {
         const EXPLOSION_LENGTH = 1000
         console.log("exploding tank")

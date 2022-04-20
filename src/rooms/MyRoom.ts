@@ -162,6 +162,7 @@ export class MyRoom extends Room<MyRoomState> {
                 if (is_on_enemy) {
                     let enemy_tank = obj_at_newloc as Tank;
                     enemy_tank.health -= projectile.damage;
+                    enemy_tank.client.send("hit", enemy_tank.health);
                     console.log("tank health: ", enemy_tank.health);
                     if (enemy_tank.health <= 0) {
                         console.log("EXPLODE");

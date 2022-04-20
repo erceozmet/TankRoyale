@@ -21,6 +21,8 @@ export class ClientState {
 		  this.objects[i] = new Array(this.map_dims.width);
 		}
 
+		this.MAX_HEALTH = 100;
+		this.health = this.MAX_HEALTH;
 		
   	}
 	// set_barrel_direction() {
@@ -42,7 +44,6 @@ export class ClientState {
 		
 		if (gameobj.id == this.tank_id) {
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index);
-			
 			this.change_tank_pos(index);
 			this.render_view();
 		} else if (this.is_in_view({width: gameobj.width, height: gameobj.height}, index)) {
@@ -51,8 +52,6 @@ export class ClientState {
 		} else {
 			sprite.visible = false;
 		}
-		
-		
 		return sprite;
 	}
 
@@ -176,6 +175,18 @@ export class ClientState {
 				
 			}
 		}
+	}
+
+	change_health(health) {
+		if (health == this.health) return;
+		
+		const health_bar = document.getElementById("health-left");
+		let new_width =  Math.floor(health  / this.MAX_HEALTH * 100);
+		let old_width =  Math.floor(this.health  / this.MAX_HEALTH * 100);
+		for (let i = old_width; i >= new_width; i--) {
+			setTimeout(() => health_bar.style.width = i + "%", (old_width - i) * 20);
+		}
+		this.health = health;
 	}
 
 
