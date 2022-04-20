@@ -15,19 +15,19 @@ export class ClientState {
 		this.projectiles = new Map();
 		this.edge_objects = new Array();
 
+		this.EXPLOSION_PATH = "./src/images/explosion.png";
+
 		for (var i = 0; i < this.map_dims.height; i++) {
 		  this.objects[i] = new Array(this.map_dims.width);
 		}
 
+		this.MAX_HEALTH = 100;
+		this.health = this.MAX_HEALTH;
 		
   	}
-	// set_barrel_direction() {
-
-	// }
 
  
 	add_gameobj(gameobj, index) {
-		console.log("gameobj type", "./src/" + gameobj.imagePath)
 		let sprite = PIXI.Sprite.from("./src/" + gameobj.imagePath);
 	
 		// set sprite attibutes
@@ -40,7 +40,6 @@ export class ClientState {
 		
 		if (gameobj.id == this.tank_id) {
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index);
-			
 			this.change_tank_pos(index);
 			this.render_view();
 		} else if (this.is_in_view({width: gameobj.width, height: gameobj.height}, index)) {
@@ -49,8 +48,6 @@ export class ClientState {
 		} else {
 			sprite.visible = false;
 		}
-		
-		
 		return sprite;
 	}
 
@@ -78,15 +75,26 @@ export class ClientState {
 		
 		return sprite;
 	}
-	// TODO: play explosion animation in the coordinates of projectile
 	remove_projectile(projectile) {
 		let {sprite: sprite, interval: interval}  = this.projectiles.get(projectile.id);
 		clearInterval(interval);
         this.projectiles.delete(projectile.id);
+
+
 		
         return sprite;
 	}
 	
+	explode_tank(index) {
+		let sprite = PIXI.Sprite.from(this.EXPLOSION_PATH);
+		index.row -= this.tank_dims.height / 2;
+		index.col -= this.tank_dims.width / 2;
+		
+		[sprite.x, sprite.y] = this.get_screen_coordinates(index);
+		sprite.height = this.tank_dims.height * this.tile_size.height;
+		sprite.width  = this.tank_dims.width * this.tile_size.width;
+		return sprite;
+	}
 
 	// assign new map view ration
 	change_map_view_ratio(new_ratio) {
@@ -163,6 +171,28 @@ export class ClientState {
 				
 			}
 		}
+	}
+
+	change_health(health) {
+		if (health == this.health) return;
+		
+		const health_bar = document.getElementById("health-left");
+		let new_width =  Math.floor(health  / this.MAX_HEALTH * 100);
+		let old_width =  Math.floor(this.health  / this.MAX_HEALTH * 100);
+		for (let i = old_width; i >= new_width; i--) {
+			setTimeout(() => health_bar.style.width = i + "%", (old_width - i) * 20);
+		}
+		this.health = health;
+	}
+
+	change_weapon(weapon) {
+		let [damage, fire_rate, range, speed] = weapon;
+		const details = document.getElementById("weapon-details").getElementsByTagName("table")[0];
+
+		details.rows[0].cells[1].innerHTML = damage;
+		details.rows[1].cells[1].innerHTML = fire_rate;
+		details.rows[2].cells[1].innerHTML = range;
+		details.rows[3].cells[1].innerHTML = speed;
 	}
 
 
@@ -247,7 +277,9 @@ export class ClientState {
 	}
 
 	// set client tank
-	set_tank_id(id, pos) {
+	set_tank_id(id, pos, health) {
+		this.MAX_HEALTH = health;
+		this.health = health;
 		this.tank_id = id;
 		this.change_tank_pos({row: pos[1], col: pos[0]});
 

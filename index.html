@@ -24,19 +24,36 @@
 		
 		#input{
 			text-align: center;
-
 		}
 		#vbar {
 			height: 100%; width: 1px; 
 			background-color: red; position: absolute;
-			
 		}
 		#hbar {
 			height: 1px; width: 100%; 
-			background-color: red; position: absolute;
-			
+			background-color: red; position: absolute;	
 		}
-		#overlay {
+
+		#health-bar {
+			height: 2%; width: 30%; position: absolute;
+			left: 65%; top: 5%; background-color: red;
+			border-style: solid; border-width: 5px;
+		}
+		#health-left {
+			width: 100%; height: 100%; position: relative;
+			background-color: green; 
+		}
+
+		#weapon-details {
+			height: 6%; width: 30%; position: absolute;
+			left: 65%; top: 8%; background-color: white;
+			border-style: solid; border-width: 5px;
+		}
+		#weapon-table {
+
+		}
+
+		.overlay {
 			position: fixed; /* Sit on top of the page content */
 			display: none; /* Hidden by default */
 			flex-direction: column;
@@ -49,18 +66,14 @@
 			background-color: rgba(0,0,0,0.8); /* Black background with opacity */
 			z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
 			cursor: pointer; /* Add a pointer on hover */
+			color: white;
 		}
 		#overlay-contents{
 			margin: auto;
 			width: 500px;
 			justify-content: center;
 			align-items: center;
-		}
-		#overlay-message{
-			color: white;
-		}
-		#prompt-player-count{
-			width: 400px;
+			text-align: center;
 		}
 		
 	</style>
@@ -73,19 +86,56 @@
 </head>
 
 <body>
-	<div id="overlay">
+	<div id="overlay-leader" class="overlay">
 		<div id="overlay-contents">
-			<h1 style = "text-align: center;" id="overlay-message">Waiting for players...</h1>
-			<div id="prompt-player-count" style="display: none;">
-					<p style="color: white; text-align: center;">Create Room (2-16)</p>
-					<p style="color: white; text-align: center;">
-						<input type="number" id="player-count" min="2" max="16" value="2">
-						<input type="submit" value="Create" id="prompt-submit">
-					</p>
-			</div>
+			<h1>Welcome to Tank Royale!</h1>
+			<h4>You are the room leader! Start when there are enough people.</h4>
+			<p id="player-count-leader"></p>
+			<input type="submit" value="Start" id="start-game">
+			<p style="color: red;" id="warning"></p>
 		</div>
 	</div>
-	<div id="gamebox"></div>
+
+	<div id="overlay-client" class="overlay">
+		<div id="overlay-contents">
+			<h1>Welcome to Tank Royale!</h1>
+			<h3 id="player-count-client"></h3>
+			<p>Waiting for the room leader to start the game...</p>
+		</div>
+	</div>
+
+	<div id="overlay-end" class="overlay">
+		<div id="overlay-contents">
+			<h1 id="game-over"></h1>
+		</div>
+	</div>
+
+	<div id="gamebox">
+		<div id="health-bar">
+			<div id="health-left" ></div>
+		</div>
+		<div id="weapon-details">
+			<table>
+				<tr>
+				  <th>Damage</th>
+				  <th></th>
+				</tr>
+				<tr>
+				  <td>Fire Rate</td>
+				  <td></td>
+				</tr>
+				<tr>
+					<td>Speed</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>Range</td>
+					<td></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
 	<div id="minimap"></div>
 	
 	<script type="module" src="./client.js"></script>
