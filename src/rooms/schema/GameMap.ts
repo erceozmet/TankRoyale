@@ -126,38 +126,86 @@ export class GameMap extends Schema {
         return this.setLoc(obj, loc.col, loc.row, loc.col + right, loc.row + up);
     }
 
+    checkSquareForMove(tank: Tank, col: number, row: number): boolean {
+        let prev_obj = this.tiles.get(col, row);
+        if (prev_obj == null) return true;
+        if (prev_obj.getType() == "weapon") {
+            console.log("weapon picked up");
+            tank.weapon = prev_obj as Weapon;
+            tank.client.send("new_weapon", [tank.weapon.damage, tank.weapon.fire_rate, tank.weapon.range, tank.weapon.speed])
+            this.delete(prev_obj.id);
+        } else if (prev_obj.getType() == "tank") {
+            return false;
+        } else if (prev_obj.getType() == "obstacle" ) {
+            return false;
+        }
+        return true;
+    }
+
     setLoc(tank: Tank, old_col: number, old_row: number, col: number, row: number): boolean {
         if (!this.checkObjectRange(col, row, tank)) return false;
 
-        for (let i = 0; i < tank.width; i++) {
-            for (let j = 0; j < tank.height; j++) {
-                // console.log("checking square", col+ i, row+j);
-                let prev_obj = this.tiles.get(col + i, row + j);
-                if (prev_obj == null) continue;
-                if (prev_obj.getType() == "weapon") {
-                    console.log("weapon picked up");
-                    tank.weapon = prev_obj as Weapon;
-                    tank.client.send("new_weapon", [tank.weapon.damage, tank.weapon.fire_rate, tank.weapon.range, tank.weapon.speed])
-                    this.delete(prev_obj.id);
-                } else if (prev_obj.getType() == "tank" && prev_obj != tank) {
-                    return false;
-                } else if (prev_obj.getType() == "obstacle" ) {
-                    return false;
-                }
+        let goingUp = (row - old_row) > 0;
+        let goingRight = (col - old_col) > 0;
+
+        let min_row_check = goingUp ? old_row + tank.height : row;
+        let max_row_check = goingUp ? row + tank.height : old_row;
+        let min_col_check = goingRight ? old_col + tank.width : col;
+        let max_col_check = goingRight ? col + tank.width : old_col;
+
+        console.log("moving tank", tank.id, "from", old_col, old_row, "to", col, row);
+        console.log("check vertical");
+        // check squares in the vertical displacement area
+        for (let i = col; i < col + tank.width; i++) {
+            for (let j = min_row_check; j < max_row_check; j++) {
+                console.log(i, j);
+                if (!this.checkSquareForMove(tank, i, j)) return false;
+            }
+        }
+        
+        console.log("check horizontal");
+        // check squares in the horizontal displacement area
+        for (let i = min_col_check; i < max_col_check; i++) {
+            for (let j = row; j < row + tank.height; j++) {
+                console.log(i, j);
+                if (!this.checkSquareForMove(tank, i, j)) return false;
             }
         }
 
-        console.log("moving tank", tank.id, "to", col, row);
+        let min_row_null = goingUp ? old_row : row + tank.height;
+        let max_row_null = goingUp ? row : old_row + tank.height;
+        let min_col_null = goingRight ? old_col : col + tank.width;
+        let max_col_null = goingRight ? col : old_col + tank.width;
 
-        for (let i = 0; i < tank.width; i++) {
-            for (let j = 0; j < tank.height; j++) {
-                this.tiles.remove(old_col + i, old_row + j);
+        console.log("null vertical");
+        // set squares to null in the vertical displacement area
+        for (let i = old_col; i < old_col + tank.width; i++) {
+            for (let j = min_row_null; j < max_row_null; j++) {
+                console.log(i, j);
+                this.tiles.remove(i, j);
             }
         }
 
-        for (let i = 0; i < tank.width; i++) {
-            for (let j = 0; j < tank.height; j++) {
-                this.tiles.set(col + i, row + j, tank);
+        console.log("null horizontal");
+        // set squares to null in the horizontal displacement area
+        for (let i = min_col_null; i < max_col_null; i++) {
+            for (let j = old_row; j < old_row + tank.height; j++) {
+                console.log(i, j);
+                this.tiles.remove(i, j);
+            }
+        }
+
+        // set squares to object in the vertical displacement area
+        for (let i = col; i < col + tank.width; i++) {
+            for (let j = min_row_check; j < max_row_check; j++) {
+                this.tiles.set(i, j, tank);
+            }
+        }
+        
+        // check squares in the horizontal displacement area
+        for (let i = min_col_check; i < max_col_check; i++) {
+            for (let j = row; j < row + tank.height; j++) {
+                this.tiles.set(i, j, tank);
             }
         }
 
