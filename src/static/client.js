@@ -144,7 +144,7 @@ client.joinOrCreate("battle_room").then(room => {
     });
 
     room.onMessage("explosion", function (index) {
-        const EXPLOSION_LENGTH = 1000;
+        const EXPLOSION_LENGTH = 200;
         console.log("exploding projectile");
         let sprite = client_state.add_explosion(index);
         app.stage.addChild(sprite);
