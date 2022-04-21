@@ -12,6 +12,7 @@ export class MyRoom extends Room<MyRoomState> {
     player_locations = new Array();
     player_count = 0;
     room_leader: Client = null;
+    game_started = false;
 
     initialize_player_loc() {
         let players_per_row = Math.sqrt(this.player_count);
@@ -212,6 +213,8 @@ export class MyRoom extends Room<MyRoomState> {
 
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
 
+        this.game_started = true;
+
         this.onMessage("error", (client) => {
             let tank_id = this.client_to_tank.get(client.sessionId);
             let loc = this.state.map.locations.get(tank_id);
@@ -295,7 +298,7 @@ export class MyRoom extends Room<MyRoomState> {
         this.broadcast("player_count", this.player_count);
 
         // if room leader leaves without starting the game, assign someone else to be the room leader
-        if (this.room_leader == client) {
+        if (this.room_leader == client && !this.game_started) {
             for (let i = 0; i < this.clients.length; i++) {
                 if (this.clients[i] != this.room_leader) {
                     this.room_leader = this.clients[i];
