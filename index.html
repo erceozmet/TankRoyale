@@ -3,8 +3,10 @@
 
 <head>
 	<meta name="viewport" content="width=device-width" />
-
+                
 	<style>
+		@import url('http://fonts.cdnfonts.com/css/serious-rounded');
+
 		body {
 			font-family: Tahoma, Geneva, sans-serif;
 		}
@@ -34,23 +36,41 @@
 			background-color: red; position: absolute;	
 		}
 
+		#health {
+			left: 1%; top: 2%;
+			height: 4%; width: 20%; position: absolute;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		img {
+			max-width: auto;
+			max-height: 100%;
+			margin-right: 10px;
+		}
+
 		#health-bar {
-			height: 2%; width: 30%; position: absolute;
-			left: 65%; top: 5%; background-color: red;
-			border-style: solid; border-width: 5px;
+			height: 50%; width: 100%; position: relative;
+			background-color: red;
+			border-style: solid; border-width: 2px;
 		}
 		#health-left {
 			width: 100%; height: 100%; position: relative;
 			background-color: green; 
 		}
 
-		#weapon-details {
-			height: 6%; width: 30%; position: absolute;
-			left: 65%; top: 8%; background-color: white;
-			border-style: solid; border-width: 5px;
+		#weapon {
+			left: 1%; top: 7%;
+			height: 5%; width: 25%; position: absolute;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
 		}
-		#weapon-table {
 
+		#weapon-name {
+			font-size: 20px;
+			font-family: 'seriousr2b', sans-serif;
 		}
 
 		.overlay {
@@ -75,7 +95,6 @@
 			align-items: center;
 			text-align: center;
 		}
-		
 	</style>
 
 	<!-- colyseus.js client -->
@@ -85,7 +104,22 @@
 
 </head>
 
-<body>
+<body></body>
+	<div id="gamebox">
+		<div id="health">
+			<img src="./src/images/heart.png">
+			<div id="health-bar">
+				<div id="health-left"></div>
+			</div>
+		</div>
+		<div id="weapon">
+			<img id="weapon-img" src="./src/images/pistol.png">
+			<p id="weapon-name">Pistol</p>
+		</div>
+	</div>
+
+	<div id="minimap"></div>
+	
 	<div id="overlay-leader" class="overlay">
 		<div id="overlay-contents">
 			<h1>Welcome to Tank Royale!</h1>
@@ -109,35 +143,6 @@
 			<h1 id="game-over"></h1>
 		</div>
 	</div>
-
-	<div id="gamebox">
-		<div id="health-bar">
-			<div id="health-left" ></div>
-		</div>
-		<div id="weapon-details">
-			<table>
-				<tr>
-				  <th>Damage</th>
-				  <th></th>
-				</tr>
-				<tr>
-				  <td>Fire Rate</td>
-				  <td></td>
-				</tr>
-				<tr>
-					<td>Speed</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td>Range</td>
-					<td></td>
-				</tr>
-			</table>
-		</div>
-	</div>
-
-	<div id="minimap"></div>
-	
 	<script type="module" src="./client.js"></script>
 </body>
 

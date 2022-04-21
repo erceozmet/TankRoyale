@@ -14,6 +14,7 @@ export class ClientState {
 		this.max_object_size = {width: 0, height: 0};
 		this.projectiles = new Map();
 		this.edge_objects = new Array();
+		this.explosions = new Map();
 
 		this.EXPLOSION_PATH = "./src/images/explosion.png";
 
@@ -28,7 +29,6 @@ export class ClientState {
 
  
 	add_gameobj(gameobj, index) {
-		console.log("./src/" + gameobj.imagePath);
 		let sprite = PIXI.Sprite.from("./src/" + gameobj.imagePath);
 	
 		// set sprite attibutes
@@ -76,24 +76,26 @@ export class ClientState {
 		
 		return sprite;
 	}
+
 	remove_projectile(projectile) {
 		let {sprite: sprite, interval: interval}  = this.projectiles.get(projectile.id);
 		clearInterval(interval);
         this.projectiles.delete(projectile.id);
-
-
-		
         return sprite;
 	}
 	
-	explode_tank(index) {
+	add_explosion(index) {
 		let sprite = PIXI.Sprite.from(this.EXPLOSION_PATH);
-		index.row -= this.tank_dims.height / 2;
-		index.col -= this.tank_dims.width / 2;
-		
+		this.explosions.set(index.id, sprite);
 		[sprite.x, sprite.y] = this.get_screen_coordinates(index);
-		sprite.height = this.tank_dims.height * this.tile_size.height;
-		sprite.width  = this.tank_dims.width * this.tile_size.width;
+		sprite.height = (this.tank_dims.height / 3) * this.tile_size.height;
+		sprite.width  = (this.tank_dims.width / 3) * this.tile_size.width;
+		return sprite;
+	}
+
+	remove_explosion(index) {
+		let sprite = PIXI.Sprite.from(this.EXPLOSION_PATH);
+		this.explosions.delete(index.id);
 		return sprite;
 	}
 
@@ -126,8 +128,9 @@ export class ClientState {
 
 
 		
-		this.move_projectiles(old_view_pos, this.view_pos)
-		this.move_background(old_view_pos, this.view_pos)
+		this.move_projectiles(old_view_pos, this.view_pos);
+		this.move_explosions(old_view_pos, this.view_pos);
+		this.move_background(old_view_pos, this.view_pos);
 		this.render_view();
 		this.unrender_view(old_view_pos, this.view_pos);
 		
@@ -140,7 +143,15 @@ export class ClientState {
 			key.sprite.x += this.tile_size.width * col;
 			key.sprite.y += this.tile_size.height * row;			
 		});
+	}
 
+	move_explosions(old_view_pos, new_view_pos) {
+		this.explosions.forEach(sprite => {
+			let row = old_view_pos.row - new_view_pos.row
+			let col = old_view_pos.col - new_view_pos.col
+			sprite.x += this.tile_size.width * col;
+			sprite.y += this.tile_size.height * row;			
+		});
 	}
 
 	move_background(old_view_pos, new_view_pos) {
@@ -187,15 +198,9 @@ export class ClientState {
 	}
 
 	change_weapon(weapon) {
-		let [damage, fire_rate, range, speed] = weapon;
-		const details = document.getElementById("weapon-details").getElementsByTagName("table")[0];
-
-		details.rows[0].cells[1].innerHTML = damage;
-		details.rows[1].cells[1].innerHTML = fire_rate;
-		details.rows[2].cells[1].innerHTML = range;
-		details.rows[3].cells[1].innerHTML = speed;
+		document.getElementById("weapon-img").src = "./src/" + weapon.imagePath;
+		document.getElementById("weapon-name").innerText = weapon.name;
 	}
-
 
 	// make all objects that were inside the view hidden 
 	unrender_view(old_view_pos, new_view_pos) {

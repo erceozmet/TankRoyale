@@ -1,7 +1,7 @@
 import { type } from "@colyseus/schema";
 import { Client } from "colyseus";
 import { GameObject } from "./GameObject";
-import { PistolWeapon, Weapon } from "./Weapon";
+import { Pistol, Weapon } from "./Weapon";
 
 export class Obstacle extends GameObject {
 
