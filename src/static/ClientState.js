@@ -30,22 +30,25 @@ export class ClientState {
  
 	add_gameobj(gameobj, index) {
 		let sprite = PIXI.Sprite.from(gameobj.imagePath);
-	
+		const ANCHOR = 0.5;
 		// set sprite attibutes
 		
 		sprite.height = this.tile_size.height * gameobj.height;
 		sprite.width = this.tile_size.width * gameobj.width;
+		sprite.anchor.set(ANCHOR);
+		sprite.rotation = gameobj.direction;
+
 		this.objects[index.row][index.col] = sprite;
 		if (gameobj.height > this.max_object_size.height) this.max_object_size.height = gameobj.height
 		if (gameobj.width  > this.max_object_size.width ) this.max_object_size.width  = gameobj.width
 		
 		if (gameobj.id == this.tank_id) {
-			[sprite.x, sprite.y] = this.get_screen_coordinates(index);
+			console.log("change pos", index);
+			[sprite.x, sprite.y] = this.get_screen_coordinates(index, sprite, ANCHOR);
 			this.change_tank_pos(index);
 			this.render_view();
 		} else if (this.is_in_view({width: gameobj.width, height: gameobj.height}, index)) {
-			
-			[sprite.x, sprite.y] = this.get_screen_coordinates(index)
+			[sprite.x, sprite.y] = this.get_screen_coordinates(index, sprite, ANCHOR);
 		} else {
 			sprite.visible = false;
 		}
@@ -64,7 +67,7 @@ export class ClientState {
 		sprite.height = this.tile_size.height * projectile.height;
 		sprite.width  = this.tile_size.width  * projectile.width;
 		
-		[sprite.x, sprite.y] = this.get_screen_coordinates({row: projectile.initial_row, col: projectile.initial_col});
+		[sprite.x, sprite.y] = this.get_screen_coordinates({row: projectile.initial_row, col: projectile.initial_col}, sprite, 0);
 		const DELTA_TIME = 50;
 		// create interval function
 		projectileMoveInterval = setInterval( () => {
@@ -87,9 +90,10 @@ export class ClientState {
 	add_explosion(index) {
 		let sprite = PIXI.Sprite.from(this.EXPLOSION_PATH);
 		this.explosions.set(index.id, sprite);
-		[sprite.x, sprite.y] = this.get_screen_coordinates(index);
 		sprite.height = (this.tank_dims.height / 3) * this.tile_size.height;
 		sprite.width  = (this.tank_dims.width / 3) * this.tile_size.width;
+		[sprite.x, sprite.y] = this.get_screen_coordinates(index, sprite, 0);
+	
 		return sprite;
 	}
 
@@ -126,6 +130,9 @@ export class ClientState {
 						 col: this.tank_pos.col + (this.tank_dims.width / 2) - (this.view_dims.width / 2)};
 		this.wrap_view_pos();
 
+		console.log('old view', old_view_pos);
+		console.log("new", this.view_pos);
+
 
 		
 		this.move_projectiles(old_view_pos, this.view_pos);
@@ -133,7 +140,6 @@ export class ClientState {
 		this.move_background(old_view_pos, this.view_pos);
 		this.render_view();
 		this.unrender_view(old_view_pos, this.view_pos);
-		
 	}
 
 	move_projectiles(old_view_pos, new_view_pos) {
@@ -166,8 +172,10 @@ export class ClientState {
 
 	// invariant: view_pos + view_dims is never bigger than map dims
 	render_view() {
+		const ANCHOR = 0.5
 		let row = -this.max_object_size.height
 		for (; row < this.view_dims.height; row++) {
+			
 			let row_index = this.view_pos.row + row;
 			let col = -this.max_object_size.width
 			for (; col < this.view_dims.width; col++) {
@@ -175,12 +183,12 @@ export class ClientState {
 				let sprite = this.objects.at(row_index)?.at(col_index);
 				
 				if (!sprite) continue;
-				
 				sprite.visible = true;
 				
 				sprite.y = this.tile_size.height * row;
 				sprite.x = this.tile_size.width * col; 
-				
+				sprite.y += sprite.height * ANCHOR;
+				sprite.x += sprite.width * ANCHOR;
 			}
 		}
 	}
@@ -276,9 +284,12 @@ export class ClientState {
 		}
 	}
 	// return on screen coordinates based on index
-	get_screen_coordinates(index) {
+	get_screen_coordinates(index, sprite, anchor) {
 		let y = this.tile_size.height * (index.row - this.view_pos.row);
 		let x = this.tile_size.width  * (index.col - this.view_pos.col);
+		
+		y += sprite.height * anchor;
+		x += sprite.width * anchor;
 		return [x, y];
 	}
 

@@ -12,7 +12,9 @@ export abstract class GameObject extends Schema {
 
     @type("number") height: number;
     @type("number") width: number;
+    @type("number") direction: number = 0;
     @type("string") id: string;
     @type("string") imagePath: string;
+
 }   
 

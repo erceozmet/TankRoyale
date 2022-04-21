@@ -16,6 +16,7 @@ export class Tank extends GameObject {
         return "tank";
     }
 
+    last_direction: number = 0;
     client: Client;
     health: number;
     weapon: Weapon;

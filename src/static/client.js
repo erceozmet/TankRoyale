@@ -193,7 +193,7 @@ client.joinOrCreate("battle_room").then(room => {
         document.onclick = function(e) {
             var mouseX = e.pageX; 
             var mouseY = e.pageY; 
-            var [tankX, tankY] = client_state.get_screen_coordinates(client_state.tank_pos);
+            var [tankX, tankY] = client_state.get_screen_coordinates(client_state.tank_pos, {width: 0, height: 0}, 0);
             tankY += client_state.tank_dims.height * client_state.tile_size.height / 2;
             tankX += client_state.tank_dims.width  * client_state.tile_size.width  / 2;
             // code for updating barrelDirection

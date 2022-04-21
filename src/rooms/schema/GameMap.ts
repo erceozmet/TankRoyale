@@ -119,13 +119,6 @@ export class GameMap extends Schema {
         return obj.id;
     }
 
-    moveTank(id: string, right: number, up: number): boolean {
-        let loc = this.locations.get(id);
-        let obj = this.tiles.get(loc.col, loc.row) as Tank;
-
-        return this.setLoc(obj, loc.col, loc.row, loc.col + right, loc.row + up);
-    }
-
     checkSquareForMove(tank: Tank, col: number, row: number): boolean {
         let prev_obj = this.tiles.get(col, row);
         if (prev_obj == null) return true;
@@ -142,11 +135,18 @@ export class GameMap extends Schema {
         return true;
     }
 
-    setLoc(tank: Tank, old_col: number, old_row: number, col: number, row: number): boolean {
+    moveTank(id: string, right: number, up: number): boolean {
+        let loc = this.locations.get(id);
+        let tank = this.tiles.get(loc.col, loc.row) as Tank;
+        let old_col = loc.col;
+        let old_row = loc.row;
+        let col = loc.col + right;
+        let row = loc.row + up;
+    
         if (!this.checkObjectRange(col, row, tank)) return false;
 
-        let goingUp = (row - old_row) > 0;
-        let goingRight = (col - old_col) > 0;
+        let goingUp = up > 0;
+        let goingRight = right > 0;
 
         let min_row_check = goingUp ? old_row + tank.height : row;
         let max_row_check = goingUp ? row + tank.height : old_row;
@@ -202,10 +202,14 @@ export class GameMap extends Schema {
             }
         }
 
+        let direction = Math.atan2(up, right); // angle in radians
+        if (direction == tank.last_direction) {
+            tank.direction = direction;
+        }
+        tank.last_direction = direction;
         this.synced_tiles.delete(this.to1D(old_col, old_row));
         this.synced_tiles.set(this.to1D(col, row), tank);
 
-        let loc = this.locations.get(tank.id);
         loc.col = col;
         loc.row = row;
         return true;

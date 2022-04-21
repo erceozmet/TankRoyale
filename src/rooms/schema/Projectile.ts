@@ -9,7 +9,6 @@ export class Projectile extends GameObject {
     tank_id: string;
 
     @type("number") speed: number;
-    @type("number") direction: number;
     @type("number") initial_col: number;
     @type("number") initial_row: number;
     col: number;

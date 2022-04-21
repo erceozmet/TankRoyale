@@ -139,20 +139,6 @@ export class MyRoom extends Room<MyRoomState> {
                 else if (buffer[i] == "KeyD") right += 1;
                 else if (buffer[i] == "KeyA") right -= 1;
             }
-            if (Math.abs(up) + Math.abs(right) > 2){
-                if (up > 1){
-                    up = 1;
-                }
-                if (up < -1){
-                    up = -1;
-                }
-                if (right > 1){
-                    right = 1;
-                }
-                if (right < -1){
-                    right = -1;
-                }
-            }
             if (right != 0 || up != 0) {
                 console.log("right", right, "up", up);
                 this.state.map.moveTank(tankId, right, up);
