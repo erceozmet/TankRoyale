@@ -105,14 +105,19 @@ export class MyRoom extends Room<MyRoomState> {
     }
 
     dispose_client(client_id: string) {
+        console.log("dispose client")
         let tank_id = this.client_to_tank.get(client_id);
+        console.log("tank", tank_id);
         this.state.map.delete(tank_id);
+
         this.client_to_tank.delete(client_id);
         this.client_to_buffer.delete(client_id);
     }
 
     update (deltaTime: any) {
+        console.log("update start")
         this.client_to_buffer.forEach((buffer, client) => {
+            console.log("update in loop, client;", client)
             let tankId = this.client_to_tank.get(client);
             let tank = this.state.map.get(tankId) as Tank;
 
