@@ -179,7 +179,7 @@ export class MyRoom extends Room<MyRoomState> {
                 console.log("explode")
                 this.state.map.explodeProjectile(projectile);
                 if (is_on_enemy || is_on_obstacle) {
-                    this.broadcast("explosion", {col: Math.round(projectile.col), row: Math.round(projectile.row)})
+                    my_tank.client.send("explosion", {id: projectile.id, col: Math.round(projectile.col), row: Math.round(projectile.row)})
                 }
                 if (is_on_enemy) {
                     let enemy_tank = obj_at_newloc as Tank;

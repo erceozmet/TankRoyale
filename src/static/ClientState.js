@@ -14,6 +14,7 @@ export class ClientState {
 		this.max_object_size = {width: 0, height: 0};
 		this.projectiles = new Map();
 		this.edge_objects = new Array();
+		this.explosions = new Map();
 
 		this.EXPLOSION_PATH = "images/explosion.png";
 
@@ -83,12 +84,18 @@ export class ClientState {
         return sprite;
 	}
 	
-	explode_projectile(index) {
+	add_explosion(index) {
 		let sprite = PIXI.Sprite.from(this.EXPLOSION_PATH);
-		this.objects[index.row][index.col] = sprite;
+		this.explosions.set(index.id, sprite);
 		[sprite.x, sprite.y] = this.get_screen_coordinates(index);
 		sprite.height = (this.tank_dims.height / 3) * this.tile_size.height;
 		sprite.width  = (this.tank_dims.width / 3) * this.tile_size.width;
+		return sprite;
+	}
+
+	remove_explosion(index) {
+		let sprite = PIXI.Sprite.from(this.EXPLOSION_PATH);
+		this.explosions.delete(index.id);
 		return sprite;
 	}
 
@@ -121,8 +128,9 @@ export class ClientState {
 
 
 		
-		this.move_projectiles(old_view_pos, this.view_pos)
-		this.move_background(old_view_pos, this.view_pos)
+		this.move_projectiles(old_view_pos, this.view_pos);
+		this.move_explosions(old_view_pos, this.view_pos);
+		this.move_background(old_view_pos, this.view_pos);
 		this.render_view();
 		this.unrender_view(old_view_pos, this.view_pos);
 		
@@ -135,7 +143,15 @@ export class ClientState {
 			key.sprite.x += this.tile_size.width * col;
 			key.sprite.y += this.tile_size.height * row;			
 		});
+	}
 
+	move_explosions(old_view_pos, new_view_pos) {
+		this.explosions.forEach(sprite => {
+			let row = old_view_pos.row - new_view_pos.row
+			let col = old_view_pos.col - new_view_pos.col
+			sprite.x += this.tile_size.width * col;
+			sprite.y += this.tile_size.height * row;			
+		});
 	}
 
 	move_background(old_view_pos, new_view_pos) {
