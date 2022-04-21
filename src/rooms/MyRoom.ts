@@ -178,6 +178,9 @@ export class MyRoom extends Room<MyRoomState> {
             if (!is_inside_walls || !has_range_remaining || is_on_enemy || is_on_obstacle) {
                 console.log("explode")
                 this.state.map.explodeProjectile(projectile);
+                if (is_on_enemy || is_on_obstacle) {
+                    this.broadcast("explosion", {col: Math.round(projectile.col), row: Math.round(projectile.row)})
+                }
                 if (is_on_enemy) {
                     let enemy_tank = obj_at_newloc as Tank;
                     enemy_tank.health -= projectile.damage;
@@ -185,9 +188,7 @@ export class MyRoom extends Room<MyRoomState> {
                     console.log("tank health: ", enemy_tank.health);
                     if (enemy_tank.health <= 0) {
                         console.log("EXPLODE");
-                        enemy_tank.client.send("lose", this.client_to_tank.size);
-                        my_tank.client.send("explosion", {col: Math.round(projectile.col), row: Math.round(projectile.row)})
-                        
+                        enemy_tank.client.send("lose", this.client_to_tank.size);                        
                         this.dispose_client(enemy_tank.client.sessionId);
                     }
                 }

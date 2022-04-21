@@ -75,24 +75,20 @@ export class ClientState {
 		
 		return sprite;
 	}
+
 	remove_projectile(projectile) {
 		let {sprite: sprite, interval: interval}  = this.projectiles.get(projectile.id);
 		clearInterval(interval);
         this.projectiles.delete(projectile.id);
-
-
-		
         return sprite;
 	}
 	
-	explode_tank(index) {
+	explode_projectile(index) {
 		let sprite = PIXI.Sprite.from(this.EXPLOSION_PATH);
-		index.row -= this.tank_dims.height / 2;
-		index.col -= this.tank_dims.width / 2;
-		
+		this.objects[index.row][index.col] = sprite;
 		[sprite.x, sprite.y] = this.get_screen_coordinates(index);
-		sprite.height = this.tank_dims.height * this.tile_size.height;
-		sprite.width  = this.tank_dims.width * this.tile_size.width;
+		sprite.height = (this.tank_dims.height / 3) * this.tile_size.height;
+		sprite.width  = (this.tank_dims.width / 3) * this.tile_size.width;
 		return sprite;
 	}
 

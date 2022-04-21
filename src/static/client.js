@@ -144,15 +144,11 @@ client.joinOrCreate("battle_room").then(room => {
     });
 
     room.onMessage("explosion", function (index) {
-        const EXPLOSION_LENGTH = 1000
-        console.log("exploding tank")
-        let sprite = client_state.explode_tank(index);
+        const EXPLOSION_LENGTH = 1000;
+        console.log("exploding projectile");
+        let sprite = client_state.explode_projectile(index);
         app.stage.addChild(sprite);
         setTimeout(() => app.stage.removeChild(sprite), EXPLOSION_LENGTH);
-
-        let mini_sprite = minimap_state.explode_tank(index);
-        miniapp.stage.addChild(mini_sprite);
-        setTimeout(() => miniapp.stage.removeChild(mini_sprite), EXPLOSION_LENGTH);
     });
     
     room.onMessage("start", function() {
