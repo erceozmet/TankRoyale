@@ -184,6 +184,10 @@ client.joinOrCreate("battle_room").then(room => {
         };
 
         /******* Projectile code *******/
+        document.onmousedown = function(e) {
+            e.preventDefault();
+        };
+
         document.onclick = function(e) {
             var mouseX = e.pageX; 
             var mouseY = e.pageY; 
