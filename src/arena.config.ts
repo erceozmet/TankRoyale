@@ -29,7 +29,7 @@ export default Arena({
             res.send("Connected to backend server");
         });
 
-        const allowedOrigins = ['wss://xq-zci.colyseus.dev'];
+        const allowedOrigins = ['wss://xq-zci.colyseus.dev', 'https://xq-zci.colyseus.dev'];
 
         const options: cors.CorsOptions = {
         origin: allowedOrigins
