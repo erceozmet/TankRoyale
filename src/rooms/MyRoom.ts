@@ -69,7 +69,7 @@ export class MyRoom extends Room<MyRoomState> {
             let x: number, y: number;
             let map_height = this.state.map.height;
             let map_width = this.state.map.width;
-            let obstacle_length = Math.round(Math.random() * 30);
+            let obstacle_length = Math.round(Math.random() * 30 + 10);
             let obstacle;
             if (Math.random() > 0.5){
                 obstacle = new Obstacle(3, obstacle_length);

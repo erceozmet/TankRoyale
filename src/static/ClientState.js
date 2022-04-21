@@ -1,5 +1,5 @@
 export class ClientState {
-	constructor(screen_dims, map_dims, map_view_ratio) {
+	constructor(screen_dims, map_dims, map_view_ratio, show_loots) {
 		this.screen_dims = screen_dims;
 		this.map_dims =  map_dims;
 		this.change_map_view_ratio(map_view_ratio);
@@ -15,6 +15,7 @@ export class ClientState {
 		this.projectiles = new Map();
 		this.edge_objects = new Array();
 		this.explosions = new Map();
+		this.sprites = new Map();
 
 		this.EXPLOSION_PATH = "images/explosion.png";
 
@@ -24,12 +25,19 @@ export class ClientState {
 
 		this.MAX_HEALTH = 100;
 		this.health = this.MAX_HEALTH;
+
+		this.show_loots = show_loots;
+		this.min_size = {width: 3, height: 3};
 		
   	}
 
  
 	add_gameobj(gameobj, index) {
-		let sprite = PIXI.Sprite.from(gameobj.imagePath);
+		if (!this.show_loots && gameobj.height <= this.min_size.height && gameobj.width <= this.min_size.width) return
+		
+		let exists = this.sprites.has(gameobj.id)
+		let sprite = exists ? this.sprites.get(gameobj.id) : PIXI.Sprite.from(gameobj.imagePath);
+
 		const ANCHOR = 0.5;
 		// set sprite attibutes
 		
@@ -47,17 +55,22 @@ export class ClientState {
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index, sprite, ANCHOR);
 			this.change_tank_pos(index);
 			this.render_view();
+			sprite.visible = true;
 		} else if (this.is_in_view({width: gameobj.width, height: gameobj.height}, index)) {
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index, sprite, ANCHOR);
+			sprite.visible = true;
 		} else {
 			sprite.visible = false;
 		}
+		this.sprites.set(gameobj.id, sprite);
 		return sprite;
 	}
 
 	remove_gameobj(gameobj, index) {
 		let sprite = this.objects[index.row][index.col];
+		
 		this.objects[index.row][index.col] = null;
+		if (sprite) sprite.visible = false;
 		return sprite;
 	}
 
