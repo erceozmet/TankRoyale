@@ -5,8 +5,9 @@ import { Location } from "./GameMap";
 import { Tank } from "./Tank";
 
 export class Weapon extends GameObject {
-    constructor (image: string, damage: number, fire_rate: number, range: number, speed: number) {
+    constructor (name: string, image: string, damage: number, fire_rate: number, range: number, speed: number) {
         super(image, 3, 3);
+        this.name = name;
         this.damage = damage;
         this.fire_rate = fire_rate;
         this.range = range;
@@ -17,6 +18,7 @@ export class Weapon extends GameObject {
         return "weapon";
     }
 
+    name: string;
     fireCountdown: number = 0;
     damage: number;
     fire_rate: number;
@@ -30,26 +32,26 @@ export class Weapon extends GameObject {
     }
 }
 
-export class PistolWeapon extends Weapon {
+export class Pistol extends Weapon {
     constructor() {
-        super("images/pistol.png", 20, 50, 50, 25);
+        super("Pistol", "images/pistol.png", 20, 50, 50, 25);
     }
 }
 
-export class SniperWeapon extends Weapon {
+export class Sniper extends Weapon {
     constructor() {
-        super("images/sniper.png", 40, 100, 80, 40);
+        super("Sniper", "images/sniper.png", 40, 100, 80, 40);
     }
 }
 
-export class MachinegunWeapon extends Weapon{
+export class SubmachineGun extends Weapon{
     constructor() {
-        super("images/smg.png", 5, 25, 50, 25);
+        super("Submachine Gun", "images/smg.png", 5, 25, 50, 25);
     }
 }
 
-export class ShotgunWeapon extends Weapon{
+export class Shotgun extends Weapon{
     constructor() {
-        super("images/shotgun.png", 50, 75, 25, 30);
+        super("Shotgun", "images/shotgun.png", 50, 75, 25, 30);
     }
 }

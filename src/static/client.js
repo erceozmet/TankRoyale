@@ -139,8 +139,8 @@ client.joinOrCreate("battle_room").then(room => {
         client_state.change_health(new_health);
     });
 
-    room.onMessage("new_weapon", function (new_weapon) {
-        client_state.change_weapon(new_weapon);
+    room.onMessage("new_weapon", function (weapon) {
+        client_state.change_weapon(weapon);
     });
 
     room.onMessage("explosion", function (index) {

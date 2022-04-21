@@ -1,7 +1,7 @@
 import { type } from "@colyseus/schema";
 import { Client } from "colyseus";
 import { GameObject } from "./GameObject";
-import { PistolWeapon, Weapon } from "./Weapon";
+import { Pistol, Weapon } from "./Weapon";
 
 export class Tank extends GameObject {
 
@@ -9,7 +9,7 @@ export class Tank extends GameObject {
         super("images/tank.png", 5, 5);
         this.client = client;
         this.health = 100;
-        this.weapon = new PistolWeapon();
+        this.weapon = new Pistol();
     }
 
     getType(): string {

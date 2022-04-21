@@ -132,7 +132,7 @@ export class GameMap extends Schema {
         if (prev_obj.getType() == "weapon") {
             console.log("weapon picked up");
             tank.weapon = prev_obj as Weapon;
-            tank.client.send("new_weapon", [tank.weapon.damage, tank.weapon.fire_rate, tank.weapon.range, tank.weapon.speed])
+            tank.client.send("new_weapon", { name: tank.weapon.name, imagePath: tank.weapon.imagePath } );
             this.delete(prev_obj.id);
         } else if (prev_obj.getType() == "tank") {
             return false;
@@ -214,8 +214,6 @@ export class GameMap extends Schema {
     explodeProjectile(projectile: Projectile) {
         let col = projectile.col;
         let row = projectile.row;
-
-        console.log("projectile exploded in", col, row);
 
         let index = this.projectiles.indexOf(projectile);
         if (index > -1) {

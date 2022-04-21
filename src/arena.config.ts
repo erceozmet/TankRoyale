@@ -84,7 +84,6 @@ export default Arena({
             res.sendFile(path.join(__dirname, '/static/client.js'))
         })
 
-
         app.use("/static/ClientState.js", (req, res) =>{
             res.sendFile(path.join(__dirname, '/static/ClientState.js'))
         })

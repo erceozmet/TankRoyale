@@ -198,15 +198,9 @@ export class ClientState {
 	}
 
 	change_weapon(weapon) {
-		let [damage, fire_rate, range, speed] = weapon;
-		const details = document.getElementById("weapon-details").getElementsByTagName("table")[0];
-
-		details.rows[0].cells[1].innerHTML = damage;
-		details.rows[1].cells[1].innerHTML = fire_rate;
-		details.rows[2].cells[1].innerHTML = range;
-		details.rows[3].cells[1].innerHTML = speed;
+		document.getElementById("weapon-img").src = weapon.imagePath;
+		document.getElementById("weapon-name").innerText = weapon.name;
 	}
-
 
 	// make all objects that were inside the view hidden 
 	unrender_view(old_view_pos, new_view_pos) {

@@ -2,7 +2,7 @@ import { Room, Client } from "colyseus";
 import { MyRoomState } from "./schema/MyRoomState";
 import { GameMap, Location } from "./schema/GameMap";
 import { Tank } from "./schema/Tank";
-import { SniperWeapon, MachinegunWeapon, ShotgunWeapon } from "./schema/Weapon";
+import { Weapon, Sniper, SubmachineGun, Shotgun } from "./schema/Weapon";
 import { Obstacle } from "./schema/Obstacle";
 
 export class MyRoom extends Room<MyRoomState> {
@@ -55,7 +55,7 @@ export class MyRoom extends Room<MyRoomState> {
             let tank_health = tank.health;
             let tank_id = this.state.map.put(tank, start_location[0], start_location[1]);
             client.send("tank_id", {tank_id, start_location, tank_health});
-            client.send("new_weapon", [tank.weapon.damage, tank.weapon.fire_rate, tank.weapon.range, tank.weapon.speed]);
+            client.send("new_weapon", { name: tank.weapon.name, imagePath: tank.weapon.imagePath } );
 
             this.client_to_tank.set(client.sessionId, tank_id);
             this.client_to_buffer.set(client.sessionId, new Array());
@@ -90,7 +90,7 @@ export class MyRoom extends Room<MyRoomState> {
         // drop 3 of each special weapon on random coordinates
         let count = 10;
         for (let i = 0; i < count; i++) {
-            let weapons = [new SniperWeapon(), new MachinegunWeapon(), new ShotgunWeapon()];
+            let weapons = [new Sniper(), new SubmachineGun(), new Shotgun()];
             for (let j = 0; j < weapons.length; j++) {
                 let x: number, y: number;
                 let map_height = this.state.map.height;
