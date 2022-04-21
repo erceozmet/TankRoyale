@@ -231,13 +231,16 @@ export class MyRoom extends Room<MyRoomState> {
         });
 
         this.onMessage("button", (client, button) => {
-            console.log("new button arrived");
-            this.client_to_buffer.get(client.sessionId).push(button);
-            console.log("added button to buffer");
+            let buffer = this.client_to_buffer.get(client.sessionId)
+            if (buffer){
+                buffer.push(button);
+            }
         });
 
         this.onMessage("projectile", (client, barrelDirrection) => {
-            let tank = this.state.map.get(this.client_to_tank.get(client.sessionId)) as Tank;
+            let tank_id = this.client_to_tank.get(client.sessionId);
+            if (!tank_id) return;
+            let tank = this.state.map.get(tank_id) as Tank;
             let tankLoc = this.state.map.locations.get(tank.id);
             let weapon = tank.weapon;
             // TODO POSSIBLY keep track of who shot who
