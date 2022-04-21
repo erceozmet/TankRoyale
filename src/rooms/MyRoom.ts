@@ -116,9 +116,7 @@ export class MyRoom extends Room<MyRoomState> {
     }
 
     update (deltaTime: any) {
-        console.log("update start")
         this.client_to_buffer.forEach((buffer, client) => {
-            console.log("update in loop, client;", client)
             let tankId = this.client_to_tank.get(client);
             let tank = this.state.map.get(tankId) as Tank;
 
@@ -233,7 +231,9 @@ export class MyRoom extends Room<MyRoomState> {
         });
 
         this.onMessage("button", (client, button) => {
+            console.log("new button arrived");
             this.client_to_buffer.get(client.sessionId).push(button);
+            console.log("added button to buffer");
         });
 
         this.onMessage("projectile", (client, barrelDirrection) => {
