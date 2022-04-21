@@ -131,6 +131,10 @@ client.joinOrCreate("battle_room").then(room => {
         unbindClient(`You died! You rank #${value}.`);
     });
 
+    room.onMessage("timeout", () => {
+        unbindClient("Room timed out due to being idle for 15 minutes. Please refresh page!");
+    });
+
     room.onMessage("hit", function (new_health) {
         client_state.change_health(new_health);
     });

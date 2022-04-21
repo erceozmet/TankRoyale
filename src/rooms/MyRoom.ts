@@ -196,6 +196,8 @@ export class MyRoom extends Room<MyRoomState> {
     }
     
     gameStart() {
+        this.clock.clear(); // cancel the timeout for disposing room (in case room leader is AFK)
+
         this.initialize_player_loc();
 
         this.place_tanks();
@@ -250,6 +252,11 @@ export class MyRoom extends Room<MyRoomState> {
             this.gameStart();
             this.broadcast("start");
         });
+
+        this.clock.setTimeout(() => {
+            this.broadcast("timeout");   
+            this.disconnect();
+        }, 900000); // 15 minutes
     }
 
     onJoin(client: Client, options: any) {
