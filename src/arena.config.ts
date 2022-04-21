@@ -29,7 +29,12 @@ export default Arena({
             res.send("Connected to backend server");
         });
 
-        app.use(cors());
+        const allowedOrigins = ['wss://xq-zci.colyseus.dev'];
+
+        const options: cors.CorsOptions = {
+        origin: allowedOrigins
+        };
+        app.use(cors(options));
 
         app.use("/client", (req, res) =>{
             res.sendFile(path.join(__dirname, '/static/game.html'))
