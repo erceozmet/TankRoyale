@@ -54,7 +54,9 @@ export default Arena({
         app.use("/images/explosion.png", (req, res) =>{
             res.sendFile(path.join(__dirname, '/images/explosion.png'))
         })
-
+        app.use("/images/heart.png", (req, res) =>{
+            res.sendFile(path.join(__dirname, '/images/heart.png'))
+        })
         app.use("/images/projectile.png", (req, res) =>{
             res.sendFile(path.join(__dirname, '/images/projectile.png'))
         })
