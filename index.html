@@ -19,9 +19,11 @@
 		}
 
 		#minimap {
-			height: 20%; width: 20%; background-color: white;
-			border-style: solid; border-width: 5px; position: absolute;
-			left: 80%; top: 80%;
+			height: 15vw; width: 15vw; 
+			z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+			background-color: white;
+			border-style: solid; border-width: 3px; position: absolute;
+			right: 0; bottom: 0;
 		}
 		
 		#input{
@@ -77,12 +79,12 @@
 			position: fixed; /* Sit on top of the page content */
 			display: none; /* Hidden by default */
 			flex-direction: column;
-			width: 80%; /* Full width (cover the whole page) */
-			height: 80%; /* Full height (cover the whole page) */
-			top: 10%;
-			left: 10%;
-			right: 10%;
-			bottom: 10%;
+			width: 60%; /* Full width (cover the whole page) */
+			height: 60%; /* Full height (cover the whole page) */
+			top: 20%;
+			left: 20%;
+			right: 20%;
+			bottom: 20%;
 			background-color: rgba(0,0,0,0.8); /* Black background with opacity */
 			z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
 			cursor: pointer; /* Add a pointer on hover */
@@ -116,9 +118,8 @@
 			<img id="weapon-img" src="./src/images/pistol.png">
 			<p id="weapon-name">Pistol</p>
 		</div>
+		<div id="minimap"></div>
 	</div>
-
-	<div id="minimap"></div>
 	
 	<div id="overlay-leader" class="overlay">
 		<div id="overlay-contents">

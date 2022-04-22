@@ -6,10 +6,10 @@ const SCREEN_DIMS = {width: gamebox.clientWidth, height: gamebox.clientHeight};
 const MAP_DIMS = {width: 250, height: 250};
 // const MAP_VIEW_RATIO = {width: MAP_DIMS.width / 100, height: MAP_DIMS.height / 100};
 const MAP_VIEW_RATIO = {width: 2, height: 2};
-let client_state = new ClientState(SCREEN_DIMS, MAP_DIMS, MAP_VIEW_RATIO);
+let client_state = new ClientState(SCREEN_DIMS, MAP_DIMS, MAP_VIEW_RATIO, true);
 
 let MINIMAP_DIMS = {width: minimap.clientWidth, height: minimap.clientHeight};
-let minimap_state = new ClientState(MINIMAP_DIMS, MAP_DIMS, {width: 1, height: 1});
+let minimap_state = new ClientState(MINIMAP_DIMS, MAP_DIMS, {width: 1, height: 1}, false);
 let player_count = 0;
 
 // var host = window.document.location.host.replace(/:.*/, '');
@@ -39,7 +39,7 @@ client.joinOrCreate("battle_room").then(room => {
     let miniapp = new PIXI.Application({
         width: MINIMAP_DIMS.width,
         height: MINIMAP_DIMS.height,
-        backgroundColor: 0xffffff
+        backgroundColor: 0xffffff,
     });
 
     gamebox.appendChild(app.view);
@@ -52,15 +52,19 @@ client.joinOrCreate("battle_room").then(room => {
     app.stage.addChild(background);
     client_state.background = background;
 
+    var mini_background = new PIXI.TilingSprite.from(BACKGROUND_PATH, {width: MINIMAP_DIMS.width, height: MINIMAP_DIMS.height});
+    mini_background.position.set(0,0);
+    miniapp.stage.addChild(mini_background);
+    minimap_state.background = mini_background;
+    
     // game map decls
     // client_state.render_bars();
     
     // gameobj listeners
     room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
         currentValue.onAdd = (gameobj, key) => {
-            console.log("gameobj is", gameobj);
+            console.log("gameobj is", gameobj, "id: ", gameobj.id);
          
-            console.log("adding gameobj ", gameobj.id);
             let index = client_state.get_index_from_key(key);
         
             console.log(gameobj, "has been added at", index);
@@ -68,7 +72,7 @@ client.joinOrCreate("battle_room").then(room => {
                 let sprite = client_state.add_gameobj(gameobj, index);
                 app.stage.addChild(sprite);
                 let mini_sprite = minimap_state.add_gameobj(gameobj, index);
-                miniapp.stage.addChild(mini_sprite);
+                if (mini_sprite) miniapp.stage.addChild(mini_sprite);
                 console.log(gameobj, "has been added at", index);
             } else {
                 room.send("error");
@@ -83,7 +87,7 @@ client.joinOrCreate("battle_room").then(room => {
                 let sprite = client_state.remove_gameobj(gameobj, index);
                 app.stage.removeChild(sprite);
                 let mini_sprite = minimap_state.remove_gameobj(gameobj, index);
-                miniapp.stage.removeChild(mini_sprite);
+                if (mini_sprite) miniapp.stage.removeChild(mini_sprite);
                 console.log(gameobj, "has been removed at: ", index);
             } else {
                 room.send("error");
@@ -194,7 +198,7 @@ client.joinOrCreate("battle_room").then(room => {
         document.onclick = function(e) {
             var mouseX = e.pageX; 
             var mouseY = e.pageY; 
-            var [tankX, tankY] = client_state.get_screen_coordinates(client_state.tank_pos);
+            var [tankX, tankY] = client_state.get_screen_coordinates(client_state.tank_pos, {width: 0, height: 0}, 0);
             tankY += client_state.tank_dims.height * client_state.tile_size.height / 2;
             tankX += client_state.tank_dims.width  * client_state.tile_size.width  / 2;
             // code for updating barrelDirection
