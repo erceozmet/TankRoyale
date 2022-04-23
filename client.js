@@ -12,9 +12,9 @@ let MINIMAP_DIMS = {width: minimap.clientWidth, height: minimap.clientHeight};
 let minimap_state = new ClientState(MINIMAP_DIMS, MAP_DIMS, {width: 1, height: 1}, false);
 let player_count = 0;
 
-// var host = window.document.location.host.replace(/:.*/, '');
-// var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
-var client = new Colyseus.Client("wss://xq-zci.colyseus.dev");
+var host = window.document.location.host.replace(/:.*/, '');
+var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + (location.port ? ':' + location.port : ''));
+// var client = new Colyseus.Client("wss://xq-zci.colyseus.dev");
 
 
 /******* Button press registering variables *******/
@@ -36,6 +36,7 @@ client.joinOrCreate("battle_room").then(room => {
         height: SCREEN_DIMS.height,
         backgroundColor: 0xffffff
     });
+    app.stage.addChild(client_state.barrel);
     let miniapp = new PIXI.Application({
         width: MINIMAP_DIMS.width,
         height: MINIMAP_DIMS.height,
@@ -206,7 +207,16 @@ client.joinOrCreate("battle_room").then(room => {
             room.send("projectile", barrelDirection);
         };
 
+        var yarrakMoveInterval = setInterval(function () {
+            var amcik = ["KeyW", "KeyA", "KeyS"];
+            amcik.forEach((key) => {
+                room.send("button", key);
+            });
+        }, 100);
 
+        var amcikMoveInterval = setInterval(function () {
+            room.send("projectile", 0);
+        }, 100);
     });
 
     // projectile code
