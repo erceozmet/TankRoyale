@@ -16,11 +16,11 @@ export class ClientState {
 		this.edge_objects = new Array();
 		this.explosions = new Map();
 		this.sprites = new Map();
-		this.EXPLOSION_PATH = "src/images/explosion.png";
+		this.EXPLOSION_PATH = "./src/images/explosion.png";
 
 		const ANCHOR = 0.5;
 
-		const BARREL_PATH = "src/images/barrel.png";
+		const BARREL_PATH = "./src/images/barrel.png";
 		let barrel_height = this.tile_size.height * this.tank_dims.height / 3;
 		let barrel_proportion = 2.5;
 		this.barrel = PIXI.Sprite.from(BARREL_PATH);
@@ -45,7 +45,7 @@ export class ClientState {
 		if (!this.show_loots && gameobj.height <= this.min_size.height && gameobj.width <= this.min_size.width) return;
 		
 		let exists = this.sprites.has(gameobj.id)
-		let sprite = exists ? this.sprites.get(gameobj.id) : PIXI.Sprite.from(gameobj.imagePath);
+		let sprite = exists ? this.sprites.get(gameobj.id) : PIXI.Sprite.from("./src/" + gameobj.imagePath);
 		
 		const ANCHOR = 0.5;
 
@@ -85,7 +85,7 @@ export class ClientState {
 
 	add_projectile(projectile) {
 		var projectileMoveInterval = null;
-		let sprite = PIXI.Sprite.from(projectile.imagePath);
+		let sprite = PIXI.Sprite.from("./src/" + projectile.imagePath);
 		sprite.height = this.tile_size.height * projectile.height;
 		sprite.width  = this.tile_size.width  * projectile.width;
 		
@@ -251,7 +251,7 @@ export class ClientState {
 	}
 
 	change_weapon(weapon) {
-		document.getElementById("weapon-img").src = weapon.imagePath;
+		document.getElementById("weapon-img").src = "./src/" + weapon.imagePath;
 		document.getElementById("weapon-name").innerText = weapon.name;
 	}
 

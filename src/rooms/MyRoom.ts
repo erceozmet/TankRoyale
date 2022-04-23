@@ -201,6 +201,7 @@ export class MyRoom extends Room<MyRoomState> {
 
         this.onMessage("error", (client) => {
             let tank_id = this.client_to_tank.get(client.sessionId);
+            if (!tank_id) return;
             let loc = this.state.map.locations.get(tank_id);
             let tank = this.state.map.get(tank_id) as Tank;
             let new_tank = new Tank(tank.client);
