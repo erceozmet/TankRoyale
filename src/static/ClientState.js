@@ -63,6 +63,7 @@ export class ClientState {
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index, sprite, ANCHOR);
 			this.change_tank_pos(index);
 			this.render_view();
+			// this.render_barrel();
 			sprite.visible = true;
 		} else if (this.is_in_view({width: gameobj.width, height: gameobj.height}, index)) {
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index, sprite, ANCHOR);
