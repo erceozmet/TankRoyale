@@ -139,11 +139,7 @@ export class ClientState {
 
 		const ANCHOR = 0.5;
 
-		var index = {col: this.tank_pos.col + this.tank_dims.width / 2, row: this.tank_pos.row + this.tank_dims.height / 3};
-		var [barrelX, barrelY] = this.get_screen_coordinates(index, this.barrel, 0, ANCHOR);
 
-		this.barrel.x = barrelX;
-		this.barrel.y = barrelY;
 
 		return this.barrel.rotation;
 	}
@@ -177,6 +173,13 @@ export class ClientState {
 
 		console.log('old view', old_view_pos);
 		console.log("new", this.view_pos);
+
+		const ANCHOR = 0.5
+		var barrel_index = {col: this.tank_pos.col + this.tank_dims.width / 2, row: this.tank_pos.row + this.tank_dims.height / 3};
+		var [barrelX, barrelY] = this.get_screen_coordinates(barrel_index, this.barrel, 0, ANCHOR);
+
+		this.barrel.x = barrelX;
+		this.barrel.y = barrelY;
 
 
 		
