@@ -40,18 +40,18 @@ export class Pistol extends Weapon {
 
 export class Sniper extends Weapon {
     constructor() {
-        super("Sniper", "images/sniper.png", 40, 100, 80, 40);
+        super("Sniper", "images/sniper.png", 30, 100, 80, 40);
     }
 }
 
 export class SubmachineGun extends Weapon{
     constructor() {
-        super("Submachine Gun", "images/smg.png", 5, 25, 50, 25);
+        super("Submachine Gun", "images/smg.png", 10, 25, 50, 25);
     }
 }
 
 export class Shotgun extends Weapon{
     constructor() {
-        super("Shotgun", "images/shotgun.png", 50, 75, 25, 30);
+        super("Shotgun", "images/shotgun.png", 40, 75, 25, 30);
     }
 }

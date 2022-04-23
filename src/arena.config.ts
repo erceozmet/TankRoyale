@@ -46,8 +46,8 @@ export default Arena({
          */
         app.use("/colyseus", monitor());
 
-        app.use("/images/green_tank.png", (req, res) =>{
-            res.sendFile(path.join(__dirname, '/images/green_tank.png'))
+        app.use("/images/tank.png", (req, res) =>{
+            res.sendFile(path.join(__dirname, '/images/tank.png'))
         })
 
         app.use("/images/barrel.png", (req, res) =>{

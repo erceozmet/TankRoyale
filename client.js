@@ -203,10 +203,10 @@ client.joinOrCreate("battle_room").then(room => {
         };
 
         document.onclick = function(e) {
-            console.log("clicked on ", e.pageX, e.pageY);
-            console.log("direction", barrelDirection);
             room.send("projectile", barrelDirection);
         };
+
+
     });
 
     // projectile code
