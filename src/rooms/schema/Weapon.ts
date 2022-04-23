@@ -52,6 +52,6 @@ export class SubmachineGun extends Weapon{
 
 export class Shotgun extends Weapon{
     constructor() {
-        super("Shotgun", "images/shotgun.png", 40, 75, 25, 30);
+        super("Shotgun", "images/shotgun.png", 50, 75, 25, 30);
     }
 }
