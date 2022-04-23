@@ -5,7 +5,7 @@ const minimap = document.getElementById("minimap");
 const SCREEN_DIMS = {width: gamebox.clientWidth, height: gamebox.clientHeight};
 const MAP_DIMS = {width: 250, height: 250};
 // const MAP_VIEW_RATIO = {width: MAP_DIMS.width / 100, height: MAP_DIMS.height / 100};
-const MAP_VIEW_RATIO = {width: 2, height: 2};
+const MAP_VIEW_RATIO = {width: 1.5, height: 1.5};
 let client_state = new ClientState(SCREEN_DIMS, MAP_DIMS, MAP_VIEW_RATIO, true);
 
 let MINIMAP_DIMS = {width: minimap.clientWidth, height: minimap.clientHeight};
@@ -29,7 +29,6 @@ let keys = new Set(),
     };
 
 client.joinOrCreate("battle_room").then(room => {
-    console.log("joined");
     // pixi initialization
     let app = new PIXI.Application({
         width: SCREEN_DIMS.width,
@@ -63,9 +62,7 @@ client.joinOrCreate("battle_room").then(room => {
 
     // gameobj listeners
     room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
-        currentValue.onAdd = (gameobj, key) => {
-            console.log("gameobj is", gameobj, "id: ", gameobj.id);
-         
+        currentValue.onAdd = (gameobj, key) => {         
             let index = client_state.get_index_from_key(key);
         
             if (gameobj.id) {
@@ -76,14 +73,12 @@ client.joinOrCreate("battle_room").then(room => {
                 }
                 let mini_sprite = minimap_state.add_gameobj(gameobj, index);
                 if (mini_sprite) miniapp.stage.addChild(mini_sprite);
-                console.log(gameobj, "has been added at", index);
             } else {
                 room.send("error");
             }
         };
         
         currentValue.onRemove = (gameobj, key) => {
-            console.log("removing gameobj", gameobj.id);
             client_state.render_view();
             let index = client_state.get_index_from_key(key);
             if (gameobj.id) {
@@ -91,16 +86,10 @@ client.joinOrCreate("battle_room").then(room => {
                 app.stage.removeChild(sprite);
                 let mini_sprite = minimap_state.remove_gameobj(gameobj, index);
                 if (mini_sprite) miniapp.stage.removeChild(mini_sprite);
-                console.log(gameobj, "has been removed at: ", index);
             } else {
                 room.send("error");
             }
         }
-    });
-
-    room.onError((code, message) => {
-        console.log("oops, error ocurred:");
-        console.log(message);
     });
 
     room.onMessage("room", (type) => {
@@ -125,7 +114,6 @@ client.joinOrCreate("battle_room").then(room => {
     });
 
     room.onMessage("tank_id", function (message) {
-        console.log("setting tank_id", message);
         client_state.set_tank_id(message.tank_id, message.start_location, message.tank_health);
         minimap_state.set_tank_id(message.tank_id, message.start_location);
     });
@@ -152,7 +140,6 @@ client.joinOrCreate("battle_room").then(room => {
 
     room.onMessage("explosion", function (index) {
         const EXPLOSION_LENGTH = 200;
-        console.log("exploding projectile");
         let sprite = client_state.add_explosion(index);
         app.stage.addChild(sprite);
         setTimeout(() => {
@@ -211,13 +198,11 @@ client.joinOrCreate("battle_room").then(room => {
     // projectile code
     room.state.map.listen("projectiles", (currentValue, previousValue) => {
         currentValue.onAdd = (projectile, key) => {
-            console.log("adding projectile", projectile);
             let sprite = client_state.add_projectile(projectile);
             app.stage.addChild(sprite);
         };
 
         currentValue.onRemove = (projectile, key) => {
-            console.log("removing projectile", projectile.id);
             let sprite = client_state.remove_projectile(projectile);
             app.stage.removeChild(sprite);
         }

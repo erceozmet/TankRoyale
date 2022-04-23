@@ -59,11 +59,9 @@ export class ClientState {
 		if (gameobj.width  > this.max_object_size.width ) this.max_object_size.width  = gameobj.width
 		
 		if (gameobj.id == this.tank_id) {
-			console.log("change pos", index);
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index, sprite, ANCHOR);
 			this.change_tank_pos(index);
 			this.render_view();
-			// this.render_barrel();
 			sprite.visible = true;
 		} else if (this.is_in_view({width: gameobj.width, height: gameobj.height}, index)) {
 			[sprite.x, sprite.y] = this.get_screen_coordinates(index, sprite, ANCHOR);
@@ -126,7 +124,6 @@ export class ClientState {
 	}
 
 	render_barrel() {
-		console.log("BARREL");
 		var e = window.event;
 		var mouseX = e.pageX; 
 		var mouseY = e.pageY; 
@@ -155,8 +152,6 @@ export class ClientState {
 		this.tile_size = {width: this.screen_dims.width / this.view_dims.width,
 						  height: this.screen_dims.width / this.view_dims.width};
 		this.view_dims.height =  Math.floor(this.screen_dims.height / this.tile_size.height);
-		 
-		console.log("tile_size", this.tile_size);
 	}
 
 
@@ -170,9 +165,6 @@ export class ClientState {
 		this.view_pos = {row: this.tank_pos.row + (this.tank_dims.height / 2) - (this.view_dims.height / 2),
 						 col: this.tank_pos.col + (this.tank_dims.width / 2) - (this.view_dims.width / 2)};
 		this.wrap_view_pos();
-
-		console.log('old view', old_view_pos);
-		console.log("new", this.view_pos);
 
 		const ANCHOR = 0.5
 		var barrel_index = {col: this.tank_pos.col + this.tank_dims.width / 2, row: this.tank_pos.row + this.tank_dims.height / 3};

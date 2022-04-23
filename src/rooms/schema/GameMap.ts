@@ -105,7 +105,6 @@ export class GameMap extends Schema {
 
     put(obj: GameObject, col: number, row: number): string {
         obj.id = this.getUniqueId();
-        console.log("put ", obj.getType(), "to ", col, row);
         for (let i = 0; i < obj.width; i++) {
             for (let j = 0; j < obj.height; j++) {
                 if (this.tiles.get(col + i, row + j) != null) {
@@ -123,7 +122,6 @@ export class GameMap extends Schema {
         let prev_obj = this.tiles.get(col, row);
         if (prev_obj == null) return true;
         if (prev_obj.getType() == "weapon") {
-            console.log("weapon picked up");
             tank.weapon = prev_obj as Weapon;
             tank.client.send("new_weapon", { name: tank.weapon.name, imagePath: tank.weapon.imagePath } );
             this.delete(prev_obj.id);
@@ -166,8 +164,6 @@ export class GameMap extends Schema {
                 if (!this.checkSquareForMove(tank, i, j)) return false;
             }
         }
-
-        console.log("moving tank", tank.id, "from", old_col, old_row, "to", col, row);
 
         let min_row_null = goingUp ? old_row : row + tank.height;
         let max_row_null = goingUp ? row : old_row + tank.height;

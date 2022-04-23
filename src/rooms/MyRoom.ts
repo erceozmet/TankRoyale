@@ -106,9 +106,7 @@ export class MyRoom extends Room<MyRoomState> {
     }
 
     dispose_client(client_id: string) {
-        console.log("dispose client")
         let tank_id = this.client_to_tank.get(client_id);
-        console.log("tank", tank_id);
         this.state.map.delete(tank_id);
 
         this.client_to_tank.delete(client_id);
@@ -140,7 +138,6 @@ export class MyRoom extends Room<MyRoomState> {
                 else if (buffer[i] == "KeyA") right -= 1;
             }
             if (right != 0 || up != 0) {
-                console.log("right", right, "up", up);
                 this.state.map.moveTank(tankId, right, up);
             }
             this.client_to_buffer.set(client, []);
@@ -166,7 +163,6 @@ export class MyRoom extends Room<MyRoomState> {
             let is_on_obstacle = obj_at_newloc != null && obj_at_newloc.getType() == "obstacle";
             // if the projectile is out of range or collided, then explode
             if (!is_inside_walls || !has_range_remaining || is_on_enemy || is_on_obstacle) {
-                console.log("explode")
                 this.state.map.explodeProjectile(projectile);
                 if (is_on_enemy || is_on_obstacle) {
                     this.broadcast("explosion", {id: projectile.id, col: Math.round(projectile.col), row: Math.round(projectile.row)})
@@ -175,9 +171,7 @@ export class MyRoom extends Room<MyRoomState> {
                     let enemy_tank = obj_at_newloc as Tank;
                     enemy_tank.health -= projectile.damage;
                     enemy_tank.client.send("hit", enemy_tank.health);
-                    console.log("tank health: ", enemy_tank.health);
                     if (enemy_tank.health <= 0) {
-                        console.log("EXPLODE");
                         enemy_tank.client.send("lose", this.client_to_tank.size);                        
                         this.dispose_client(enemy_tank.client.sessionId);
                     }
@@ -234,7 +228,6 @@ export class MyRoom extends Room<MyRoomState> {
 
             if (weapon.fireCountdown == 0) {
                 let projectileLoc = new Location(Math.round(tankLoc.col + tank.width / 2), Math.round(tankLoc.row + tank.height / 2));
-                console.log("new projectile, loc: ", projectileLoc, "barrel direction: ", barrelDirrection);
                 
                 let projectile = weapon.shootProjectile(tank.id, barrelDirrection, this.state.map.getUniqueId(), projectileLoc);
                 this.state.map.projectiles.push(projectile);
