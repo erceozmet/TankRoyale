@@ -8,7 +8,7 @@ export class ClientState {
 		this.tank_id = null;
 		this.tank_pos = null;
 		this.background = null;
-		this.tank_dims = {width: 5, height: 5}; //TODO
+		this.tank_dims = {width: 6, height: 6}; //TODO
 
 		this.objects = new Array(this.map_dims.height);
 		this.max_object_size = {width: 0, height: 0};
@@ -16,8 +16,17 @@ export class ClientState {
 		this.edge_objects = new Array();
 		this.explosions = new Map();
 		this.sprites = new Map();
-
 		this.EXPLOSION_PATH = "images/explosion.png";
+
+		const ANCHOR = 0.5;
+
+		const BARREL_PATH = "images/barrel.png";
+		let barrel_height = this.tile_size.height * this.tank_dims.height / 3;
+		let barrel_proportion = 2.5;
+		this.barrel = PIXI.Sprite.from(BARREL_PATH);
+		this.barrel.width = barrel_proportion * barrel_height;
+		this.barrel.height = barrel_height;
+		this.barrel.anchor.set(0, ANCHOR);
 
 		for (var i = 0; i < this.map_dims.height; i++) {
 		  this.objects[i] = new Array(this.map_dims.width);
@@ -33,14 +42,13 @@ export class ClientState {
 
  
 	add_gameobj(gameobj, index) {
-		if (!this.show_loots && gameobj.height <= this.min_size.height && gameobj.width <= this.min_size.width) return
+		if (!this.show_loots && gameobj.height <= this.min_size.height && gameobj.width <= this.min_size.width) return;
 		
 		let exists = this.sprites.has(gameobj.id)
 		let sprite = exists ? this.sprites.get(gameobj.id) : PIXI.Sprite.from(gameobj.imagePath);
-
-		const ANCHOR = 0.5;
-		// set sprite attibutes
 		
+		const ANCHOR = 0.5;
+
 		sprite.height = this.tile_size.height * gameobj.height;
 		sprite.width = this.tile_size.width * gameobj.width;
 		sprite.anchor.set(ANCHOR);
@@ -114,6 +122,29 @@ export class ClientState {
 		let sprite = PIXI.Sprite.from(this.EXPLOSION_PATH);
 		this.explosions.delete(index.id);
 		return sprite;
+	}
+
+	render_barrel() {
+		console.log("BARREL");
+		var e = window.event;
+		var mouseX = e.pageX; 
+		var mouseY = e.pageY; 
+		var [tankX, tankY] = this.get_screen_coordinates(this.tank_pos, {width: 0, height: 0}, 0);
+		tankY += this.tank_dims.height * this.tile_size.height / 2;
+		tankX += this.tank_dims.width  * this.tile_size.width  / 2;
+
+		// code for updating barrelDirection
+		this.barrel.rotation = Math.atan2(mouseY - tankY, mouseX - tankX); // angle in radians
+
+		const ANCHOR = 0.5;
+
+		var index = {col: this.tank_pos.col + this.tank_dims.width / 2, row: this.tank_pos.row + this.tank_dims.height / 3};
+		var [barrelX, barrelY] = this.get_screen_coordinates(index, this.barrel, 0, ANCHOR);
+
+		this.barrel.x = barrelX;
+		this.barrel.y = barrelY;
+
+		return this.barrel.rotation;
 	}
 
 	// assign new map view ration
@@ -269,9 +300,6 @@ export class ClientState {
 				
 	}
 
-
-
-
 	get_index_from_key(key) {
 		let row = Math.floor(key / this.map_dims.width);
 		let col = key % this.map_dims.width;
@@ -297,11 +325,11 @@ export class ClientState {
 		}
 	}
 	// return on screen coordinates based on index
-	get_screen_coordinates(index, sprite, anchor) {
+	get_screen_coordinates(index, sprite, anchor, anchorY=anchor) {
 		let y = this.tile_size.height * (index.row - this.view_pos.row);
 		let x = this.tile_size.width  * (index.col - this.view_pos.col);
 		
-		y += sprite.height * anchor;
+		y += sprite.height * anchorY;
 		x += sprite.width * anchor;
 		return [x, y];
 	}

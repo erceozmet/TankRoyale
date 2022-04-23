@@ -1,8 +1,8 @@
 import { Room, Client } from "colyseus";
 import { MyRoomState } from "./schema/MyRoomState";
-import { GameMap, Location } from "./schema/GameMap";
+import { Location } from "./schema/GameMap";
 import { Tank } from "./schema/Tank";
-import { Weapon, Sniper, SubmachineGun, Shotgun } from "./schema/Weapon";
+import { Sniper, SubmachineGun, Shotgun } from "./schema/Weapon";
 import { Obstacle } from "./schema/Obstacle";
 
 export class MyRoom extends Room<MyRoomState> {

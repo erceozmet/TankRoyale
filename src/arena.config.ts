@@ -46,8 +46,8 @@ export default Arena({
          */
         app.use("/colyseus", monitor());
 
-        app.use("/images/tank.png", (req, res) =>{
-            res.sendFile(path.join(__dirname, '/images/tank.png'))
+        app.use("/images/green_tank.png", (req, res) =>{
+            res.sendFile(path.join(__dirname, '/images/green_tank.png'))
         })
 
         app.use("/images/barrel.png", (req, res) =>{
@@ -65,8 +65,8 @@ export default Arena({
         app.use("/images/projectile.png", (req, res) =>{
             res.sendFile(path.join(__dirname, '/images/projectile.png'))
         })
-        app.use("/images/black.png", (req, res) =>{
-            res.sendFile(path.join(__dirname, '/images/black.png'))
+        app.use("/images/obstacle.png", (req, res) =>{
+            res.sendFile(path.join(__dirname, '/images/obstacle.png'))
         })
 
         app.use("/images/shotgun.png", (req, res) =>{

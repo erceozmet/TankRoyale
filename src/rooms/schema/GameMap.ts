@@ -203,8 +203,7 @@ export class GameMap extends Schema {
         }
 
         let direction = Math.atan2(up, right); // angle in radians
-        let goingDiagonal = up != 0 && right != 0;
-        if (!goingDiagonal || direction == tank.last_direction) {
+        if (direction == tank.last_direction) {
             tank.direction = direction;
         }
         tank.last_direction = direction;

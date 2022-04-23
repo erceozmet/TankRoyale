@@ -59,7 +59,7 @@ client.joinOrCreate("battle_room").then(room => {
     
     // game map decls
     // client_state.render_bars();
-    
+
     // gameobj listeners
     room.state.map.listen("synced_tiles", (currentValue, previousValue) => {
         currentValue.onAdd = (gameobj, key) => {
@@ -67,10 +67,12 @@ client.joinOrCreate("battle_room").then(room => {
          
             let index = client_state.get_index_from_key(key);
         
-            console.log(gameobj, "has been added at", index);
             if (gameobj.id) {
                 let sprite = client_state.add_gameobj(gameobj, index);
                 app.stage.addChild(sprite);
+                if (gameobj.id == client_state.tank_id) {
+                    app.stage.addChild(client_state.barrel);
+                }
                 let mini_sprite = minimap_state.add_gameobj(gameobj, index);
                 if (mini_sprite) miniapp.stage.addChild(mini_sprite);
                 console.log(gameobj, "has been added at", index);
@@ -160,7 +162,6 @@ client.joinOrCreate("battle_room").then(room => {
     
     room.onMessage("start", function() {
         overlayOff();
-
         document.onkeydown = function (e) {
             e.preventDefault();
             
@@ -195,16 +196,15 @@ client.joinOrCreate("battle_room").then(room => {
             e.preventDefault();
         };
 
-        document.onclick = function(e) {
-            var mouseX = e.pageX; 
-            var mouseY = e.pageY; 
-            var [tankX, tankY] = client_state.get_screen_coordinates(client_state.tank_pos, {width: 0, height: 0}, 0);
-            tankY += client_state.tank_dims.height * client_state.tile_size.height / 2;
-            tankX += client_state.tank_dims.width  * client_state.tile_size.width  / 2;
-            // code for updating barrelDirection
-            var barrelDirection = Math.atan2(mouseY - tankY, mouseX - tankX); // angle in radians
+        app.stage.addChild(client_state.barrel);
+        var barrelDirection = 0;
+        document.onmousemove = function(e) {
+            barrelDirection = client_state.render_barrel();
+        };
 
+        document.onclick = function(e) {
             console.log("clicked on ", e.pageX, e.pageY);
+            console.log("direction", barrelDirection);
             room.send("projectile", barrelDirection);
         };
     });

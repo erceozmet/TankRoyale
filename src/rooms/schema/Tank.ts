@@ -6,7 +6,7 @@ import { Pistol, Weapon } from "./Weapon";
 export class Tank extends GameObject {
 
     constructor(client: Client) {
-        super("images/tank.png", 5, 5);
+        super("images/green_tank.png", 6, 6);
         this.client = client;
         this.health = 100;
         this.weapon = new Pistol();
