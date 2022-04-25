@@ -77,6 +77,17 @@ export class GameMap extends Schema {
         return this.checkObjectRange(col, row, obj);
     }
 
+    // canPlaceObstacles(coordinates : Array<[number, number]>, objs: Array<GameObject>, all_obstacles: Array<[GameObject, number, number]>) : boolean {
+
+    //     for (let i = 0; i < coordinates.length; i++) {
+    //         let [x, y] = coordinates[i]
+    //         if (!this.canPlace(x, y, objs[i])) return false;
+    //     }
+
+    //     return true;
+        
+    // }
+
     get(id: string): GameObject {
         let loc = this.locations.get(id);
         return this.tiles.get(loc.col, loc.row);

@@ -4,6 +4,7 @@ import { Location } from "./schema/GameMap";
 import { Tank } from "./schema/Tank";
 import { Sniper, SubmachineGun, Shotgun } from "./schema/Weapon";
 import { Obstacle } from "./schema/Obstacle";
+import { GameObject } from "./schema/GameObject";
 
 export class MyRoom extends Room<MyRoomState> {
     maxClients = 16;
@@ -62,34 +63,43 @@ export class MyRoom extends Room<MyRoomState> {
             this.client_to_buffer.set(client.sessionId, new Array());
         }
     }
-
     place_obstacles() {
-        let count = 10;
-        for (let i = 0; i < count; i++) {
-            let x: number, y: number;
-            let map_height = this.state.map.height;
-            let map_width = this.state.map.width;
-            let obstacle_length = Math.round(Math.random() * 30 + 10);
-            let obstacle;
-            if (Math.random() > 0.5){
-                obstacle = new Obstacle(3, obstacle_length);
-            }
-            else{
-                obstacle = new Obstacle(obstacle_length, 3);
-            }
-           
-            do {
-                x = Math.floor(Math.random() * map_height);
-                y = Math.floor(Math.random() * map_width);
-            } while (!this.state.map.canPlace(x, y, obstacle));
-            this.state.map.put(obstacle, x, y);
-        }
-        
+        let obstacles = Obstacle.all_obstacles();
+        obstacles.forEach(([width, height, x, y]) => {
+            let ob = new Obstacle(height, width)
+            if (x < 0) x = this.state.map.width + x;
+            
+
+            if (y < 0) y = this.state.map.height + y;
+            console.log(x, y)
+            
+            this.state.map.put(ob, x, y)
+        })
     }
+    // place_obstacles() {
+    //     let all_obstacles = new Array<[GameObject, number, number]>()
+    //     let count = 5 ;
+    //     for (let i = 0; i < count; i++) {
+    //         let dims = {height: this.state.map.height, width: this.state.map.width}
+    //         let obstacles = Obstacle.obstacle_corridor();
+    //         let coordinates;
+    //         do {
+    //             coordinates = Obstacle.assign_coordinates(dims, obstacles, "corridor");
+                
+    //         } while (!this.state.map.canPlaceObstacles(coordinates, obstacles, all_obstacles));
+    //         for (let i = 0; i < coordinates.length; i++) {
+    //             let [x, y] = coordinates[i]
+    //             this.state.map.put(obstacles[i], x, y)
+    //             all_obstacles.push([obstacles[i], x, y]);
+    //         }
+            
+    //     }
+        
+    // }
 
     place_weapons() {
         // drop 3 of each special weapon on random coordinates
-        let count = 10;
+        let count = 0;
         for (let i = 0; i < count; i++) {
             let weapons = [new Sniper(), new SubmachineGun(), new Shotgun()];
             for (let j = 0; j < weapons.length; j++) {
@@ -183,11 +193,12 @@ export class MyRoom extends Room<MyRoomState> {
     gameStart() {
         this.clock.clear(); // cancel the timeout for disposing room (in case room leader is AFK)
 
+
+        this.place_obstacles();
         this.initialize_player_loc();
 
         this.place_tanks();
         this.place_weapons();
-        this.place_obstacles();
 
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
 
