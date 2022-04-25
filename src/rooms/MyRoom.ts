@@ -6,14 +6,14 @@ import { Sniper, SubmachineGun, Shotgun } from "./schema/Weapon";
 import { Obstacle } from "./schema/Obstacle";
 
 export class MyRoom extends Room<MyRoomState> {
-
+    maxClients = 16;
     client_to_tank = new Map();
     client_to_buffer = new Map();
     player_locations = new Array();
     player_count = 0;
     room_leader: Client = null;
     game_started = false;
-
+    
     initialize_player_loc() {
         let players_per_row = Math.sqrt(this.player_count);
         let map_width = this.state.map.width;
