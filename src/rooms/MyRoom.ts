@@ -16,7 +16,7 @@ export class MyRoom extends Room<MyRoomState> {
     game_started = false;
     
     initialize_player_loc() {
-        let players_per_row = Math.sqrt(this.player_count);
+        let players_per_row = Math.sqrt(Math.floor(this.player_count * 1.5));
         let map_width = this.state.map.width;
         let map_height = this.state.map.height;
         let offset = 20;
@@ -32,8 +32,7 @@ export class MyRoom extends Room<MyRoomState> {
         }
     }
 
-    generate_tank_pos(tank: Tank) {
-        console.log("len, ",this.player_locations.length )
+    generate_tank_pos(tank: Tank): [number, number] {
         if (this.player_locations.length > 0) {
             let start_index = Math.floor(Math.random() * (this.player_locations.length -1));
             let [x,y] = this.player_locations[start_index];
@@ -41,7 +40,7 @@ export class MyRoom extends Room<MyRoomState> {
             if (this.state.map.canPlace(x, y, tank)) {    
                 return [x,y];
             } else {
-                this.generate_tank_pos(tank);
+                return this.generate_tank_pos(tank);
             }
         } 
         let x,y;
