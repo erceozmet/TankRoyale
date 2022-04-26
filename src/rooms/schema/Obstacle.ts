@@ -71,7 +71,7 @@ export class Obstacle extends GameObject {
 
             // top left
             // horizontal
-            [100, MIN_DIM, 20, 30],
+            [100, MIN_DIM, 20, 25],
             [45, MIN_DIM, 20, 40],
             [45, MIN_DIM, 75, 40],
             
