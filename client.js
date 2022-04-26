@@ -67,6 +67,7 @@ client.joinOrCreate("battle_room").then(room => {
         
             if (gameobj.id) {
                 let sprite = client_state.add_gameobj(gameobj, index);
+                console.log("add gameobj", gameobj.id, "to", index)
                 app.stage.addChild(sprite);
                 if (gameobj.id == client_state.tank_id) {
                     app.stage.addChild(client_state.barrel);
