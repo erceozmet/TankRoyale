@@ -23,29 +23,40 @@ export class MyRoom extends Room<MyRoomState> {
         let x_gap = Math.round((map_width - offset * 2) / players_per_row);
         let y_gap = Math.round((map_height - offset * 2) / players_per_row);
 
-        // dummy obstacle of tank size to check if it is possible to add tank
-        let dummy_obj = new Obstacle(5, 5); 
-        let players_added = 0;
         for (let i = 0; i < players_per_row; i++) {
             let x = offset + (x_gap * i);
-            for (let j = 0; j < players_per_row; j++){
+            for (let j = 0; j < players_per_row; j++) {
                 let y = offset + (y_gap * j);
-                if (this.state.map.canPlace(x, y, dummy_obj)) {
-                    this.player_locations.push([x, y]);
-                    players_added += 1;
-                }
-            }
-        }
-        // added remaining tanks
-        while (players_added < this.player_count) {
-            let x = Math.floor(Math.random() * map_width);
-            let y = Math.floor(Math.random() * map_height);
-            if (this.state.map.canPlace(x, y, dummy_obj)) {
                 this.player_locations.push([x, y]);
-                players_added += 1;
             }
         }
     }
+
+    generate_tank_pos(tank: Tank) {
+        console.log("len, ",this.player_locations.length )
+        if (this.player_locations.length > 0) {
+            let start_index = Math.floor(Math.random() * (this.player_locations.length -1));
+            let [x,y] = this.player_locations[start_index];
+            this.player_locations.splice(start_index, 1);
+            if (this.state.map.canPlace(x, y, tank)) {    
+                return [x,y];
+            } else {
+                this.generate_tank_pos(tank);
+            }
+        } 
+        let x,y;
+        let map_width = this.state.map.width;
+        let map_height = this.state.map.height;
+        do {
+            x = Math.floor(Math.random() * map_width);
+            y = Math.floor(Math.random() * map_height);
+        } while (!this.state.map.canPlace(x, y, tank))
+        return [x, y];
+        
+    }
+        
+        
+        
 
     
 
@@ -65,14 +76,13 @@ export class MyRoom extends Room<MyRoomState> {
         for (let i = 0; i < this.clients.length; i++) {
             let client = this.clients[i];
             // pick random start loc for client
-            let start_index = Math.floor(Math.random() * (this.player_locations.length -1));
-            let start_location = this.player_locations[start_index];
-            this.player_locations.splice(start_index, 1);
-    
+            
             // put client's tank on the map
             let tank = new Tank(client);
             let tank_health = tank.health;
+            let start_location = this.generate_tank_pos(tank);
             let tank_id = this.state.map.put(tank, start_location[0], start_location[1]);
+        
             client.send("tank_id", {tank_id, start_location, tank_health});
             client.send("new_weapon", { name: tank.weapon.name, imagePath: tank.weapon.imagePath } );
 
@@ -198,11 +208,11 @@ export class MyRoom extends Room<MyRoomState> {
 
 
         this.place_obstacles();
-
         this.place_static_weapons();
-        this.initialize_player_loc();
 
+        this.initialize_player_loc();
         this.place_tanks();
+
         this.place_random_weapons();
 
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
