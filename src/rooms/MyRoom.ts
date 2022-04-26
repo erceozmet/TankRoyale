@@ -38,8 +38,8 @@ export class MyRoom extends Room<MyRoomState> {
         }
         // added remaining tanks
         while (players_added < this.player_count) {
-            let x = Math.floor(Math.random() * map_height);
-            let y = Math.floor(Math.random() * map_width);
+            let x = Math.floor(Math.random() * map_width);
+            let y = Math.floor(Math.random() * map_height);
             if (this.state.map.canPlace(x, y, dummy_obj)) {
                 this.player_locations.push([x, y]);
                 players_added += 1;
