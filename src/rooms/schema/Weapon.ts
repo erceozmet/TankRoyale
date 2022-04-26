@@ -30,6 +30,47 @@ export class Weapon extends GameObject {
         projectile.id = id;
         return projectile;
     }
+
+    static weapon_factory(name: string) {
+        switch (name) {
+            case 'shotgun':
+                return new Shotgun();
+            case 'pistol':
+                return new Pistol();
+            case 'smg':
+                return new SubmachineGun();
+            case 'sniper':
+                return new Sniper();
+            default: 
+                return new Shotgun();
+        }
+    }
+
+    // place good weapons in hard to reach spots
+    static static_weapons()  {
+        // type, x, y
+        let weapons: [string, number, number][] = [
+            ["shotgun", 125, 130],
+            ["smg", 5, 5],
+            ["sniper", 55, 35],
+            ["sniper", 75, 35],
+            ["shotgun", 69, 45],
+            ["shotgun", 5, -5],
+            ["sniper", 28, -60],
+            ["smg", -20, 18],
+            ["smg", -75, 65],
+            ["sniper", -25, -35],
+            ["smg", -50, -5],
+            ["shotgun", -3, -3],
+
+            ["sniper", -75, -85],
+            ["smg", -30, -30],
+            ["shotgun", 120, -30],
+            
+
+        ];
+        return weapons;
+    }
 }
 
 export class Pistol extends Weapon {

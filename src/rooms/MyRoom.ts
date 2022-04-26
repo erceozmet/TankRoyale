@@ -2,7 +2,7 @@ import { Room, Client } from "colyseus";
 import { MyRoomState } from "./schema/MyRoomState";
 import { Location } from "./schema/GameMap";
 import { Tank } from "./schema/Tank";
-import { Sniper, SubmachineGun, Shotgun } from "./schema/Weapon";
+import { Sniper, SubmachineGun, Shotgun, Weapon } from "./schema/Weapon";
 import { Obstacle } from "./schema/Obstacle";
 import { GameObject } from "./schema/GameObject";
 
@@ -23,14 +23,31 @@ export class MyRoom extends Room<MyRoomState> {
         let x_gap = Math.round((map_width - offset * 2) / players_per_row);
         let y_gap = Math.round((map_height - offset * 2) / players_per_row);
 
+        // dummy obstacle of tank size to check if it is possible to add tank
+        let dummy_obj = new Obstacle(5, 5); 
+        let players_added = 0;
         for (let i = 0; i < players_per_row; i++) {
             let x = offset + (x_gap * i);
             for (let j = 0; j < players_per_row; j++){
                 let y = offset + (y_gap * j);
-                this.player_locations.push([x, y])
+                if (this.state.map.canPlace(x, y, dummy_obj)) {
+                    this.player_locations.push([x, y]);
+                    players_added += 1;
+                }
+            }
+        }
+        // added remaining tanks
+        while (players_added < this.player_count) {
+            let x = Math.floor(Math.random() * map_height);
+            let y = Math.floor(Math.random() * map_width);
+            if (this.state.map.canPlace(x, y, dummy_obj)) {
+                this.player_locations.push([x, y]);
+                players_added += 1;
             }
         }
     }
+
+    
 
     doesOverlap(l1: Location, r1: Location, l2: Location, r2: Location): boolean {
         // If one rectangle is on left side of other
@@ -68,38 +85,24 @@ export class MyRoom extends Room<MyRoomState> {
         obstacles.forEach(([width, height, x, y]) => {
             let ob = new Obstacle(height, width)
             if (x < 0) x = this.state.map.width + x;
-            
-
             if (y < 0) y = this.state.map.height + y;
-            console.log(x, y)
-            
             this.state.map.put(ob, x, y)
         })
     }
-    // place_obstacles() {
-    //     let all_obstacles = new Array<[GameObject, number, number]>()
-    //     let count = 5 ;
-    //     for (let i = 0; i < count; i++) {
-    //         let dims = {height: this.state.map.height, width: this.state.map.width}
-    //         let obstacles = Obstacle.obstacle_corridor();
-    //         let coordinates;
-    //         do {
-    //             coordinates = Obstacle.assign_coordinates(dims, obstacles, "corridor");
-                
-    //         } while (!this.state.map.canPlaceObstacles(coordinates, obstacles, all_obstacles));
-    //         for (let i = 0; i < coordinates.length; i++) {
-    //             let [x, y] = coordinates[i]
-    //             this.state.map.put(obstacles[i], x, y)
-    //             all_obstacles.push([obstacles[i], x, y]);
-    //         }
-            
-    //     }
-        
-    // }
+    place_static_weapons() {
+        let weapons = Weapon.static_weapons();
+        weapons.forEach((details: [string, number, number]) => {
+            let [name, x, y] = details;
+            if (x < 0) x = this.state.map.width + x;
+            if (y < 0) y = this.state.map.height + y;
+            let we = Weapon.weapon_factory(name);
+            this.state.map.put(we, x, y);
+        })
+    }
 
-    place_weapons() {
+    place_random_weapons() {
         // drop 3 of each special weapon on random coordinates
-        let count = 0;
+        let count = 3;
         for (let i = 0; i < count; i++) {
             let weapons = [new Sniper(), new SubmachineGun(), new Shotgun()];
             for (let j = 0; j < weapons.length; j++) {
@@ -195,10 +198,12 @@ export class MyRoom extends Room<MyRoomState> {
 
 
         this.place_obstacles();
+
+        this.place_static_weapons();
         this.initialize_player_loc();
 
         this.place_tanks();
-        this.place_weapons();
+        this.place_random_weapons();
 
         this.setSimulationInterval((deltaTime) => this.update(deltaTime));
 
