@@ -34,7 +34,7 @@ export class Weapon extends GameObject {
 
 export class Pistol extends Weapon {
     constructor() {
-        super("Pistol", "images/pistol.png", 20, 50, 50, 25);
+        super("Pistol", "images/pistol.png", 15, 50, 50, 25);
     }
 }
 
