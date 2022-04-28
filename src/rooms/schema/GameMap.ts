@@ -4,44 +4,6 @@ import { Projectile } from "./Projectile";
 import { Tank } from "./Tank";
 import { Weapon } from "./Weapon";
 
-export class Location extends Schema {
-    col: number;
-    row: number;
-
-    constructor(col: number, row: number) {
-        super();
-        this.col = col;
-        this.row = row;
-    }
-}
-
-class Tiles<T> extends ArraySchema<T> {
-    width: number;
-    height: number;
-
-    constructor(width: number, height: number) {
-        super();
-        this.width = width;
-        this.height = height;
-    }
-
-    checkRange(col: number, row: number): boolean {
-        return col >= 0 && col < this.width && row >= 0 && row < this.height;
-    }
-
-    get(col: number, row: number): T {
-        return this[col + this.width * row];
-    }
-
-    set(col: number, row: number, obj: T) {
-        this[col + this.width * row] = obj;
-    }
-
-    remove(col: number, row: number) {
-        this[col + this.width * row] = null;
-    }
-}
-
 export class GameMap extends Schema {
     uniqueId: number = 0;
     width: number = 250;
@@ -76,17 +38,6 @@ export class GameMap extends Schema {
         }
         return this.checkObjectRange(col, row, obj);
     }
-
-    // canPlaceObstacles(coordinates : Array<[number, number]>, objs: Array<GameObject>, all_obstacles: Array<[GameObject, number, number]>) : boolean {
-
-    //     for (let i = 0; i < coordinates.length; i++) {
-    //         let [x, y] = coordinates[i]
-    //         if (!this.canPlace(x, y, objs[i])) return false;
-    //     }
-
-    //     return true;
-        
-    // }
 
     get(id: string): GameObject {
         let loc = this.locations.get(id);
@@ -232,4 +183,42 @@ export class GameMap extends Schema {
         }
     }
 
+}
+
+export class Location extends Schema {
+    col: number;
+    row: number;
+
+    constructor(col: number, row: number) {
+        super();
+        this.col = col;
+        this.row = row;
+    }
+}
+
+class Tiles<T> extends ArraySchema<T> {
+    width: number;
+    height: number;
+
+    constructor(width: number, height: number) {
+        super();
+        this.width = width;
+        this.height = height;
+    }
+
+    checkRange(col: number, row: number): boolean {
+        return col >= 0 && col < this.width && row >= 0 && row < this.height;
+    }
+
+    get(col: number, row: number): T {
+        return this[col + this.width * row];
+    }
+
+    set(col: number, row: number, obj: T) {
+        this[col + this.width * row] = obj;
+    }
+
+    remove(col: number, row: number) {
+        this[col + this.width * row] = null;
+    }
 }
