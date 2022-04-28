@@ -1,29 +1,37 @@
-# Welcome to Colyseus!
 
-This project has been created using [⚔️ `create-colyseus-app`](https://github.com/colyseus/create-colyseus-app/) - an npm init template for kick starting a Colyseus project in TypeScript.
+# Tank Royale
+Members: Sinan Unan, Dogacan Colak, Erce Ozmetin
 
-[Documentation](http://docs.colyseus.io/)
 
-## :crossed_swords: Usage
+## Usage
 
-```
-npm start
-```
+
+- npm start to start the backend
+- connect to `localhost:2567/client` to add a client
+
 
 ## Structure
 
+TODO client.js ve client state.js iki tane mi olsun submitledigimizde
+
+- `src`
+    - `rooms`: 
+        - `MyRoom.ts`: 
+        - `schema`: 
+            - `GameMap.ts`:
+            - `GameObject.ts`:
+            - `MyRoomState.ts`:
+            - `Obstacle.ts`:
+            - `Projectile.ts`:
+            - `Tank.ts`:
+            - `Weapon.ts`:
+    - `images`: contains the images of the game 
+    - `arena.config.ts`: contains the configurations for the Colyseus server
+
+### Additional directories
+
+- `lib`: contains the compiled typescript
+- `node_modules` contain the necessary modules for node.js
 - `index.ts`: main entry point, register an empty room handler and attach [`@colyseus/monitor`](https://github.com/colyseus/colyseus-monitor)
-- `src/rooms/MyRoom.ts`: an empty room handler for you to implement your logic
-- `src/rooms/schema/MyRoomState.ts`: an empty schema used on your room's state.
 - `loadtest/example.ts`: scriptable client for the loadtest tool (see `npm run loadtest`)
-- `package.json`:
-    - `scripts`:
-        - `npm start`: runs `ts-node-dev index.ts`
-        - `npm test`: runs mocha test suite
-        - `npm run loadtest`: runs the [`@colyseus/loadtest`](https://github.com/colyseus/colyseus-loadtest/) tool for testing the connection, using the `loadtest/example.ts` script.
-- `tsconfig.json`: TypeScript configuration file
-
-
-## License
-
-MIT
+- `test`: contains some tests

@@ -32,6 +32,9 @@ export class MyRoom extends Room<MyRoomState> {
         }
     }
 
+    // generate tank positions
+    // try to select from preset positions
+    // if they cannot be placed, generate a random position
     generate_tank_pos(tank: Tank): [number, number] {
         if (this.player_locations.length > 0) {
             let start_index = Math.floor(Math.random() * (this.player_locations.length -1));
@@ -53,12 +56,7 @@ export class MyRoom extends Room<MyRoomState> {
         return [x, y];
         
     }
-        
-        
-        
-
     
-
     doesOverlap(l1: Location, r1: Location, l2: Location, r2: Location): boolean {
         // If one rectangle is on left side of other
         if (l1.col > r2.col || l2.col > r1.col)

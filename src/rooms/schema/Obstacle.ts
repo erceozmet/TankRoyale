@@ -11,6 +11,7 @@ export class Obstacle extends GameObject {
         return "obstacle";
     }
 
+    // places for all obstacles in the map
     static all_obstacles() {
         const MIN_DIM = 3;
         let obstacles = [

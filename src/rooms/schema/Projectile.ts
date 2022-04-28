@@ -5,12 +5,15 @@ import { Location } from "./GameMap";
 export class Projectile extends GameObject {
     rangeRemaining: number;
     damage: number;
-    
+
+    // can be used for leaderboards
     tank_id: string;
 
+    // synced variables
     @type("number") speed: number;
     @type("number") initial_col: number;
     @type("number") initial_row: number;
+
     col: number;
     row: number;
 
